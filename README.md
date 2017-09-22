@@ -68,7 +68,7 @@ cd $GOPATH/src/github.com/motki/motki-cli
 make build
 ```
 
-Build the `motki` program for a matrix of OSes and architectures.
+Build the `motki` program for a combination of OSes and architectures.
 
 ```bash
 make matrix OSES="windows linux darwin" ARCHES="amd64 x86"

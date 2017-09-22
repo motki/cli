@@ -8,10 +8,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/motki/motkid/app"
-	"github.com/motki/motkid/log"
-	"github.com/motki/motkid/model"
-	"github.com/motki/motkid/proto/client"
+	"github.com/motki/motki-cli/app"
+	motki "github.com/motki/motki/app"
+	"github.com/motki/motki/log"
+	"github.com/motki/motki/model"
+	"github.com/motki/motki/proto/client"
 )
 
 var serverAddr = flag.String("server", "motki.org:18443", "Backend server host and port.")
@@ -36,7 +37,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	appConf := &app.Config{
+	appConf := &motki.Config{
 		Backend: model.Config{
 			Kind: model.BackendRemoteGRPC,
 			RemoteGRPC: model.RemoteConfig{
@@ -77,5 +78,5 @@ func main() {
 
 	go env.LoopCLI()
 
-	env.BlockUntilAbort(nil)
+	env.BlockUntilSignal(nil)
 }
