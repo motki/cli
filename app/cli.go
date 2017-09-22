@@ -114,7 +114,9 @@ func (env *CLIEnv) BlockUntilSignal(signals chan os.Signal) {
 	}
 	abortFuncs := []app.ShutdownFunc{
 		func() {
-			env.Shutdown()
+			if err := env.Scheduler.Shutdown(); err != nil {
+				env.Logger.Warnf("app: error shutting down scheduler: %s", err.Error())
+			}
 		},
 		func() {
 			if f, err := os.Create(env.historyPath); err == nil {
