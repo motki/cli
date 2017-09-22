@@ -4,17 +4,7 @@ Command `motki` contains interactive command-line tools for managing EVE Online 
 
 ## Getting started
 
-Install `motki` using `go get`.
-
-```bash
-go get -u github.com/motki/motki-cli/...
-```
-
-Run the program.
-
-```bash
-motki
-```
+Download the [latest pre-built `motki` binary](https://github.com/motki/motki-cli/releases/latest) for your platform.
 
 > Note that the default configuration connects to `motki.org:18443` using SSL.
 
@@ -53,3 +43,33 @@ To authenticate:
    ```
    MOTKI_USERNAME=username MOTKI_PASSWORD=password motki
    ```
+   
+## Building
+
+Install `motki` using `go get`.
+
+```bash
+go get -u github.com/motki/motki-cli/...
+```
+
+The project is buildable with Go tools alone.
+
+```bash
+cd $GOPATH/src/github.com/motki/motki-cli
+go build ./cmd/motki/*.go
+```
+
+### Building with `make`
+
+Use the included Makefile to build the program.
+
+```bash
+cd $GOPATH/src/github.com/motki/motki-cli
+make build
+```
+
+Build the `motki` program for a matrix of OSes and architectures.
+
+```bash
+make matrix OSES="windows linux darwin" ARCHES="amd64 x86"
+```
