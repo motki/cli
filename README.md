@@ -44,11 +44,12 @@ To authenticate:
 
 1. Ensure you have a valid account with characters linked on the remote motkid installation.
 2. Configure `motki` to use your credentials.
-    a. Pass them via command-line option:
-       ```
-       motki -credentials username:password
-       ```
-    b. Pass them via environment variables:
-       ```
-       MOTKI_USERNAME=username MOTKI_PASSWORD=password motki
-       ```
+   1. Pass them via command-line option:
+   ```
+   motki -credentials username:password
+   ```
+       
+   2. Pass them via environment variables:
+   ```
+   MOTKI_USERNAME=username MOTKI_PASSWORD=password motki
+   ```
