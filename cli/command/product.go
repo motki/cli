@@ -652,6 +652,14 @@ func (c ProductCommand) productEditor(p *model.Product) {
 			if !ok {
 				continue
 			}
+			var setRegion func(*model.Product)
+			setRegion = func(p *model.Product) {
+				p.MarketRegionID = region.RegionID
+				for _, m := range p.Materials {
+					setRegion(m)
+				}
+			}
+			setRegion(p)
 			if _, err := c.client.UpdateProductPrices(p); err != nil {
 				c.logger.Errorf("unable to fetch market prices for region %d: %s", region.RegionID, err.Error())
 				fmt.Println("Error loading production chain prices, try again.")
