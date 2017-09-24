@@ -37,8 +37,9 @@ func NewProductCommand(cl client.Client, p *cli.Prompter, logger log.Logger) Pro
 		corp, err = cl.GetCorporation(char.CorporationID)
 		if err != nil {
 			logger.Warnf("command: unable to get corporation details: %s", err.Error())
+		} else {
+			corpID = corp.CorporationID
 		}
-		corpID = corp.CorporationID
 	}
 	if err != nil && err != client.ErrNotAuthenticated {
 		logger.Debugf("command: unable to load auth details: %s", err.Error())
