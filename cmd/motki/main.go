@@ -1,5 +1,19 @@
-// Command motki is a utility for interacting with the various data structures
-// and processes in the overall motkid project.
+// Command motki is a utility for interacting with a remote motki application
+// server.
+//
+//  Usage of motki:
+//    -credentials string
+//      	Username and password separated by a colon. (ie. "frank:mypass")
+//    -history-file string
+//      	Path to the CLI history file. (default ".history")
+//    -insecure-skip-verify
+//      	INSECURE: Skip verification of server SSL cert.
+//    -log-level string
+//      	Log level. Possible values: debug, info, warn, error. (default "warn")
+//    -server string
+//      	Backend server host and port. (default "motki.org:18443")
+//    -version
+//      	Display the application version.
 package main
 
 import (

@@ -2,6 +2,9 @@
 
 Command `motki` contains interactive command-line tools for managing EVE Online character and corporation assets and industrial processes.
 
+[![GoDoc](https://godoc.org/github.com/motki/motki-cli?status.svg)](https://godoc.org/github.com/motki/motki-cli)
+
+
 ## Getting started
 
 Download the [latest pre-built `motki` binary](https://github.com/motki/motki-cli/releases/latest) for your platform.
