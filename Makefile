@@ -90,10 +90,7 @@ files := $(PREFIX)motki_*_* $(binary_targets)
 .PHONY: all
 .PHONY: generate build release matrix
 .PHONY: install uninstall
-.PHONY: download assets
-.PHONY: db $(schema_targets)
 .PHONY: clean clean_files
-.PHONY: drop_schemas delete_assets
 .PHONY: debug
 
 

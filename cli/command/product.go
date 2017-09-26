@@ -1,24 +1,29 @@
 package command
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 	"strings"
 
-	"github.com/motki/motki-cli/cli"
-	"github.com/motki/motki-cli/cli/text"
+	"github.com/shopspring/decimal"
+
 	"github.com/motki/motki/log"
 	"github.com/motki/motki/model"
 	"github.com/motki/motki/proto/client"
-	"github.com/shopspring/decimal"
+
+	"github.com/motki/motki-cli/cli"
+	"github.com/motki/motki-cli/cli/text"
+)
+
+const (
+	nameCacheKeyRegions = "regions"
+	nameCacheKeyTypes   = "types"
 )
 
 // ProductCommand provides an interactive manager for production chains.
 type ProductCommand struct {
 	character *model.Character
 	corp      *model.Corporation
-	authCtx   context.Context
 	corpID    int
 
 	env    *cli.Prompter
@@ -47,14 +52,13 @@ func NewProductCommand(cl client.Client, p *cli.Prompter, logger log.Logger) Pro
 	return ProductCommand{
 		char,
 		corp,
-		context.Background(), // TODO: replace with client
 		corpID,
 		p,
 		logger,
 		cl,
 		map[string]map[int]string{
-			"regions": {},
-			"types":   {},
+			nameCacheKeyRegions: {},
+			nameCacheKeyTypes:   {},
 		}}
 }
 
@@ -129,7 +133,7 @@ func (c ProductCommand) PrintHelp() {
 
 // getProductName returns the given product's name.
 func (c ProductCommand) getProductName(p *model.Product) string {
-	if n, ok := c.nameCache["types"][p.TypeID]; ok {
+	if n, ok := c.nameCache[nameCacheKeyTypes][p.TypeID]; ok {
 		return n
 	}
 	t, err := c.client.GetItemType(p.TypeID)
@@ -137,13 +141,13 @@ func (c ProductCommand) getProductName(p *model.Product) string {
 		c.logger.Debugf("unable to get item name: %s", err.Error())
 		return "[Error]"
 	}
-	c.nameCache["types"][p.TypeID] = t.Name
+	c.nameCache[nameCacheKeyTypes][p.TypeID] = t.Name
 	return t.Name
 }
 
 // getRegionName returns the given region's name.
 func (c ProductCommand) getRegionName(regionID int) string {
-	if n, ok := c.nameCache["regions"][regionID]; ok {
+	if n, ok := c.nameCache[nameCacheKeyRegions][regionID]; ok {
 		return n
 	}
 	r, err := c.client.GetRegion(regionID)
@@ -151,7 +155,7 @@ func (c ProductCommand) getRegionName(regionID int) string {
 		c.logger.Debugf("unable to get region name: %s", err.Error())
 		return "[Error]"
 	}
-	c.nameCache["regions"][regionID] = r.Name
+	c.nameCache[nameCacheKeyRegions][regionID] = r.Name
 	return r.Name
 }
 

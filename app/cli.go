@@ -1,3 +1,16 @@
+// Package app contains functionality related to creating an integrated
+// motki command-line interface environment with all the necessary
+// dependencies.
+//
+// The goal with this package is to provide a single, reusable base for
+// getting a motki CLI application up and running.
+//
+// This package imports every other motki-cli package. As such, it cannot
+// be imported from the "library" portion of the project. It is intended to be
+// used from an external package (as is done in the motki command).
+//
+// This package provides a web application server and can optionally serve
+// as a remote backend for client-only motki applications.
 package app
 
 import (
@@ -5,13 +18,14 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/motki/motki/app"
+
 	"github.com/motki/motki-cli/cli"
 	"github.com/motki/motki-cli/cli/command"
 	"github.com/motki/motki-cli/cli/text"
-	"github.com/motki/motki/app"
 )
 
-// A CLIEnv wraps an *app.Env, providing CLI specific facilities.
+// A CLIEnv wraps a ClientEnv, providing CLI specific facilities.
 type CLIEnv struct {
 	*app.ClientEnv
 	CLI      *cli.Server

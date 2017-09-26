@@ -6,9 +6,11 @@ import (
 	"io"
 	"strings"
 
-	"github.com/motki/motki-cli/cli/text"
-	"github.com/motki/motki/log"
 	"github.com/peterh/liner"
+
+	"github.com/motki/motki/log"
+
+	"github.com/motki/motki-cli/cli/text"
 )
 
 // A Command is a console application.

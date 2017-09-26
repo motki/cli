@@ -116,6 +116,10 @@ func PadTextRight(text string, width int) string {
 	return text + strings.Repeat(" ", width-ln)
 }
 
+// Boldf returns the formatted string, with bash-style "bright white" text.
+//
+// If the program has determined stdout is not a color terminal, the text
+// will be formatted and returned, un-styled.
 func Boldf(format string, args ...interface{}) string {
 	if !stdOutIsColorTerm {
 		return fmt.Sprintf(format, args...)

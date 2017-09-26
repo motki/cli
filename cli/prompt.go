@@ -7,12 +7,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/motki/motki-cli/cli/text"
+	"github.com/peterh/liner"
+	"github.com/shopspring/decimal"
+
 	"github.com/motki/motki/evedb"
 	"github.com/motki/motki/log"
 	"github.com/motki/motki/proto/client"
-	"github.com/peterh/liner"
-	"github.com/shopspring/decimal"
+
+	"github.com/motki/motki-cli/cli/text"
 )
 
 type Prompter struct {
