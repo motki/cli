@@ -22,12 +22,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/davecgh/go-spew/spew"
-
 	"github.com/motki/motki-cli/app"
 	"github.com/motki/motki/log"
-	"github.com/motki/motki/proto/client"
 	"github.com/motki/motki/proto"
+	"github.com/motki/motki/proto/client"
 )
 
 var serverAddr = flag.String("server", "motki.org:18443", "Backend server host and port.")
@@ -90,16 +88,6 @@ func main() {
 		}
 		fatalf("motki: error initializing application environment: %s", err.Error())
 	}
-
-	it, err := env.Client.NewInventoryItem(20413, 1024956769843)
-	if err != nil {
-		panic(err)
-	}
-	err = env.Client.SaveInventoryItem(it)
-	if err != nil {
-		panic(err)
-	}
-	spew.Dump(env.Client.GetInventory())
 
 	go env.LoopCLI()
 

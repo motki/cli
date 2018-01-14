@@ -139,7 +139,7 @@ func (c ProductCommand) getProductName(p *model.Product) string {
 	t, err := c.client.GetItemType(p.TypeID)
 	if err != nil {
 		c.logger.Debugf("unable to get item name: %s", err.Error())
-		return "[Error]"
+		return strconv.Itoa(p.ProductID)
 	}
 	c.nameCache[nameCacheKeyTypes][p.TypeID] = t.Name
 	return t.Name
@@ -153,7 +153,7 @@ func (c ProductCommand) getRegionName(regionID int) string {
 	r, err := c.client.GetRegion(regionID)
 	if err != nil {
 		c.logger.Debugf("unable to get region name: %s", err.Error())
-		return "[Error]"
+		return strconv.Itoa(regionID)
 	}
 	c.nameCache[nameCacheKeyRegions][regionID] = r.Name
 	return r.Name
@@ -201,7 +201,7 @@ func (c ProductCommand) getBlueprintIndex(p *model.Product) (map[*model.Product]
 		}
 	}
 
-	missing := []*model.Product{}
+	var missing []*model.Product
 	for _, prod := range needed {
 		if _, ok := index[prod]; !ok {
 			missing = append(missing, prod)
