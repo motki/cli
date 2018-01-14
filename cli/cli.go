@@ -13,7 +13,12 @@ import (
 	"github.com/motki/motki-cli/cli/text"
 )
 
-// A Command is a console application.
+// A Command is a single command that a Server supports.
+//
+// Commands display description and help information. Each Command may support
+// any number of sub-commands, all of which receive further arguments in a byte slice.
+//
+// Commands are registered with a Server before beginning the Server's loop.
 type Command interface {
 	// Description returns a ~40 character sentence describing the command.
 	Description() string
@@ -31,7 +36,7 @@ type Command interface {
 	PrintHelp()
 }
 
-// A Server handles command-line requests.
+// A Server handles command-line requests and prints responses to standard output.
 type Server struct {
 	*liner.State
 	logger log.Logger
@@ -79,9 +84,11 @@ func (srv *Server) SetCommands(commands ...Command) {
 }
 
 // LoopCLI starts an endless loop to perform commands read from stdin.
-//
-// This function is intended to be started in a goroutine.
 func (srv *Server) LoopCLI() {
+	if !liner.TerminalSupported() {
+		srv.logger.Error("terminal not supported")
+		return
+	}
 	for {
 		err := func() error {
 			cmd, err := srv.Prompt("> ")
