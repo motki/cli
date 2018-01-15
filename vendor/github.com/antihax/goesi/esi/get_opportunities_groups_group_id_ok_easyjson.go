@@ -103,35 +103,12 @@ func easyjsonFed925a0DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetO
 			continue
 		}
 		switch key {
-		case "connected_groups":
-			if in.IsNull() {
-				in.Skip()
-				out.ConnectedGroups = nil
-			} else {
-				in.Delim('[')
-				if out.ConnectedGroups == nil {
-					if !in.IsDelim(']') {
-						out.ConnectedGroups = make([]int32, 0, 16)
-					} else {
-						out.ConnectedGroups = []int32{}
-					}
-				} else {
-					out.ConnectedGroups = (out.ConnectedGroups)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v4 int32
-					v4 = int32(in.Int32())
-					out.ConnectedGroups = append(out.ConnectedGroups, v4)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
-		case "description":
-			out.Description = string(in.String())
 		case "group_id":
 			out.GroupId = int32(in.Int32())
 		case "name":
 			out.Name = string(in.String())
+		case "description":
+			out.Description = string(in.String())
 		case "notification":
 			out.Notification = string(in.String())
 		case "required_tasks":
@@ -150,9 +127,32 @@ func easyjsonFed925a0DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetO
 					out.RequiredTasks = (out.RequiredTasks)[:0]
 				}
 				for !in.IsDelim(']') {
+					var v4 int32
+					v4 = int32(in.Int32())
+					out.RequiredTasks = append(out.RequiredTasks, v4)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		case "connected_groups":
+			if in.IsNull() {
+				in.Skip()
+				out.ConnectedGroups = nil
+			} else {
+				in.Delim('[')
+				if out.ConnectedGroups == nil {
+					if !in.IsDelim(']') {
+						out.ConnectedGroups = make([]int32, 0, 16)
+					} else {
+						out.ConnectedGroups = []int32{}
+					}
+				} else {
+					out.ConnectedGroups = (out.ConnectedGroups)[:0]
+				}
+				for !in.IsDelim(']') {
 					var v5 int32
 					v5 = int32(in.Int32())
-					out.RequiredTasks = append(out.RequiredTasks, v5)
+					out.ConnectedGroups = append(out.ConnectedGroups, v5)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -171,17 +171,57 @@ func easyjsonFed925a0EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if len(in.ConnectedGroups) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"connected_groups\":")
-		if in.ConnectedGroups == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+	if in.GroupId != 0 {
+		const prefix string = ",\"group_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.GroupId))
+	}
+	if in.Name != "" {
+		const prefix string = ",\"name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.Name))
+	}
+	if in.Description != "" {
+		const prefix string = ",\"description\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.Description))
+	}
+	if in.Notification != "" {
+		const prefix string = ",\"notification\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.Notification))
+	}
+	if len(in.RequiredTasks) != 0 {
+		const prefix string = ",\"required_tasks\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
-			for v6, v7 := range in.ConnectedGroups {
+			for v6, v7 := range in.RequiredTasks {
 				if v6 > 0 {
 					out.RawByte(',')
 				}
@@ -190,49 +230,17 @@ func easyjsonFed925a0EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 			out.RawByte(']')
 		}
 	}
-	if in.Description != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"description\":")
-		out.String(string(in.Description))
-	}
-	if in.GroupId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"group_id\":")
-		out.Int32(int32(in.GroupId))
-	}
-	if in.Name != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"name\":")
-		out.String(string(in.Name))
-	}
-	if in.Notification != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"notification\":")
-		out.String(string(in.Notification))
-	}
-	if len(in.RequiredTasks) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"required_tasks\":")
-		if in.RequiredTasks == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+	if len(in.ConnectedGroups) != 0 {
+		const prefix string = ",\"connected_groups\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
-			for v8, v9 := range in.RequiredTasks {
+			for v8, v9 := range in.ConnectedGroups {
 				if v8 > 0 {
 					out.RawByte(',')
 				}

@@ -36,6 +36,12 @@ It has these top-level messages:
 	Blueprint
 	GetCorpBlueprintsRequest
 	GetCorpBlueprintsResponse
+	InventoryItem
+	GetInventoryRequest
+	GetInventoryResponse
+	NewInventoryItemRequest
+	SaveInventoryItemRequest
+	InventoryItemResponse
 	Icon
 	Race
 	Ancestry

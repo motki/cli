@@ -103,18 +103,18 @@ func easyjson57681818DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 			continue
 		}
 		switch key {
+		case "event_id":
+			out.EventId = int32(in.Int32())
 		case "event_date":
 			if data := in.Raw(); in.Ok() {
 				in.AddError((out.EventDate).UnmarshalJSON(data))
 			}
-		case "event_id":
-			out.EventId = int32(in.Int32())
-		case "event_response":
-			out.EventResponse = string(in.String())
-		case "importance":
-			out.Importance = int32(in.Int32())
 		case "title":
 			out.Title = string(in.String())
+		case "importance":
+			out.Importance = int32(in.Int32())
+		case "event_response":
+			out.EventResponse = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -129,45 +129,55 @@ func easyjson57681818EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if true {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"event_date\":")
-		out.Raw((in.EventDate).MarshalJSON())
-	}
 	if in.EventId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"event_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"event_id\":")
 		out.Int32(int32(in.EventId))
 	}
-	if in.EventResponse != "" {
-		if !first {
-			out.RawByte(',')
+	if true {
+		const prefix string = ",\"event_date\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"event_response\":")
-		out.String(string(in.EventResponse))
-	}
-	if in.Importance != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"importance\":")
-		out.Int32(int32(in.Importance))
+		out.Raw((in.EventDate).MarshalJSON())
 	}
 	if in.Title != "" {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"title\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"title\":")
 		out.String(string(in.Title))
+	}
+	if in.Importance != 0 {
+		const prefix string = ",\"importance\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.Importance))
+	}
+	if in.EventResponse != "" {
+		const prefix string = ",\"event_response\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.EventResponse))
 	}
 	out.RawByte('}')
 }

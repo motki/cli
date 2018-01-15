@@ -103,6 +103,18 @@ func easyjson15e3e24fDecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 			continue
 		}
 		switch key {
+		case "channel_id":
+			out.ChannelId = int32(in.Int32())
+		case "name":
+			out.Name = string(in.String())
+		case "owner_id":
+			out.OwnerId = int32(in.Int32())
+		case "comparison_key":
+			out.ComparisonKey = string(in.String())
+		case "has_password":
+			out.HasPassword = bool(in.Bool())
+		case "motd":
+			out.Motd = string(in.String())
 		case "allowed":
 			if in.IsNull() {
 				in.Skip()
@@ -120,8 +132,31 @@ func easyjson15e3e24fDecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 				}
 				for !in.IsDelim(']') {
 					var v4 GetCharactersCharacterIdChatChannelsAllowed
-					easyjson15e3e24fDecodeGithubComAntihaxGoesiEsi2(in, &v4)
+					(v4).UnmarshalEasyJSON(in)
 					out.Allowed = append(out.Allowed, v4)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		case "operators":
+			if in.IsNull() {
+				in.Skip()
+				out.Operators = nil
+			} else {
+				in.Delim('[')
+				if out.Operators == nil {
+					if !in.IsDelim(']') {
+						out.Operators = make([]GetCharactersCharacterIdChatChannelsOperator, 0, 2)
+					} else {
+						out.Operators = []GetCharactersCharacterIdChatChannelsOperator{}
+					}
+				} else {
+					out.Operators = (out.Operators)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v5 GetCharactersCharacterIdChatChannelsOperator
+					(v5).UnmarshalEasyJSON(in)
+					out.Operators = append(out.Operators, v5)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -142,21 +177,13 @@ func easyjson15e3e24fDecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 					out.Blocked = (out.Blocked)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v5 GetCharactersCharacterIdChatChannelsBlocked
-					easyjson15e3e24fDecodeGithubComAntihaxGoesiEsi3(in, &v5)
-					out.Blocked = append(out.Blocked, v5)
+					var v6 GetCharactersCharacterIdChatChannelsBlocked
+					(v6).UnmarshalEasyJSON(in)
+					out.Blocked = append(out.Blocked, v6)
 					in.WantComma()
 				}
 				in.Delim(']')
 			}
-		case "channel_id":
-			out.ChannelId = int32(in.Int32())
-		case "comparison_key":
-			out.ComparisonKey = string(in.String())
-		case "has_password":
-			out.HasPassword = bool(in.Bool())
-		case "motd":
-			out.Motd = string(in.String())
 		case "muted":
 			if in.IsNull() {
 				in.Skip()
@@ -173,40 +200,13 @@ func easyjson15e3e24fDecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 					out.Muted = (out.Muted)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v6 GetCharactersCharacterIdChatChannelsMuted
-					(v6).UnmarshalEasyJSON(in)
-					out.Muted = append(out.Muted, v6)
+					var v7 GetCharactersCharacterIdChatChannelsMuted
+					(v7).UnmarshalEasyJSON(in)
+					out.Muted = append(out.Muted, v7)
 					in.WantComma()
 				}
 				in.Delim(']')
 			}
-		case "name":
-			out.Name = string(in.String())
-		case "operators":
-			if in.IsNull() {
-				in.Skip()
-				out.Operators = nil
-			} else {
-				in.Delim('[')
-				if out.Operators == nil {
-					if !in.IsDelim(']') {
-						out.Operators = make([]GetCharactersCharacterIdChatChannelsOperator, 0, 2)
-					} else {
-						out.Operators = []GetCharactersCharacterIdChatChannelsOperator{}
-					}
-				} else {
-					out.Operators = (out.Operators)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v7 GetCharactersCharacterIdChatChannelsOperator
-					easyjson15e3e24fDecodeGithubComAntihaxGoesiEsi4(in, &v7)
-					out.Operators = append(out.Operators, v7)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
-		case "owner_id":
-			out.OwnerId = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -221,87 +221,115 @@ func easyjson15e3e24fEncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if len(in.Allowed) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"allowed\":")
-		if in.Allowed == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+	if in.ChannelId != 0 {
+		const prefix string = ",\"channel_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.ChannelId))
+	}
+	if in.Name != "" {
+		const prefix string = ",\"name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.Name))
+	}
+	if in.OwnerId != 0 {
+		const prefix string = ",\"owner_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.OwnerId))
+	}
+	if in.ComparisonKey != "" {
+		const prefix string = ",\"comparison_key\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.ComparisonKey))
+	}
+	if in.HasPassword {
+		const prefix string = ",\"has_password\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Bool(bool(in.HasPassword))
+	}
+	if in.Motd != "" {
+		const prefix string = ",\"motd\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.Motd))
+	}
+	if len(in.Allowed) != 0 {
+		const prefix string = ",\"allowed\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
 			for v8, v9 := range in.Allowed {
 				if v8 > 0 {
 					out.RawByte(',')
 				}
-				easyjson15e3e24fEncodeGithubComAntihaxGoesiEsi2(out, v9)
+				(v9).MarshalEasyJSON(out)
+			}
+			out.RawByte(']')
+		}
+	}
+	if len(in.Operators) != 0 {
+		const prefix string = ",\"operators\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		{
+			out.RawByte('[')
+			for v10, v11 := range in.Operators {
+				if v10 > 0 {
+					out.RawByte(',')
+				}
+				(v11).MarshalEasyJSON(out)
 			}
 			out.RawByte(']')
 		}
 	}
 	if len(in.Blocked) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"blocked\":")
-		if in.Blocked == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+		const prefix string = ",\"blocked\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
-			for v10, v11 := range in.Blocked {
-				if v10 > 0 {
-					out.RawByte(',')
-				}
-				easyjson15e3e24fEncodeGithubComAntihaxGoesiEsi3(out, v11)
-			}
-			out.RawByte(']')
-		}
-	}
-	if in.ChannelId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"channel_id\":")
-		out.Int32(int32(in.ChannelId))
-	}
-	if in.ComparisonKey != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"comparison_key\":")
-		out.String(string(in.ComparisonKey))
-	}
-	if in.HasPassword {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"has_password\":")
-		out.Bool(bool(in.HasPassword))
-	}
-	if in.Motd != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"motd\":")
-		out.String(string(in.Motd))
-	}
-	if len(in.Muted) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"muted\":")
-		if in.Muted == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
-		} else {
-			out.RawByte('[')
-			for v12, v13 := range in.Muted {
+			for v12, v13 := range in.Blocked {
 				if v12 > 0 {
 					out.RawByte(',')
 				}
@@ -310,40 +338,24 @@ func easyjson15e3e24fEncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 			out.RawByte(']')
 		}
 	}
-	if in.Name != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"name\":")
-		out.String(string(in.Name))
-	}
-	if len(in.Operators) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"operators\":")
-		if in.Operators == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+	if len(in.Muted) != 0 {
+		const prefix string = ",\"muted\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
-			for v14, v15 := range in.Operators {
+			for v14, v15 := range in.Muted {
 				if v14 > 0 {
 					out.RawByte(',')
 				}
-				easyjson15e3e24fEncodeGithubComAntihaxGoesiEsi4(out, v15)
+				(v15).MarshalEasyJSON(out)
 			}
 			out.RawByte(']')
 		}
-	}
-	if in.OwnerId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"owner_id\":")
-		out.Int32(int32(in.OwnerId))
 	}
 	out.RawByte('}')
 }
@@ -370,191 +382,4 @@ func (v *GetCharactersCharacterIdChatChannels200Ok) UnmarshalJSON(data []byte) e
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *GetCharactersCharacterIdChatChannels200Ok) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson15e3e24fDecodeGithubComAntihaxGoesiEsi1(l, v)
-}
-func easyjson15e3e24fDecodeGithubComAntihaxGoesiEsi4(in *jlexer.Lexer, out *GetCharactersCharacterIdChatChannelsOperator) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeString()
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "accessor_id":
-			out.AccessorId = int32(in.Int32())
-		case "accessor_type":
-			out.AccessorType = string(in.String())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjson15e3e24fEncodeGithubComAntihaxGoesiEsi4(out *jwriter.Writer, in GetCharactersCharacterIdChatChannelsOperator) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	if in.AccessorId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"accessor_id\":")
-		out.Int32(int32(in.AccessorId))
-	}
-	if in.AccessorType != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"accessor_type\":")
-		out.String(string(in.AccessorType))
-	}
-	out.RawByte('}')
-}
-func easyjson15e3e24fDecodeGithubComAntihaxGoesiEsi3(in *jlexer.Lexer, out *GetCharactersCharacterIdChatChannelsBlocked) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeString()
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "accessor_id":
-			out.AccessorId = int32(in.Int32())
-		case "accessor_type":
-			out.AccessorType = string(in.String())
-		case "end_at":
-			if data := in.Raw(); in.Ok() {
-				in.AddError((out.EndAt).UnmarshalJSON(data))
-			}
-		case "reason":
-			out.Reason = string(in.String())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjson15e3e24fEncodeGithubComAntihaxGoesiEsi3(out *jwriter.Writer, in GetCharactersCharacterIdChatChannelsBlocked) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	if in.AccessorId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"accessor_id\":")
-		out.Int32(int32(in.AccessorId))
-	}
-	if in.AccessorType != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"accessor_type\":")
-		out.String(string(in.AccessorType))
-	}
-	if true {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"end_at\":")
-		out.Raw((in.EndAt).MarshalJSON())
-	}
-	if in.Reason != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"reason\":")
-		out.String(string(in.Reason))
-	}
-	out.RawByte('}')
-}
-func easyjson15e3e24fDecodeGithubComAntihaxGoesiEsi2(in *jlexer.Lexer, out *GetCharactersCharacterIdChatChannelsAllowed) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeString()
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "accessor_id":
-			out.AccessorId = int32(in.Int32())
-		case "accessor_type":
-			out.AccessorType = string(in.String())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjson15e3e24fEncodeGithubComAntihaxGoesiEsi2(out *jwriter.Writer, in GetCharactersCharacterIdChatChannelsAllowed) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	if in.AccessorId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"accessor_id\":")
-		out.Int32(int32(in.AccessorId))
-	}
-	if in.AccessorType != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"accessor_type\":")
-		out.String(string(in.AccessorType))
-	}
-	out.RawByte('}')
 }

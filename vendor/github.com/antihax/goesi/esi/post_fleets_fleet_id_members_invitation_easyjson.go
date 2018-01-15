@@ -107,10 +107,10 @@ func easyjson3d855c3bDecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *Post
 			out.CharacterId = int32(in.Int32())
 		case "role":
 			out.Role = string(in.String())
-		case "squad_id":
-			out.SquadId = int64(in.Int64())
 		case "wing_id":
 			out.WingId = int64(in.Int64())
+		case "squad_id":
+			out.SquadId = int64(in.Int64())
 		default:
 			in.SkipRecursive()
 		}
@@ -126,36 +126,44 @@ func easyjson3d855c3bEncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Pos
 	first := true
 	_ = first
 	if in.CharacterId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"character_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"character_id\":")
 		out.Int32(int32(in.CharacterId))
 	}
 	if in.Role != "" {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"role\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"role\":")
 		out.String(string(in.Role))
 	}
-	if in.SquadId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"squad_id\":")
-		out.Int64(int64(in.SquadId))
-	}
 	if in.WingId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"wing_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"wing_id\":")
 		out.Int64(int64(in.WingId))
+	}
+	if in.SquadId != 0 {
+		const prefix string = ",\"squad_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int64(int64(in.SquadId))
 	}
 	out.RawByte('}')
 }

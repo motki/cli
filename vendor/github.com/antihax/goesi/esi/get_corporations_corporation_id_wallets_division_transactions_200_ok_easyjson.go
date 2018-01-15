@@ -103,26 +103,26 @@ func easyjson5cb1906DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetCo
 			continue
 		}
 		switch key {
-		case "client_id":
-			out.ClientId = int32(in.Int32())
+		case "transaction_id":
+			out.TransactionId = int64(in.Int64())
 		case "date":
 			if data := in.Raw(); in.Ok() {
 				in.AddError((out.Date).UnmarshalJSON(data))
 			}
+		case "type_id":
+			out.TypeId = int32(in.Int32())
+		case "location_id":
+			out.LocationId = int64(in.Int64())
+		case "unit_price":
+			out.UnitPrice = float64(in.Float64())
+		case "quantity":
+			out.Quantity = int32(in.Int32())
+		case "client_id":
+			out.ClientId = int32(in.Int32())
 		case "is_buy":
 			out.IsBuy = bool(in.Bool())
 		case "journal_ref_id":
 			out.JournalRefId = int64(in.Int64())
-		case "location_id":
-			out.LocationId = int64(in.Int64())
-		case "quantity":
-			out.Quantity = int32(in.Int32())
-		case "transaction_id":
-			out.TransactionId = int64(in.Int64())
-		case "type_id":
-			out.TypeId = int32(in.Int32())
-		case "unit_price":
-			out.UnitPrice = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -137,77 +137,95 @@ func easyjson5cb1906EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in GetC
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.ClientId != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.TransactionId != 0 {
+		const prefix string = ",\"transaction_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"client_id\":")
-		out.Int32(int32(in.ClientId))
+		out.Int64(int64(in.TransactionId))
 	}
 	if true {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"date\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"date\":")
 		out.Raw((in.Date).MarshalJSON())
 	}
-	if in.IsBuy {
-		if !first {
-			out.RawByte(',')
+	if in.TypeId != 0 {
+		const prefix string = ",\"type_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"is_buy\":")
+		out.Int32(int32(in.TypeId))
+	}
+	if in.LocationId != 0 {
+		const prefix string = ",\"location_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int64(int64(in.LocationId))
+	}
+	if in.UnitPrice != 0 {
+		const prefix string = ",\"unit_price\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Float64(float64(in.UnitPrice))
+	}
+	if in.Quantity != 0 {
+		const prefix string = ",\"quantity\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.Quantity))
+	}
+	if in.ClientId != 0 {
+		const prefix string = ",\"client_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.ClientId))
+	}
+	if in.IsBuy {
+		const prefix string = ",\"is_buy\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.Bool(bool(in.IsBuy))
 	}
 	if in.JournalRefId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"journal_ref_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"journal_ref_id\":")
 		out.Int64(int64(in.JournalRefId))
-	}
-	if in.LocationId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"location_id\":")
-		out.Int64(int64(in.LocationId))
-	}
-	if in.Quantity != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"quantity\":")
-		out.Int32(int32(in.Quantity))
-	}
-	if in.TransactionId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"transaction_id\":")
-		out.Int64(int64(in.TransactionId))
-	}
-	if in.TypeId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"type_id\":")
-		out.Int32(int32(in.TypeId))
-	}
-	if in.UnitPrice != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"unit_price\":")
-		out.Int32(int32(in.UnitPrice))
 	}
 	out.RawByte('}')
 }

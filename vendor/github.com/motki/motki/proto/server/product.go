@@ -1,8 +1,7 @@
 package server
 
 import (
-	"errors"
-
+	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 
 	"github.com/motki/motki/model"
@@ -16,7 +15,7 @@ func productResponse(product *model.Product) *proto.ProductResponse {
 	}
 }
 
-func (srv *GRPCServer) GetProduct(ctx context.Context, req *proto.GetProductRequest) (resp *proto.ProductResponse, err error) {
+func (srv *grpcServer) GetProduct(ctx context.Context, req *proto.GetProductRequest) (resp *proto.ProductResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.ProductResponse{
@@ -28,19 +27,19 @@ func (srv *GRPCServer) GetProduct(ctx context.Context, req *proto.GetProductRequ
 	if req.Token == nil {
 		return nil, errors.New("token cannot be empty")
 	}
-	user, err := srv.model.GetUserBySessionKey(req.Token.Identifier)
+	_, charID, err := srv.getAuthorizedContext(req.Token, model.RoleLogistics)
 	if err != nil {
 		return nil, err
 	}
-	a, err := srv.model.GetAuthorization(user, model.RoleLogistics)
-	if err != nil {
-		return nil, err
-	}
-	char, err := srv.model.GetCharacter(a.CharacterID)
+	char, err := srv.model.GetCharacter(charID)
 	if err != nil {
 		return nil, err
 	}
 	corp, err := srv.model.GetCorporation(char.CorporationID)
+	if err != nil {
+		return nil, err
+	}
+	_, err = srv.model.GetCorporationAuthorization(char.CorporationID)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +50,7 @@ func (srv *GRPCServer) GetProduct(ctx context.Context, req *proto.GetProductRequ
 	return productResponse(prod), nil
 }
 
-func (srv *GRPCServer) GetProducts(ctx context.Context, req *proto.GetProductsRequest) (resp *proto.ProductsResponse, err error) {
+func (srv *grpcServer) GetProducts(ctx context.Context, req *proto.GetProductsRequest) (resp *proto.ProductsResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.ProductsResponse{
@@ -90,7 +89,7 @@ func (srv *GRPCServer) GetProducts(ctx context.Context, req *proto.GetProductsRe
 	return resp, nil
 }
 
-func (srv *GRPCServer) NewProduct(ctx context.Context, req *proto.NewProductRequest) (resp *proto.ProductResponse, err error) {
+func (srv *grpcServer) NewProduct(ctx context.Context, req *proto.NewProductRequest) (resp *proto.ProductResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.ProductResponse{
@@ -125,7 +124,7 @@ func (srv *GRPCServer) NewProduct(ctx context.Context, req *proto.NewProductRequ
 	return productResponse(prod), nil
 }
 
-func (srv *GRPCServer) SaveProduct(ctx context.Context, req *proto.SaveProductRequest) (resp *proto.ProductResponse, err error) {
+func (srv *grpcServer) SaveProduct(ctx context.Context, req *proto.SaveProductRequest) (resp *proto.ProductResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.ProductResponse{
@@ -175,7 +174,7 @@ func (srv *GRPCServer) SaveProduct(ctx context.Context, req *proto.SaveProductRe
 	return productResponse(prod), nil
 }
 
-func (srv *GRPCServer) GetMarketPrice(ctx context.Context, req *proto.GetMarketPriceRequest) (resp *proto.GetMarketPriceResponse, err error) {
+func (srv *grpcServer) GetMarketPrice(ctx context.Context, req *proto.GetMarketPriceRequest) (resp *proto.GetMarketPriceResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.GetMarketPriceResponse{

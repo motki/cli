@@ -27,7 +27,7 @@ func easyjson14c0c104DecodeGithubComAntihaxGoesiEsi(in *jlexer.Lexer, out *GetKi
 		in.Delim('[')
 		if *out == nil {
 			if !in.IsDelim(']') {
-				*out = make(GetKillmailsKillmailIdKillmailHashPositionList, 0, 5)
+				*out = make(GetKillmailsKillmailIdKillmailHashPositionList, 0, 2)
 			} else {
 				*out = GetKillmailsKillmailIdKillmailHashPositionList{}
 			}
@@ -104,11 +104,11 @@ func easyjson14c0c104DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetK
 		}
 		switch key {
 		case "x":
-			out.X = float32(in.Float32())
+			out.X = float64(in.Float64())
 		case "y":
-			out.Y = float32(in.Float32())
+			out.Y = float64(in.Float64())
 		case "z":
-			out.Z = float32(in.Float32())
+			out.Z = float64(in.Float64())
 		default:
 			in.SkipRecursive()
 		}
@@ -124,28 +124,34 @@ func easyjson14c0c104EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	first := true
 	_ = first
 	if in.X != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"x\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"x\":")
-		out.Float32(float32(in.X))
+		out.Float64(float64(in.X))
 	}
 	if in.Y != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"y\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"y\":")
-		out.Float32(float32(in.Y))
+		out.Float64(float64(in.Y))
 	}
 	if in.Z != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"z\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"z\":")
-		out.Float32(float32(in.Z))
+		out.Float64(float64(in.Z))
 	}
 	out.RawByte('}')
 }

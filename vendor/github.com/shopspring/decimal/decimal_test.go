@@ -332,6 +332,98 @@ func TestBadJSON(t *testing.T) {
 	}
 }
 
+func TestNullDecimalJSON(t *testing.T) {
+	for _, s := range testTable {
+		var doc struct {
+			Amount NullDecimal `json:"amount"`
+		}
+		docStr := `{"amount":"` + s + `"}`
+		docStrNumber := `{"amount":` + s + `}`
+		err := json.Unmarshal([]byte(docStr), &doc)
+		if err != nil {
+			t.Errorf("error unmarshaling %s: %v", docStr, err)
+		} else {
+			if !doc.Amount.Valid {
+				t.Errorf("expected %s to be valid (not NULL), got Valid = false", s)
+			}
+			if doc.Amount.Decimal.String() != s {
+				t.Errorf("expected %s, got %s (%s, %d)",
+					s, doc.Amount.Decimal.String(),
+					doc.Amount.Decimal.value.String(), doc.Amount.Decimal.exp)
+			}
+		}
+
+		out, err := json.Marshal(&doc)
+		if err != nil {
+			t.Errorf("error marshaling %+v: %v", doc, err)
+		} else if string(out) != docStr {
+			t.Errorf("expected %s, got %s", docStr, string(out))
+		}
+
+		// make sure unquoted marshalling works too
+		MarshalJSONWithoutQuotes = true
+		out, err = json.Marshal(&doc)
+		if err != nil {
+			t.Errorf("error marshaling %+v: %v", doc, err)
+		} else if string(out) != docStrNumber {
+			t.Errorf("expected %s, got %s", docStrNumber, string(out))
+		}
+		MarshalJSONWithoutQuotes = false
+	}
+
+	var doc struct {
+		Amount NullDecimal `json:"amount"`
+	}
+	docStr := `{"amount": null}`
+	err := json.Unmarshal([]byte(docStr), &doc)
+	if err != nil {
+		t.Errorf("error unmarshaling %s: %v", docStr, err)
+	} else if doc.Amount.Valid {
+		t.Errorf("expected null value to have Valid = false, got Valid = true and Decimal = %s (%s, %d)",
+			doc.Amount.Decimal.String(),
+			doc.Amount.Decimal.value.String(), doc.Amount.Decimal.exp)
+	}
+
+	expected := `{"amount":null}`
+	out, err := json.Marshal(&doc)
+	if err != nil {
+		t.Errorf("error marshaling %+v: %v", doc, err)
+	} else if string(out) != expected {
+		t.Errorf("expected %s, got %s", expected, string(out))
+	}
+
+	// make sure unquoted marshalling works too
+	MarshalJSONWithoutQuotes = true
+	expectedUnquoted := `{"amount":null}`
+	out, err = json.Marshal(&doc)
+	if err != nil {
+		t.Errorf("error marshaling %+v: %v", doc, err)
+	} else if string(out) != expectedUnquoted {
+		t.Errorf("expected %s, got %s", expectedUnquoted, string(out))
+	}
+	MarshalJSONWithoutQuotes = false
+}
+
+func TestNullDecimalBadJSON(t *testing.T) {
+	for _, testCase := range []string{
+		"]o_o[",
+		"{",
+		`{"amount":""`,
+		`{"amount":""}`,
+		`{"amount":"nope"}`,
+		`{"amount":nope}`,
+		`0.333`,
+	} {
+		var doc struct {
+			Amount NullDecimal `json:"amount"`
+		}
+		err := json.Unmarshal([]byte(testCase), &doc)
+		if err == nil {
+			t.Errorf("expected error, got %+v", doc)
+		}
+	}
+}
+
 func TestXML(t *testing.T) {
 	for _, s := range testTable {
 		var doc struct {
@@ -416,11 +508,17 @@ func TestDecimal_rescale(t *testing.T) {
 }
 
 func TestDecimal_Floor(t *testing.T) {
-	type testData struct {
+	assertFloor := func(input, expected Decimal) {
+		got := input.Floor()
+		if !got.Equal(expected) {
+			t.Errorf("Floor(%s): got %s, expected %s", input, got, expected)
+		}
+	}
+	type testDataString struct {
 		input    string
 		expected string
 	}
-	tests := []testData{
+	testsWithStrings := []testDataString{
 		{"1.999", "1"},
 		{"1", "1"},
 		{"1.01", "1"},
@@ -433,22 +531,66 @@ func TestDecimal_Floor(t *testing.T) {
 		{"-1.01", "-2"},
 		{"-1.999", "-2"},
 	}
-	for _, test := range tests {
-		d, _ := NewFromString(test.input)
+	for _, test := range testsWithStrings {
 		expected, _ := NewFromString(test.expected)
-		got := d.Floor()
-		if !got.Equal(expected) {
-			t.Errorf("Floor(%s): got %s, expected %s", d, got, expected)
-		}
+		input, _ := NewFromString(test.input)
+		assertFloor(input, expected)
+	}
+
+	type testDataDecimal struct {
+		input    Decimal
+		expected string
+	}
+	testsWithDecimals := []testDataDecimal{
+		{New(100, -1), "10"},
+		{New(10, 0), "10"},
+		{New(1, 1), "10"},
+		{New(1999, -3), "1"},
+		{New(101, -2), "1"},
+		{New(1, 0), "1"},
+		{New(0, 0), "0"},
+		{New(9, -1), "0"},
+		{New(1, -1), "0"},
+		{New(-1, -1), "-1"},
+		{New(-9, -1), "-1"},
+		{New(-1, 0), "-1"},
+		{New(-101, -2), "-2"},
+		{New(-1999, -3), "-2"},
+	}
+	for _, test := range testsWithDecimals {
+		expected, _ := NewFromString(test.expected)
+		assertFloor(test.input, expected)
+	}
+}
+
+func Benchmark_FloorFast(b *testing.B) {
+	input := New(200, 2)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		input.Floor()
+	}
+}
+
+func Benchmark_FloorRegular(b *testing.B) {
+	input := New(200, -2)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		input.Floor()
 	}
 }
 
 func TestDecimal_Ceil(t *testing.T) {
-	type testData struct {
+	assertCeil := func(input, expected Decimal) {
+		got := input.Ceil()
+		if !got.Equal(expected) {
+			t.Errorf("Ceil(%s): got %s, expected %s", input, got, expected)
+		}
+	}
+	type testDataString struct {
 		input    string
 		expected string
 	}
-	tests := []testData{
+	testsWithStrings := []testDataString{
 		{"1.999", "2"},
 		{"1", "1"},
 		{"1.01", "2"},
@@ -461,13 +603,35 @@ func TestDecimal_Ceil(t *testing.T) {
 		{"-1.01", "-1"},
 		{"-1.999", "-1"},
 	}
-	for _, test := range tests {
-		d, _ := NewFromString(test.input)
+	for _, test := range testsWithStrings {
 		expected, _ := NewFromString(test.expected)
-		got := d.Ceil()
-		if !got.Equal(expected) {
-			t.Errorf("Ceil(%s): got %s, expected %s", d, got, expected)
-		}
+		input, _ := NewFromString(test.input)
+		assertCeil(input, expected)
+	}
+
+	type testDataDecimal struct {
+		input    Decimal
+		expected string
+	}
+	testsWithDecimals := []testDataDecimal{
+		{New(100, -1), "10"},
+		{New(10, 0), "10"},
+		{New(1, 1), "10"},
+		{New(1999, -3), "2"},
+		{New(101, -2), "2"},
+		{New(1, 0), "1"},
+		{New(0, 0), "0"},
+		{New(9, -1), "1"},
+		{New(1, -1), "1"},
+		{New(-1, -1), "0"},
+		{New(-9, -1), "0"},
+		{New(-1, 0), "-1"},
+		{New(-101, -2), "-1"},
+		{New(-1999, -3), "-1"},
+	}
+	for _, test := range testsWithDecimals {
+		expected, _ := NewFromString(test.expected)
+		assertCeil(test.input, expected)
 	}
 }
 
@@ -1135,6 +1299,106 @@ func TestDecimal_DivRound2(t *testing.T) {
 		}
 		if x.Cmp(d2.Abs().Mul(New(-1, -prec))) <= 0 {
 			t.Errorf("wrong rounding, got: %v/%v prec=%d is about %v", d, d2, prec, q)
+		}
+	}
+}
+
+func TestDecimal_RoundCash(t *testing.T) {
+	tests := []struct {
+		d        string
+		interval uint8
+		result   string
+	}{
+		{"3.44", 5, "3.45"},
+		{"3.43", 5, "3.45"},
+		{"3.42", 5, "3.40"},
+		{"3.425", 5, "3.45"},
+		{"3.47", 5, "3.45"},
+		{"3.478", 5, "3.50"},
+		{"3.48", 5, "3.50"},
+		{"348", 5, "348"},
+
+		{"3.23", 10, "3.20"},
+		{"3.33", 10, "3.30"},
+		{"3.53", 10, "3.50"},
+		{"3.949", 10, "3.90"},
+		{"3.95", 10, "4.00"},
+		{"395", 10, "395"},
+
+		{"6.42", 15, "6.40"},
+		{"6.39", 15, "6.40"},
+		{"6.35", 15, "6.30"},
+		{"6.36", 15, "6.40"},
+		{"6.349", 15, "6.30"},
+		{"6.30", 15, "6.30"},
+		{"666", 15, "666"},
+
+		{"3.23", 25, "3.25"},
+		{"3.33", 25, "3.25"},
+		{"3.53", 25, "3.50"},
+		{"3.93", 25, "4.00"},
+		{"3.41", 25, "3.50"},
+
+		{"3.249", 50, "3.00"},
+		{"3.33", 50, "3.50"},
+		{"3.749999999", 50, "3.50"},
+		{"3.75", 50, "4.00"},
+		{"3.93", 50, "4.00"},
+		{"393", 50, "393"},
+
+		{"3.249", 100, "3.00"},
+		{"3.49999", 100, "3.00"},
+		{"3.50", 100, "4.00"},
+		{"3.75", 100, "4.00"},
+		{"3.93", 100, "4.00"},
+		{"393", 100, "393"},
+	}
+	for i, test := range tests {
+		d, _ := NewFromString(test.d)
+		haveRounded := d.RoundCash(test.interval)
+		result, _ := NewFromString(test.result)
+
+		if !haveRounded.Equal(result) {
+			t.Errorf("Index %d: Cash rounding for %q interval %d want %q, have %q", i, test.d, test.interval, test.result, haveRounded)
+		}
+	}
+}
+
+func TestDecimal_RoundCash_Panic(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			if have, ok := r.(string); ok {
+				const want = "Decimal does not support this Cash rounding interval `231`. Supported: 5, 10, 15, 25, 50, 100"
+				if want != have {
+					t.Errorf("\nWant: %q\nHave: %q", want, have)
+				}
+			} else {
+				t.Errorf("Panic should contain an error string but got:\n%+v", r)
+			}
+		} else {
+			t.Error("Expecting a panic but got nothing")
+		}
+	}()
+	d, _ := NewFromString("1")
+	d.RoundCash(231)
+}
+
+func BenchmarkDecimal_RoundCash_Five(b *testing.B) {
+	const want = "3.50"
+	for i := 0; i < b.N; i++ {
+		val := New(3478, -3)
+		if have := val.StringFixedCash(5); have != want {
+			b.Fatalf("\nHave: %q\nWant: %q", have, want)
+		}
+	}
+}
+
+func BenchmarkDecimal_RoundCash_Fifteen(b *testing.B) {
+	const want = "6.30"
+	for i := 0; i < b.N; i++ {
+		val := New(635, -2)
+		if have := val.StringFixedCash(15); have != want {
+			b.Fatalf("\nHave: %q\nWant: %q", have, want)
 		}
 	}
 }

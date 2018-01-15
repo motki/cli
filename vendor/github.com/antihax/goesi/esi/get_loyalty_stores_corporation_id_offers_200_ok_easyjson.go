@@ -103,14 +103,16 @@ func easyjson53553d35DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetL
 			continue
 		}
 		switch key {
-		case "isk_cost":
-			out.IskCost = float32(in.Float32())
-		case "lp_cost":
-			out.LpCost = int32(in.Int32())
 		case "offer_id":
 			out.OfferId = int32(in.Int32())
+		case "type_id":
+			out.TypeId = int32(in.Int32())
 		case "quantity":
 			out.Quantity = int32(in.Int32())
+		case "lp_cost":
+			out.LpCost = int32(in.Int32())
+		case "isk_cost":
+			out.IskCost = int64(in.Int64())
 		case "required_items":
 			if in.IsNull() {
 				in.Skip()
@@ -128,14 +130,12 @@ func easyjson53553d35DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetL
 				}
 				for !in.IsDelim(']') {
 					var v4 GetLoyaltyStoresCorporationIdOffersRequiredItem
-					easyjson53553d35DecodeGithubComAntihaxGoesiEsi2(in, &v4)
+					(v4).UnmarshalEasyJSON(in)
 					out.RequiredItems = append(out.RequiredItems, v4)
 					in.WantComma()
 				}
 				in.Delim(']')
 			}
-		case "type_id":
-			out.TypeId = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -150,64 +150,74 @@ func easyjson53553d35EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.IskCost != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"isk_cost\":")
-		out.Float32(float32(in.IskCost))
-	}
-	if in.LpCost != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"lp_cost\":")
-		out.Int32(int32(in.LpCost))
-	}
 	if in.OfferId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"offer_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"offer_id\":")
 		out.Int32(int32(in.OfferId))
 	}
-	if in.Quantity != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.TypeId != 0 {
+		const prefix string = ",\"type_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"quantity\":")
+		out.Int32(int32(in.TypeId))
+	}
+	if in.Quantity != 0 {
+		const prefix string = ",\"quantity\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.Int32(int32(in.Quantity))
 	}
-	if len(in.RequiredItems) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"required_items\":")
-		if in.RequiredItems == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+	if in.LpCost != 0 {
+		const prefix string = ",\"lp_cost\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.LpCost))
+	}
+	if in.IskCost != 0 {
+		const prefix string = ",\"isk_cost\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int64(int64(in.IskCost))
+	}
+	if len(in.RequiredItems) != 0 {
+		const prefix string = ",\"required_items\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
 			for v5, v6 := range in.RequiredItems {
 				if v5 > 0 {
 					out.RawByte(',')
 				}
-				easyjson53553d35EncodeGithubComAntihaxGoesiEsi2(out, v6)
+				(v6).MarshalEasyJSON(out)
 			}
 			out.RawByte(']')
 		}
-	}
-	if in.TypeId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"type_id\":")
-		out.Int32(int32(in.TypeId))
 	}
 	out.RawByte('}')
 }
@@ -234,59 +244,4 @@ func (v *GetLoyaltyStoresCorporationIdOffers200Ok) UnmarshalJSON(data []byte) er
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *GetLoyaltyStoresCorporationIdOffers200Ok) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson53553d35DecodeGithubComAntihaxGoesiEsi1(l, v)
-}
-func easyjson53553d35DecodeGithubComAntihaxGoesiEsi2(in *jlexer.Lexer, out *GetLoyaltyStoresCorporationIdOffersRequiredItem) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeString()
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "quantity":
-			out.Quantity = int32(in.Int32())
-		case "type_id":
-			out.TypeId = int32(in.Int32())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjson53553d35EncodeGithubComAntihaxGoesiEsi2(out *jwriter.Writer, in GetLoyaltyStoresCorporationIdOffersRequiredItem) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	if in.Quantity != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"quantity\":")
-		out.Int32(int32(in.Quantity))
-	}
-	if in.TypeId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"type_id\":")
-		out.Int32(int32(in.TypeId))
-	}
-	out.RawByte('}')
 }

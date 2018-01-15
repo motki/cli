@@ -103,6 +103,14 @@ func easyjson6213c735DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 			continue
 		}
 		switch key {
+		case "jump_clone_id":
+			out.JumpCloneId = int32(in.Int32())
+		case "name":
+			out.Name = string(in.String())
+		case "location_id":
+			out.LocationId = int64(in.Int64())
+		case "location_type":
+			out.LocationType = string(in.String())
 		case "implants":
 			if in.IsNull() {
 				in.Skip()
@@ -126,10 +134,6 @@ func easyjson6213c735DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 				}
 				in.Delim(']')
 			}
-		case "location_id":
-			out.LocationId = int64(in.Int64())
-		case "location_type":
-			out.LocationType = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -144,15 +148,55 @@ func easyjson6213c735EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if len(in.Implants) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"implants\":")
-		if in.Implants == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+	if in.JumpCloneId != 0 {
+		const prefix string = ",\"jump_clone_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.JumpCloneId))
+	}
+	if in.Name != "" {
+		const prefix string = ",\"name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.Name))
+	}
+	if in.LocationId != 0 {
+		const prefix string = ",\"location_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int64(int64(in.LocationId))
+	}
+	if in.LocationType != "" {
+		const prefix string = ",\"location_type\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.LocationType))
+	}
+	if len(in.Implants) != 0 {
+		const prefix string = ",\"implants\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
 			for v5, v6 := range in.Implants {
 				if v5 > 0 {
@@ -162,22 +206,6 @@ func easyjson6213c735EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 			}
 			out.RawByte(']')
 		}
-	}
-	if in.LocationId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"location_id\":")
-		out.Int64(int64(in.LocationId))
-	}
-	if in.LocationType != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"location_type\":")
-		out.String(string(in.LocationType))
 	}
 	out.RawByte('}')
 }

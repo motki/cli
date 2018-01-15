@@ -31,7 +31,18 @@ import (
 	"github.com/antihax/goesi/eveapi"
 )
 
-const ContextOAuth2 int = 0
+// Handle our context keys.
+type contextKey string
+
+func (c contextKey) String() string {
+	return "auth " + string(c)
+}
+
+// ContextOAuth2 is the context for GoESI authentication. Pass a tokenSource with this key to a context for an ESI API Call
+var (
+	ContextOAuth2    = esi.ContextOAuth2
+	ContextBasicAuth = esi.ContextBasicAuth
+)
 
 // APIClient manages communication with the EVE Swagger Interface API
 // In most cases there should be only one, shared, APIClient.
@@ -55,6 +66,7 @@ func NewAPIClient(httpClient *http.Client, userAgent string) *APIClient {
 	return c
 }
 
+// ChangeBasePath allows alternate ESI paths to be used for testing
 func (c *APIClient) ChangeBasePath(path string) {
 	c.ESI.ChangeBasePath(path)
 }
@@ -94,8 +106,9 @@ func CacheExpires(r *http.Response) time.Time {
 		lifetime, err := time.ParseDuration(maxAge + "s")
 		if err != nil {
 			expires = now
+		} else {
+			expires = now.Add(lifetime)
 		}
-		expires = now.Add(lifetime)
 	} else {
 		expiresHeader := r.Header.Get("Expires")
 		if expiresHeader != "" {

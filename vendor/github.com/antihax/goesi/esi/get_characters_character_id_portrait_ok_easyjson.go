@@ -103,14 +103,14 @@ func easyjsonFa80e40cDecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 			continue
 		}
 		switch key {
+		case "px64x64":
+			out.Px64x64 = string(in.String())
 		case "px128x128":
 			out.Px128x128 = string(in.String())
 		case "px256x256":
 			out.Px256x256 = string(in.String())
 		case "px512x512":
 			out.Px512x512 = string(in.String())
-		case "px64x64":
-			out.Px64x64 = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -125,37 +125,45 @@ func easyjsonFa80e40cEncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.Px128x128 != "" {
-		if !first {
-			out.RawByte(',')
+	if in.Px64x64 != "" {
+		const prefix string = ",\"px64x64\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"px128x128\":")
+		out.String(string(in.Px64x64))
+	}
+	if in.Px128x128 != "" {
+		const prefix string = ",\"px128x128\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.String(string(in.Px128x128))
 	}
 	if in.Px256x256 != "" {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"px256x256\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"px256x256\":")
 		out.String(string(in.Px256x256))
 	}
 	if in.Px512x512 != "" {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"px512x512\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"px512x512\":")
 		out.String(string(in.Px512x512))
-	}
-	if in.Px64x64 != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"px64x64\":")
-		out.String(string(in.Px64x64))
 	}
 	out.RawByte('}')
 }

@@ -103,14 +103,14 @@ func easyjson191b3d72DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetO
 			continue
 		}
 		switch key {
-		case "description":
-			out.Description = string(in.String())
-		case "name":
-			out.Name = string(in.String())
-		case "notification":
-			out.Notification = string(in.String())
 		case "task_id":
 			out.TaskId = int32(in.Int32())
+		case "name":
+			out.Name = string(in.String())
+		case "description":
+			out.Description = string(in.String())
+		case "notification":
+			out.Notification = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -125,37 +125,45 @@ func easyjson191b3d72EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.Description != "" {
-		if !first {
-			out.RawByte(',')
+	if in.TaskId != 0 {
+		const prefix string = ",\"task_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"description\":")
-		out.String(string(in.Description))
+		out.Int32(int32(in.TaskId))
 	}
 	if in.Name != "" {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"name\":")
 		out.String(string(in.Name))
 	}
-	if in.Notification != "" {
-		if !first {
-			out.RawByte(',')
+	if in.Description != "" {
+		const prefix string = ",\"description\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"notification\":")
-		out.String(string(in.Notification))
+		out.String(string(in.Description))
 	}
-	if in.TaskId != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.Notification != "" {
+		const prefix string = ",\"notification\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"task_id\":")
-		out.Int32(int32(in.TaskId))
+		out.String(string(in.Notification))
 	}
 	out.RawByte('}')
 }

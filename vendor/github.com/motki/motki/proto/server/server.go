@@ -1,3 +1,7 @@
+// Package server contains an implementation of the MOTKI GRPC server.
+//
+// Much of the Server interface is generated using the protocol buffer definitions in
+// the proto package.
 package server
 
 import (
@@ -17,6 +21,7 @@ import (
 
 var ErrBadCredentials = errors.New("username or password is incorrect")
 
+// A Server represents the raw interface for a MOTKI protobuf server.
 type Server interface {
 	proto.AuthenticationServiceServer
 	proto.ProductServiceServer
@@ -24,17 +29,19 @@ type Server interface {
 	proto.InfoServiceServer
 	proto.EveDBServiceServer
 	proto.CorporationServiceServer
+	proto.InventoryServiceServer
 
+	// Serve opens a listening socket for the GRPC server.
 	Serve() error
+	// Shutdown attempts to gracefully shutdown the GRPC server.
 	Shutdown() error
 }
 
-var (
-	_ Server = &GRPCServer{}
-)
+// Ensure grpcServer implements the Server interface.
+var _ Server = &grpcServer{}
 
-type GRPCServer struct {
-	config model.Config
+type grpcServer struct {
+	config proto.Config
 
 	model  *model.Manager
 	evedb  *evedb.EveDB
@@ -47,25 +54,27 @@ type GRPCServer struct {
 	local  net.Listener
 }
 
-func New(conf model.Config, m *model.Manager, edb *evedb.EveDB, api *eveapi.EveAPI, l log.Logger) (Server, error) {
-	srv := &GRPCServer{config: conf, model: m, evedb: edb, eveapi: api, logger: l, grpc: grpc.NewServer()}
+// New creates a new Server using the given configuration and dependencies.
+func New(conf proto.Config, m *model.Manager, edb *evedb.EveDB, api *eveapi.EveAPI, l log.Logger) (Server, error) {
+	srv := &grpcServer{config: conf, model: m, evedb: edb, eveapi: api, logger: l, grpc: grpc.NewServer()}
 	proto.RegisterAuthenticationServiceServer(srv.grpc, srv)
 	proto.RegisterProductServiceServer(srv.grpc, srv)
 	proto.RegisterMarketPriceServiceServer(srv.grpc, srv)
 	proto.RegisterInfoServiceServer(srv.grpc, srv)
 	proto.RegisterEveDBServiceServer(srv.grpc, srv)
 	proto.RegisterCorporationServiceServer(srv.grpc, srv)
+	proto.RegisterInventoryServiceServer(srv.grpc, srv)
 	return srv, nil
 }
 
-func (srv *GRPCServer) Shutdown() error {
+func (srv *grpcServer) Shutdown() error {
 	srv.grpc.GracefulStop()
 	srv.server = nil
 	srv.local = nil
 	return nil
 }
 
-func (srv *GRPCServer) Serve() error {
+func (srv *grpcServer) Serve() error {
 	if srv.config.ServerEnabled {
 		srv.logger.Debugf("grpc server: listening on %s", srv.config.ServerGRPC.ServerAddr)
 		if srv.config.ServerGRPC.InsecureSkipVerify {
@@ -89,7 +98,7 @@ func (srv *GRPCServer) Serve() error {
 			}
 		}()
 	}
-	if srv.config.Kind == model.BackendLocalGRPC {
+	if srv.config.Kind == proto.BackendLocalGRPC {
 		srv.logger.Debugf("grpc server: starting local listener")
 		lis := srv.config.LocalGRPC.Listener
 		if lis == nil {
@@ -114,7 +123,7 @@ func errorResult(err error) *proto.Result {
 	return &proto.Result{Status: proto.Status_FAILURE, Description: err.Error()}
 }
 
-func (srv *GRPCServer) Authenticate(ctx context.Context, req *proto.AuthenticateRequest) (resp *proto.AuthenticateResponse, err error) {
+func (srv *grpcServer) Authenticate(ctx context.Context, req *proto.AuthenticateRequest) (resp *proto.AuthenticateResponse, err error) {
 	defer func() {
 		if err != nil {
 			resp = &proto.AuthenticateResponse{

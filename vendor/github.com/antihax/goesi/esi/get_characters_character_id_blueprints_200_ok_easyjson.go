@@ -105,20 +105,20 @@ func easyjson887755aeDecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 		switch key {
 		case "item_id":
 			out.ItemId = int64(in.Int64())
-		case "location_flag":
-			out.LocationFlag = string(in.String())
-		case "location_id":
-			out.LocationId = int64(in.Int64())
-		case "material_efficiency":
-			out.MaterialEfficiency = int32(in.Int32())
-		case "quantity":
-			out.Quantity = int32(in.Int32())
-		case "runs":
-			out.Runs = int32(in.Int32())
-		case "time_efficiency":
-			out.TimeEfficiency = int32(in.Int32())
 		case "type_id":
 			out.TypeId = int32(in.Int32())
+		case "location_id":
+			out.LocationId = int64(in.Int64())
+		case "location_flag":
+			out.LocationFlag = string(in.String())
+		case "quantity":
+			out.Quantity = int32(in.Int32())
+		case "time_efficiency":
+			out.TimeEfficiency = int32(in.Int32())
+		case "material_efficiency":
+			out.MaterialEfficiency = int32(in.Int32())
+		case "runs":
+			out.Runs = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -134,68 +134,84 @@ func easyjson887755aeEncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	first := true
 	_ = first
 	if in.ItemId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"item_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"item_id\":")
 		out.Int64(int64(in.ItemId))
 	}
-	if in.LocationFlag != "" {
-		if !first {
-			out.RawByte(',')
+	if in.TypeId != 0 {
+		const prefix string = ",\"type_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"location_flag\":")
-		out.String(string(in.LocationFlag))
+		out.Int32(int32(in.TypeId))
 	}
 	if in.LocationId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"location_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"location_id\":")
 		out.Int64(int64(in.LocationId))
 	}
-	if in.MaterialEfficiency != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.LocationFlag != "" {
+		const prefix string = ",\"location_flag\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"material_efficiency\":")
-		out.Int32(int32(in.MaterialEfficiency))
+		out.String(string(in.LocationFlag))
 	}
 	if in.Quantity != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"quantity\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"quantity\":")
 		out.Int32(int32(in.Quantity))
 	}
-	if in.Runs != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"runs\":")
-		out.Int32(int32(in.Runs))
-	}
 	if in.TimeEfficiency != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"time_efficiency\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"time_efficiency\":")
 		out.Int32(int32(in.TimeEfficiency))
 	}
-	if in.TypeId != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.MaterialEfficiency != 0 {
+		const prefix string = ",\"material_efficiency\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"type_id\":")
-		out.Int32(int32(in.TypeId))
+		out.Int32(int32(in.MaterialEfficiency))
+	}
+	if in.Runs != 0 {
+		const prefix string = ",\"runs\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.Runs))
 	}
 	out.RawByte('}')
 }

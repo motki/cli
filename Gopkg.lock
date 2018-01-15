@@ -11,7 +11,7 @@
   branch = "master"
   name = "github.com/antihax/goesi"
   packages = [".","esi","eveapi"]
-  revision = "d253a60b21300c596ce934356fe3287612a4994d"
+  revision = "65113eda6ecaea49bf5aa571ed807d3576de2041"
 
 [[projects]]
   name = "github.com/fatih/color"
@@ -23,19 +23,19 @@
   branch = "master"
   name = "github.com/golang/protobuf"
   packages = ["proto","ptypes","ptypes/any","ptypes/duration","ptypes/timestamp"]
-  revision = "130e6b02ab059e7b717a096f397c5b60111cae74"
+  revision = "1e59b77b52bf8e4b449a57e6f79f21226d571845"
 
 [[projects]]
   branch = "master"
   name = "github.com/gregjones/httpcache"
   packages = ["."]
-  revision = "316c5e0ff04e0ce21cfae9fbbb2ab39c7fc74e71"
+  revision = "2bcd89a1743fd4b373f7370ce8ddc14dfbd18229"
 
 [[projects]]
   name = "github.com/guregu/null"
   packages = ["."]
-  revision = "5d2d1e5a9e25088fb9cc0b0f7cb566250eb42bba"
-  version = "v3.2.0"
+  revision = "e81d6d8d57747b34d7c5fe0d20ebf57692f04ea9"
+  version = "v3.3.0"
 
 [[projects]]
   name = "github.com/jackc/pgx"
@@ -47,7 +47,7 @@
   branch = "master"
   name = "github.com/mailru/easyjson"
   packages = [".","buffer","jlexer","jwriter"]
-  revision = "2a92e673c9a6302dd05c3a691ae1f24aef46457d"
+  revision = "32fa128f234d041f196a9f3e0fea5ac9772c08e1"
 
 [[projects]]
   name = "github.com/mattn/go-colorable"
@@ -64,14 +64,14 @@
 [[projects]]
   branch = "master"
   name = "github.com/motki/motki"
-  packages = ["app","db","eveapi","evecentral","evedb","log","model","proto","proto/client","proto/server","worker"]
-  revision = "a5170bdc3d36e107d54cb46c9f6caa091d015815"
+  packages = ["app","db","eveapi","evedb","evemarketer","log","model","proto","proto/client","proto/server","worker"]
+  revision = "5adde4c0dae2b8438a12a76c3086d4352766bb98"
 
 [[projects]]
   branch = "master"
   name = "github.com/peterh/liner"
   packages = ["."]
-  revision = "a37ad39843113264dae84a5d89fcee28f50b35c6"
+  revision = "3681c2a912330352991ecdd642f257efe5b85518"
 
 [[projects]]
   name = "github.com/pkg/errors"
@@ -83,43 +83,43 @@
   branch = "master"
   name = "github.com/shopspring/decimal"
   packages = ["."]
-  revision = "aed1bfe463fa3c9cc268d60dcc1491db613bff7e"
+  revision = "8dffa2b7c7022feee4e1f55180695e79ca4261d4"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
-  revision = "f006c2ac4710855cf0f916dd6b77acf6b048dc6e"
-  version = "v1.0.3"
+  revision = "d682213848ed68c0a260ca37d6dd5ace8423f5ba"
+  version = "v1.0.4"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["acme","acme/autocert","bcrypt","blowfish","ssh/terminal"]
-  revision = "847319b7fc94cab682988f93da778204da164588"
+  revision = "13931e22f9e72ea58bb73048bc752b48c6d4d4ac"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context","context/ctxhttp","http2","http2/hpack","idna","internal/timeseries","lex/httplex","trace"]
-  revision = "0744d001aa8470aaa53df28d32e5ceeb8af9bd70"
+  revision = "5ccada7d0a7ba9aeb5d3aca8d3501b4c2a509fec"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/oauth2"
   packages = [".","internal"]
-  revision = "13449ad91cb26cb47661c1b080790392170385fd"
+  revision = "30785a2c434e431ef7c507b54617d6a951d5f2b4"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix","windows"]
-  revision = "429f518978ab01db8bb6f44b66785088e7fba58b"
+  revision = "810d7000345868fc619eb81f46307107118f4ae1"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
   packages = ["collate","collate/build","internal/colltab","internal/gen","internal/tag","internal/triegen","internal/ucd","language","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable"]
-  revision = "1cbadb444a806fd9430d14ad08967ed91da4fa0a"
+  revision = "e19ae1496984b1c655b8044a65c0300a3c878dd3"
 
 [[projects]]
   name = "google.golang.org/appengine"
@@ -131,17 +131,17 @@
   branch = "master"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
-  revision = "1e559d0a00eef8a9a43151db4665280bd8dd5886"
+  revision = "a8101f21cf983e773d0c1133ebc5424792003214"
 
 [[projects]]
   name = "google.golang.org/grpc"
-  packages = [".","codes","connectivity","credentials","grpclb/grpc_lb_v1/messages","grpclog","internal","keepalive","metadata","naming","peer","stats","status","tap","test/bufconn","transport"]
-  revision = "f92cdcd7dcdc69e81b2d7b338479a19a8723cfa3"
-  version = "v1.6.0"
+  packages = [".","balancer","balancer/base","balancer/roundrobin","codes","connectivity","credentials","encoding","grpclb/grpc_lb_v1/messages","grpclog","internal","keepalive","metadata","naming","peer","resolver","resolver/dns","resolver/passthrough","stats","status","tap","test/bufconn","transport"]
+  revision = "7cea4cc846bcf00cbb27595b07da5de875ef7de9"
+  version = "v1.9.1"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "36b9ab9b3d398dca9dabef0d65157cebeef4158006284b83119a3cb24abe62ba"
+  inputs-digest = "ba13d365e33872c4edf436690477af7bb9f4f2634d37aedd87648471d9818c77"
   solver-name = "gps-cdcl"
   solver-version = 1

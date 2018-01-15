@@ -103,8 +103,12 @@ func easyjson746f8c8DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *PostC
 			continue
 		}
 		switch key {
+		case "name":
+			out.Name = string(in.String())
 		case "description":
 			out.Description = string(in.String())
+		case "ship_type_id":
+			out.ShipTypeId = int32(in.Int32())
 		case "items":
 			if in.IsNull() {
 				in.Skip()
@@ -128,10 +132,6 @@ func easyjson746f8c8DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *PostC
 				}
 				in.Delim(']')
 			}
-		case "name":
-			out.Name = string(in.String())
-		case "ship_type_id":
-			out.ShipTypeId = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -146,23 +146,45 @@ func easyjson746f8c8EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Post
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.Description != "" {
-		if !first {
-			out.RawByte(',')
+	if in.Name != "" {
+		const prefix string = ",\"name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"description\":")
+		out.String(string(in.Name))
+	}
+	if in.Description != "" {
+		const prefix string = ",\"description\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.String(string(in.Description))
 	}
-	if len(in.Items) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"items\":")
-		if in.Items == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+	if in.ShipTypeId != 0 {
+		const prefix string = ",\"ship_type_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.ShipTypeId))
+	}
+	if len(in.Items) != 0 {
+		const prefix string = ",\"items\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
 			for v5, v6 := range in.Items {
 				if v5 > 0 {
@@ -172,22 +194,6 @@ func easyjson746f8c8EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Post
 			}
 			out.RawByte(']')
 		}
-	}
-	if in.Name != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"name\":")
-		out.String(string(in.Name))
-	}
-	if in.ShipTypeId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"ship_type_id\":")
-		out.Int32(int32(in.ShipTypeId))
 	}
 	out.RawByte('}')
 }
@@ -234,12 +240,12 @@ func easyjson746f8c8DecodeGithubComAntihaxGoesiEsi2(in *jlexer.Lexer, out *PostC
 			continue
 		}
 		switch key {
+		case "type_id":
+			out.TypeId = int32(in.Int32())
 		case "flag":
 			out.Flag = int32(in.Int32())
 		case "quantity":
 			out.Quantity = int32(in.Int32())
-		case "type_id":
-			out.TypeId = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -254,29 +260,35 @@ func easyjson746f8c8EncodeGithubComAntihaxGoesiEsi2(out *jwriter.Writer, in Post
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.Flag != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.TypeId != 0 {
+		const prefix string = ",\"type_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"flag\":")
+		out.Int32(int32(in.TypeId))
+	}
+	if in.Flag != 0 {
+		const prefix string = ",\"flag\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.Int32(int32(in.Flag))
 	}
 	if in.Quantity != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"quantity\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"quantity\":")
 		out.Int32(int32(in.Quantity))
-	}
-	if in.TypeId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"type_id\":")
-		out.Int32(int32(in.TypeId))
 	}
 	out.RawByte('}')
 }

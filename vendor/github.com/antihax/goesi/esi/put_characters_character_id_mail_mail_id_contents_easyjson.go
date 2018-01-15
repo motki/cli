@@ -103,6 +103,8 @@ func easyjsonA501c44dDecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *PutC
 			continue
 		}
 		switch key {
+		case "read":
+			out.Read = bool(in.Bool())
 		case "labels":
 			if in.IsNull() {
 				in.Skip()
@@ -126,8 +128,6 @@ func easyjsonA501c44dDecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *PutC
 				}
 				in.Delim(']')
 			}
-		case "read":
-			out.Read = bool(in.Bool())
 		default:
 			in.SkipRecursive()
 		}
@@ -142,15 +142,25 @@ func easyjsonA501c44dEncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Put
 	out.RawByte('{')
 	first := true
 	_ = first
-	if len(in.Labels) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"labels\":")
-		if in.Labels == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+	if in.Read {
+		const prefix string = ",\"read\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		out.Bool(bool(in.Read))
+	}
+	if len(in.Labels) != 0 {
+		const prefix string = ",\"labels\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
 			for v5, v6 := range in.Labels {
 				if v5 > 0 {
@@ -160,14 +170,6 @@ func easyjsonA501c44dEncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Put
 			}
 			out.RawByte(']')
 		}
-	}
-	if in.Read {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"read\":")
-		out.Bool(bool(in.Read))
 	}
 	out.RawByte('}')
 }

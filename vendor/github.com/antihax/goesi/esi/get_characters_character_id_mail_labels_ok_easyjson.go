@@ -103,6 +103,8 @@ func easyjsonF98d9126DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 			continue
 		}
 		switch key {
+		case "total_unread_count":
+			out.TotalUnreadCount = int32(in.Int32())
 		case "labels":
 			if in.IsNull() {
 				in.Skip()
@@ -120,14 +122,12 @@ func easyjsonF98d9126DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 				}
 				for !in.IsDelim(']') {
 					var v4 GetCharactersCharacterIdMailLabelsLabel
-					easyjsonF98d9126DecodeGithubComAntihaxGoesiEsi2(in, &v4)
+					(v4).UnmarshalEasyJSON(in)
 					out.Labels = append(out.Labels, v4)
 					in.WantComma()
 				}
 				in.Delim(']')
 			}
-		case "total_unread_count":
-			out.TotalUnreadCount = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -142,32 +142,34 @@ func easyjsonF98d9126EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if len(in.Labels) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"labels\":")
-		if in.Labels == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+	if in.TotalUnreadCount != 0 {
+		const prefix string = ",\"total_unread_count\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.TotalUnreadCount))
+	}
+	if len(in.Labels) != 0 {
+		const prefix string = ",\"labels\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
 			for v5, v6 := range in.Labels {
 				if v5 > 0 {
 					out.RawByte(',')
 				}
-				easyjsonF98d9126EncodeGithubComAntihaxGoesiEsi2(out, v6)
+				(v6).MarshalEasyJSON(out)
 			}
 			out.RawByte(']')
 		}
-	}
-	if in.TotalUnreadCount != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"total_unread_count\":")
-		out.Int32(int32(in.TotalUnreadCount))
 	}
 	out.RawByte('}')
 }
@@ -194,79 +196,4 @@ func (v *GetCharactersCharacterIdMailLabelsOk) UnmarshalJSON(data []byte) error 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *GetCharactersCharacterIdMailLabelsOk) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonF98d9126DecodeGithubComAntihaxGoesiEsi1(l, v)
-}
-func easyjsonF98d9126DecodeGithubComAntihaxGoesiEsi2(in *jlexer.Lexer, out *GetCharactersCharacterIdMailLabelsLabel) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeString()
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "color":
-			out.Color = string(in.String())
-		case "label_id":
-			out.LabelId = int32(in.Int32())
-		case "name":
-			out.Name = string(in.String())
-		case "unread_count":
-			out.UnreadCount = int32(in.Int32())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonF98d9126EncodeGithubComAntihaxGoesiEsi2(out *jwriter.Writer, in GetCharactersCharacterIdMailLabelsLabel) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	if in.Color != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"color\":")
-		out.String(string(in.Color))
-	}
-	if in.LabelId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"label_id\":")
-		out.Int32(int32(in.LabelId))
-	}
-	if in.Name != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"name\":")
-		out.String(string(in.Name))
-	}
-	if in.UnreadCount != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"unread_count\":")
-		out.Int32(int32(in.UnreadCount))
-	}
-	out.RawByte('}')
 }

@@ -103,6 +103,8 @@ func easyjsonA53f7cDecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetIns
 			continue
 		}
 		switch key {
+		case "type_id":
+			out.TypeId = int32(in.Int32())
 		case "levels":
 			if in.IsNull() {
 				in.Skip()
@@ -120,14 +122,12 @@ func easyjsonA53f7cDecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetIns
 				}
 				for !in.IsDelim(']') {
 					var v4 GetInsurancePricesLevel
-					easyjsonA53f7cDecodeGithubComAntihaxGoesiEsi2(in, &v4)
+					(v4).UnmarshalEasyJSON(in)
 					out.Levels = append(out.Levels, v4)
 					in.WantComma()
 				}
 				in.Delim(']')
 			}
-		case "type_id":
-			out.TypeId = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -142,32 +142,34 @@ func easyjsonA53f7cEncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in GetIn
 	out.RawByte('{')
 	first := true
 	_ = first
-	if len(in.Levels) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"levels\":")
-		if in.Levels == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+	if in.TypeId != 0 {
+		const prefix string = ",\"type_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.TypeId))
+	}
+	if len(in.Levels) != 0 {
+		const prefix string = ",\"levels\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
 			for v5, v6 := range in.Levels {
 				if v5 > 0 {
 					out.RawByte(',')
 				}
-				easyjsonA53f7cEncodeGithubComAntihaxGoesiEsi2(out, v6)
+				(v6).MarshalEasyJSON(out)
 			}
 			out.RawByte(']')
 		}
-	}
-	if in.TypeId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"type_id\":")
-		out.Int32(int32(in.TypeId))
 	}
 	out.RawByte('}')
 }
@@ -194,69 +196,4 @@ func (v *GetInsurancePrices200Ok) UnmarshalJSON(data []byte) error {
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *GetInsurancePrices200Ok) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonA53f7cDecodeGithubComAntihaxGoesiEsi1(l, v)
-}
-func easyjsonA53f7cDecodeGithubComAntihaxGoesiEsi2(in *jlexer.Lexer, out *GetInsurancePricesLevel) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeString()
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "cost":
-			out.Cost = float32(in.Float32())
-		case "name":
-			out.Name = string(in.String())
-		case "payout":
-			out.Payout = float32(in.Float32())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonA53f7cEncodeGithubComAntihaxGoesiEsi2(out *jwriter.Writer, in GetInsurancePricesLevel) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	if in.Cost != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"cost\":")
-		out.Float32(float32(in.Cost))
-	}
-	if in.Name != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"name\":")
-		out.String(string(in.Name))
-	}
-	if in.Payout != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"payout\":")
-		out.Float32(float32(in.Payout))
-	}
-	out.RawByte('}')
 }

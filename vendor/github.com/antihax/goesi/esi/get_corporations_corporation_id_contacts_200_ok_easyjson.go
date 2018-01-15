@@ -103,16 +103,16 @@ func easyjsonC64d89d9DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 			continue
 		}
 		switch key {
-		case "contact_id":
-			out.ContactId = int32(in.Int32())
+		case "standing":
+			out.Standing = float32(in.Float32())
 		case "contact_type":
 			out.ContactType = string(in.String())
+		case "contact_id":
+			out.ContactId = int32(in.Int32())
 		case "is_watched":
 			out.IsWatched = bool(in.Bool())
 		case "label_id":
 			out.LabelId = int64(in.Int64())
-		case "standing":
-			out.Standing = float32(in.Float32())
 		default:
 			in.SkipRecursive()
 		}
@@ -127,45 +127,55 @@ func easyjsonC64d89d9EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.ContactId != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.Standing != 0 {
+		const prefix string = ",\"standing\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"contact_id\":")
-		out.Int32(int32(in.ContactId))
+		out.Float32(float32(in.Standing))
 	}
 	if in.ContactType != "" {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"contact_type\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"contact_type\":")
 		out.String(string(in.ContactType))
 	}
-	if in.IsWatched {
-		if !first {
-			out.RawByte(',')
+	if in.ContactId != 0 {
+		const prefix string = ",\"contact_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"is_watched\":")
+		out.Int32(int32(in.ContactId))
+	}
+	if in.IsWatched {
+		const prefix string = ",\"is_watched\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.Bool(bool(in.IsWatched))
 	}
 	if in.LabelId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"label_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"label_id\":")
 		out.Int64(int64(in.LabelId))
-	}
-	if in.Standing != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"standing\":")
-		out.Float32(float32(in.Standing))
 	}
 	out.RawByte('}')
 }

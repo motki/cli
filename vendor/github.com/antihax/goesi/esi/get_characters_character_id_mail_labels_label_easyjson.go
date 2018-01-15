@@ -103,14 +103,14 @@ func easyjson1d8817ecDecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 			continue
 		}
 		switch key {
-		case "color":
-			out.Color = string(in.String())
+		case "unread_count":
+			out.UnreadCount = int32(in.Int32())
 		case "label_id":
 			out.LabelId = int32(in.Int32())
 		case "name":
 			out.Name = string(in.String())
-		case "unread_count":
-			out.UnreadCount = int32(in.Int32())
+		case "color":
+			out.Color = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -125,37 +125,45 @@ func easyjson1d8817ecEncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.Color != "" {
-		if !first {
-			out.RawByte(',')
+	if in.UnreadCount != 0 {
+		const prefix string = ",\"unread_count\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"color\":")
-		out.String(string(in.Color))
+		out.Int32(int32(in.UnreadCount))
 	}
 	if in.LabelId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"label_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"label_id\":")
 		out.Int32(int32(in.LabelId))
 	}
 	if in.Name != "" {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"name\":")
 		out.String(string(in.Name))
 	}
-	if in.UnreadCount != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.Color != "" {
+		const prefix string = ",\"color\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"unread_count\":")
-		out.Int32(int32(in.UnreadCount))
+		out.String(string(in.Color))
 	}
 	out.RawByte('}')
 }

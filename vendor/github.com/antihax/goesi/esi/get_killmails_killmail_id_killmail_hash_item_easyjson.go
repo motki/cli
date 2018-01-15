@@ -103,8 +103,6 @@ func easyjson8e5c6700DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetK
 			continue
 		}
 		switch key {
-		case "flag":
-			out.Flag = int32(in.Int32())
 		case "item_type_id":
 			out.ItemTypeId = int32(in.Int32())
 		case "quantity_destroyed":
@@ -113,6 +111,8 @@ func easyjson8e5c6700DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetK
 			out.QuantityDropped = int64(in.Int64())
 		case "singleton":
 			out.Singleton = int32(in.Int32())
+		case "flag":
+			out.Flag = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -127,45 +127,55 @@ func easyjson8e5c6700EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.Flag != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"flag\":")
-		out.Int32(int32(in.Flag))
-	}
 	if in.ItemTypeId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"item_type_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"item_type_id\":")
 		out.Int32(int32(in.ItemTypeId))
 	}
 	if in.QuantityDestroyed != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"quantity_destroyed\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"quantity_destroyed\":")
 		out.Int64(int64(in.QuantityDestroyed))
 	}
 	if in.QuantityDropped != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"quantity_dropped\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"quantity_dropped\":")
 		out.Int64(int64(in.QuantityDropped))
 	}
 	if in.Singleton != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"singleton\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"singleton\":")
 		out.Int32(int32(in.Singleton))
+	}
+	if in.Flag != 0 {
+		const prefix string = ",\"flag\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.Flag))
 	}
 	out.RawByte('}')
 }

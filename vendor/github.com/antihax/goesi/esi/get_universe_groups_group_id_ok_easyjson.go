@@ -103,14 +103,14 @@ func easyjson320a592aDecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetU
 			continue
 		}
 		switch key {
-		case "category_id":
-			out.CategoryId = int32(in.Int32())
 		case "group_id":
 			out.GroupId = int32(in.Int32())
 		case "name":
 			out.Name = string(in.String())
 		case "published":
 			out.Published = bool(in.Bool())
+		case "category_id":
+			out.CategoryId = int32(in.Int32())
 		case "types":
 			if in.IsNull() {
 				in.Skip()
@@ -148,47 +148,55 @@ func easyjson320a592aEncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.CategoryId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"category_id\":")
-		out.Int32(int32(in.CategoryId))
-	}
 	if in.GroupId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"group_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"group_id\":")
 		out.Int32(int32(in.GroupId))
 	}
 	if in.Name != "" {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"name\":")
 		out.String(string(in.Name))
 	}
 	if in.Published {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"published\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"published\":")
 		out.Bool(bool(in.Published))
 	}
-	if len(in.Types) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"types\":")
-		if in.Types == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+	if in.CategoryId != 0 {
+		const prefix string = ",\"category_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.CategoryId))
+	}
+	if len(in.Types) != 0 {
+		const prefix string = ",\"types\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
 			for v5, v6 := range in.Types {
 				if v5 > 0 {

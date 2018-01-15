@@ -7,13 +7,16 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-
 	"strings"
 
+	"github.com/antihax/goesi"
 	"github.com/jackc/pgx"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
+
+	"github.com/motki/motki/eveapi"
 )
 
 type Role int
@@ -160,7 +163,7 @@ func (m *Manager) AuthenticateUser(name, password string) (*User, string, error)
 	}
 	defer m.pool.Release(db)
 	u := &User{}
-	p := []byte{}
+	var p []byte
 	row := db.QueryRow(`SELECT id, username, email, password FROM app.users WHERE username = $1 AND verified = 1 AND disabled <> 1`, name)
 	err = row.Scan(&u.UserID, &u.Name, &u.Email, &p)
 	if err != nil {
@@ -223,11 +226,19 @@ func (m *Manager) SaveAuthorization(u *User, r Role, characterID int, tok *oauth
 	}
 	defer m.pool.Release(db)
 	_, err = db.Exec(
-		`INSERT INTO app.user_authorizations (user_id, character_id, role, token)
-		  	   VALUES($1, $2, $3, $4)
-			   ON CONFLICT ON CONSTRAINT "user_authorizations_pkey"  DO
-				UPDATE SET character_id = EXCLUDED.character_id,
-				  token = EXCLUDED.token`,
+		`INSERT INTO app.user_authorizations
+			 (
+			     user_id
+		 	   , character_id
+			   , role
+			   , token
+			 )
+		       VALUES($1, $2, $3, $4)
+			 ON CONFLICT
+		       ON CONSTRAINT "user_authorizations_pkey"
+			 DO UPDATE
+			   SET character_id = EXCLUDED.character_id
+			     , token = EXCLUDED.token`,
 		u.UserID,
 		characterID,
 		int(r),
@@ -247,12 +258,19 @@ func (m *Manager) GetAuthorization(user *User, role Role) (*Authorization, error
 	defer m.pool.Release(db)
 	a := &Authorization{}
 	token := &oAuth2Token{}
-	b := []byte{}
+	var b []byte
 	ri := 0
-	row := db.QueryRow(`SELECT user_id, character_id, "role", token
-					    FROM app.user_authorizations
-					    WHERE user_id = $1
-						AND "role" = $2`, user.UserID, role)
+	row := db.QueryRow(
+		`SELECT
+			  user_id
+			, character_id
+			, "role"
+			, token
+		    FROM app.user_authorizations
+		    WHERE user_id = $1
+			AND "role" = $2`,
+		user.UserID,
+		role)
 	err = row.Scan(&a.UserID, &a.CharacterID, &ri, &b)
 	a.Role = Role(ri)
 	if err != nil {
@@ -266,6 +284,24 @@ func (m *Manager) GetAuthorization(user *User, role Role) (*Authorization, error
 		return nil, err
 	}
 	a.Token = (*oauth2.Token)(token)
+	source, err := m.eveapi.TokenSource(a.Token)
+	if err != nil {
+		return nil, err
+	}
+	info, err := m.eveapi.Verify(source)
+	if err != nil {
+		return nil, err
+	}
+	if int(info.CharacterID) != a.CharacterID {
+		return nil, errors.New("expected character IDs to match!")
+	}
+	a.source = source
+	// Force retrieval of current char info from the API
+	char, err := m.getCharacterFromAPI(a.CharacterID)
+	if err != nil {
+		return nil, err
+	}
+	a.CorporationID = char.CorporationID
 	return a, nil
 }
 
@@ -275,7 +311,12 @@ func (m *Manager) RemoveAuthorization(user *User, role Role) error {
 		return err
 	}
 	defer m.pool.Release(db)
-	_, err = db.Exec(`DELETE FROM app.user_authorizations WHERE user_id = $1 AND "role" = $2`, user.UserID, int(role))
+	_, err = db.Exec(
+		`DELETE
+			 FROM app.user_authorizations
+			 WHERE user_id = $1 AND "role" = $2`,
+		user.UserID,
+		int(role))
 	return err
 }
 
@@ -294,8 +335,59 @@ func (r *oAuth2Token) Scan(src interface{}) error {
 }
 
 type Authorization struct {
-	UserID      int
-	CharacterID int
-	Role        Role
-	Token       *oauth2.Token
+	UserID        int
+	CharacterID   int
+	CorporationID int
+	Role          Role
+	Token         *oauth2.Token
+	source        oauth2.TokenSource
+}
+
+func (a *Authorization) Context() context.Context {
+	return context.WithValue(context.Background(), goesi.ContextOAuth2, a.source)
+}
+
+var (
+	userScopes = []string{
+		eveapi.ScopePublicData,
+		eveapi.ScopeESISkillsReadSkills,
+		eveapi.ScopeESISkillsReadSkillQueue,
+		eveapi.ScopeESIKillmailsReadKillmails,
+	}
+	logisticsScopes = []string{
+		eveapi.ScopeCharacterAssetsRead,
+		eveapi.ScopeCharacterIndustryJobsRead,
+		eveapi.ScopeCharacterMarketOrdersRead,
+		eveapi.ScopeCharacterWalletRead,
+		eveapi.ScopeCorporationMarketOrdersRead,
+		eveapi.ScopeCorporationIndustryJobsRead,
+		eveapi.ScopeCorporationWalletRead,
+		eveapi.ScopeESISkillsReadSkills,
+		eveapi.ScopeESIUniverseReadStructures,
+		eveapi.ScopeESIAssetsReadAssets,
+		eveapi.ScopeESIWalletReadCharacterWallet,
+		eveapi.ScopeESIMarketsStructureMarkets,
+		eveapi.ScopeESIIndustryReadCharacterJobs,
+		eveapi.ScopeESIMarketsReadCharacterOrders,
+		eveapi.ScopeESICharactersReadBlueprints,
+	}
+	directorScopes = []string{
+		eveapi.ScopeESICorporationsReadStructures,
+		eveapi.ScopeESICorporationsWriteStructures,
+	}
+)
+
+func APIScopesForRole(r Role) []string {
+	switch r {
+	case RoleUser:
+		return userScopes
+	case RoleLogistics:
+		return logisticsScopes
+	case RoleDirector:
+		s := make([]string, len(logisticsScopes))
+		copy(s, logisticsScopes)
+		return append(s, directorScopes...)
+	default:
+		return []string{}
+	}
 }

@@ -103,10 +103,10 @@ func easyjson89bb863DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetFl
 			continue
 		}
 		switch key {
-		case "id":
-			out.Id = int64(in.Int64())
 		case "name":
 			out.Name = string(in.String())
+		case "id":
+			out.Id = int64(in.Int64())
 		default:
 			in.SkipRecursive()
 		}
@@ -121,21 +121,25 @@ func easyjson89bb863EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in GetF
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.Id != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"id\":")
-		out.Int64(int64(in.Id))
-	}
 	if in.Name != "" {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"name\":")
 		out.String(string(in.Name))
+	}
+	if in.Id != 0 {
+		const prefix string = ",\"id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int64(int64(in.Id))
 	}
 	out.RawByte('}')
 }

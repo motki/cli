@@ -103,28 +103,28 @@ func easyjson78a31a36DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 			continue
 		}
 		switch key {
-		case "date":
-			if data := in.Raw(); in.Ok() {
-				in.AddError((out.Date).UnmarshalJSON(data))
-			}
-		case "duration":
-			out.Duration = int32(in.Int32())
 		case "event_id":
 			out.EventId = int32(in.Int32())
-		case "importance":
-			out.Importance = int32(in.Int32())
 		case "owner_id":
 			out.OwnerId = int32(in.Int32())
 		case "owner_name":
 			out.OwnerName = string(in.String())
-		case "owner_type":
-			out.OwnerType = string(in.String())
+		case "date":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.Date).UnmarshalJSON(data))
+			}
+		case "title":
+			out.Title = string(in.String())
+		case "duration":
+			out.Duration = int32(in.Int32())
+		case "importance":
+			out.Importance = int32(in.Int32())
 		case "response":
 			out.Response = string(in.String())
 		case "text":
 			out.Text = string(in.String())
-		case "title":
-			out.Title = string(in.String())
+		case "owner_type":
+			out.OwnerType = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -139,85 +139,105 @@ func easyjson78a31a36EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if true {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"date\":")
-		out.Raw((in.Date).MarshalJSON())
-	}
-	if in.Duration != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"duration\":")
-		out.Int32(int32(in.Duration))
-	}
 	if in.EventId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"event_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"event_id\":")
 		out.Int32(int32(in.EventId))
 	}
-	if in.Importance != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"importance\":")
-		out.Int32(int32(in.Importance))
-	}
 	if in.OwnerId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"owner_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"owner_id\":")
 		out.Int32(int32(in.OwnerId))
 	}
 	if in.OwnerName != "" {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"owner_name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"owner_name\":")
 		out.String(string(in.OwnerName))
 	}
-	if in.OwnerType != "" {
-		if !first {
-			out.RawByte(',')
+	if true {
+		const prefix string = ",\"date\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"owner_type\":")
-		out.String(string(in.OwnerType))
+		out.Raw((in.Date).MarshalJSON())
+	}
+	if in.Title != "" {
+		const prefix string = ",\"title\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.Title))
+	}
+	if in.Duration != 0 {
+		const prefix string = ",\"duration\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.Duration))
+	}
+	if in.Importance != 0 {
+		const prefix string = ",\"importance\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.Importance))
 	}
 	if in.Response != "" {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"response\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"response\":")
 		out.String(string(in.Response))
 	}
 	if in.Text != "" {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"text\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"text\":")
 		out.String(string(in.Text))
 	}
-	if in.Title != "" {
-		if !first {
-			out.RawByte(',')
+	if in.OwnerType != "" {
+		const prefix string = ",\"owner_type\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"title\":")
-		out.String(string(in.Title))
+		out.String(string(in.OwnerType))
 	}
 	out.RawByte('}')
 }

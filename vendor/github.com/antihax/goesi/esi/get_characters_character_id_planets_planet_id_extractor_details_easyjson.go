@@ -103,10 +103,6 @@ func easyjson7d2da406DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 			continue
 		}
 		switch key {
-		case "cycle_time":
-			out.CycleTime = int32(in.Int32())
-		case "head_radius":
-			out.HeadRadius = float32(in.Float32())
 		case "heads":
 			if in.IsNull() {
 				in.Skip()
@@ -124,7 +120,7 @@ func easyjson7d2da406DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 				}
 				for !in.IsDelim(']') {
 					var v4 GetCharactersCharacterIdPlanetsPlanetIdHead
-					(v4).UnmarshalEasyJSON(in)
+					easyjson7d2da406DecodeGithubComAntihaxGoesiEsi2(in, &v4)
 					out.Heads = append(out.Heads, v4)
 					in.WantComma()
 				}
@@ -132,6 +128,10 @@ func easyjson7d2da406DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 			}
 		case "product_type_id":
 			out.ProductTypeId = int32(in.Int32())
+		case "cycle_time":
+			out.CycleTime = int32(in.Int32())
+		case "head_radius":
+			out.HeadRadius = float32(in.Float32())
 		case "qty_per_cycle":
 			out.QtyPerCycle = int32(in.Int32())
 		default:
@@ -148,55 +148,63 @@ func easyjson7d2da406EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.CycleTime != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"cycle_time\":")
-		out.Int32(int32(in.CycleTime))
-	}
-	if in.HeadRadius != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"head_radius\":")
-		out.Float32(float32(in.HeadRadius))
-	}
 	if len(in.Heads) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"heads\":")
-		if in.Heads == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+		const prefix string = ",\"heads\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
 			for v5, v6 := range in.Heads {
 				if v5 > 0 {
 					out.RawByte(',')
 				}
-				(v6).MarshalEasyJSON(out)
+				easyjson7d2da406EncodeGithubComAntihaxGoesiEsi2(out, v6)
 			}
 			out.RawByte(']')
 		}
 	}
 	if in.ProductTypeId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"product_type_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"product_type_id\":")
 		out.Int32(int32(in.ProductTypeId))
 	}
-	if in.QtyPerCycle != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.CycleTime != 0 {
+		const prefix string = ",\"cycle_time\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"qty_per_cycle\":")
+		out.Int32(int32(in.CycleTime))
+	}
+	if in.HeadRadius != 0 {
+		const prefix string = ",\"head_radius\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Float32(float32(in.HeadRadius))
+	}
+	if in.QtyPerCycle != 0 {
+		const prefix string = ",\"qty_per_cycle\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.Int32(int32(in.QtyPerCycle))
 	}
 	out.RawByte('}')
@@ -224,4 +232,75 @@ func (v *GetCharactersCharacterIdPlanetsPlanetIdExtractorDetails) UnmarshalJSON(
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *GetCharactersCharacterIdPlanetsPlanetIdExtractorDetails) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson7d2da406DecodeGithubComAntihaxGoesiEsi1(l, v)
+}
+func easyjson7d2da406DecodeGithubComAntihaxGoesiEsi2(in *jlexer.Lexer, out *GetCharactersCharacterIdPlanetsPlanetIdHead) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeString()
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "head_id":
+			out.HeadId = int32(in.Int32())
+		case "latitude":
+			out.Latitude = float32(in.Float32())
+		case "longitude":
+			out.Longitude = float32(in.Float32())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson7d2da406EncodeGithubComAntihaxGoesiEsi2(out *jwriter.Writer, in GetCharactersCharacterIdPlanetsPlanetIdHead) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	if in.HeadId != 0 {
+		const prefix string = ",\"head_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.HeadId))
+	}
+	if in.Latitude != 0 {
+		const prefix string = ",\"latitude\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Float32(float32(in.Latitude))
+	}
+	if in.Longitude != 0 {
+		const prefix string = ",\"longitude\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Float32(float32(in.Longitude))
+	}
+	out.RawByte('}')
 }

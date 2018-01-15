@@ -103,22 +103,22 @@ func easyjson5f788c63DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 			continue
 		}
 		switch key {
+		case "solar_system_id":
+			out.SolarSystemId = int32(in.Int32())
+		case "planet_id":
+			out.PlanetId = int32(in.Int32())
+		case "owner_id":
+			out.OwnerId = int32(in.Int32())
+		case "upgrade_level":
+			out.UpgradeLevel = int32(in.Int32())
+		case "num_pins":
+			out.NumPins = int32(in.Int32())
 		case "last_update":
 			if data := in.Raw(); in.Ok() {
 				in.AddError((out.LastUpdate).UnmarshalJSON(data))
 			}
-		case "num_pins":
-			out.NumPins = int32(in.Int32())
-		case "owner_id":
-			out.OwnerId = int32(in.Int32())
-		case "planet_id":
-			out.PlanetId = int32(in.Int32())
 		case "planet_type":
 			out.PlanetType = string(in.String())
-		case "solar_system_id":
-			out.SolarSystemId = int32(in.Int32())
-		case "upgrade_level":
-			out.UpgradeLevel = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -133,61 +133,75 @@ func easyjson5f788c63EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if true {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"last_update\":")
-		out.Raw((in.LastUpdate).MarshalJSON())
-	}
-	if in.NumPins != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"num_pins\":")
-		out.Int32(int32(in.NumPins))
-	}
-	if in.OwnerId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"owner_id\":")
-		out.Int32(int32(in.OwnerId))
-	}
-	if in.PlanetId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"planet_id\":")
-		out.Int32(int32(in.PlanetId))
-	}
-	if in.PlanetType != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"planet_type\":")
-		out.String(string(in.PlanetType))
-	}
 	if in.SolarSystemId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"solar_system_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"solar_system_id\":")
 		out.Int32(int32(in.SolarSystemId))
 	}
-	if in.UpgradeLevel != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.PlanetId != 0 {
+		const prefix string = ",\"planet_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"upgrade_level\":")
+		out.Int32(int32(in.PlanetId))
+	}
+	if in.OwnerId != 0 {
+		const prefix string = ",\"owner_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.OwnerId))
+	}
+	if in.UpgradeLevel != 0 {
+		const prefix string = ",\"upgrade_level\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.Int32(int32(in.UpgradeLevel))
+	}
+	if in.NumPins != 0 {
+		const prefix string = ",\"num_pins\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.NumPins))
+	}
+	if true {
+		const prefix string = ",\"last_update\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Raw((in.LastUpdate).MarshalJSON())
+	}
+	if in.PlanetType != "" {
+		const prefix string = ",\"planet_type\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.PlanetType))
 	}
 	out.RawByte('}')
 }

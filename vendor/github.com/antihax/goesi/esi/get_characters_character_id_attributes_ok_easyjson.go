@@ -103,26 +103,26 @@ func easyjson8920fc7eDecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 			continue
 		}
 		switch key {
-		case "accrued_remap_cooldown_date":
-			if data := in.Raw(); in.Ok() {
-				in.AddError((out.AccruedRemapCooldownDate).UnmarshalJSON(data))
-			}
-		case "bonus_remaps":
-			out.BonusRemaps = int32(in.Int32())
 		case "charisma":
 			out.Charisma = int32(in.Int32())
 		case "intelligence":
 			out.Intelligence = int32(in.Int32())
-		case "last_remap_date":
-			if data := in.Raw(); in.Ok() {
-				in.AddError((out.LastRemapDate).UnmarshalJSON(data))
-			}
 		case "memory":
 			out.Memory = int32(in.Int32())
 		case "perception":
 			out.Perception = int32(in.Int32())
 		case "willpower":
 			out.Willpower = int32(in.Int32())
+		case "bonus_remaps":
+			out.BonusRemaps = int32(in.Int32())
+		case "last_remap_date":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.LastRemapDate).UnmarshalJSON(data))
+			}
+		case "accrued_remap_cooldown_date":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.AccruedRemapCooldownDate).UnmarshalJSON(data))
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -137,69 +137,85 @@ func easyjson8920fc7eEncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if true {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"accrued_remap_cooldown_date\":")
-		out.Raw((in.AccruedRemapCooldownDate).MarshalJSON())
-	}
-	if in.BonusRemaps != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"bonus_remaps\":")
-		out.Int32(int32(in.BonusRemaps))
-	}
 	if in.Charisma != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"charisma\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"charisma\":")
 		out.Int32(int32(in.Charisma))
 	}
 	if in.Intelligence != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"intelligence\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"intelligence\":")
 		out.Int32(int32(in.Intelligence))
 	}
-	if true {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"last_remap_date\":")
-		out.Raw((in.LastRemapDate).MarshalJSON())
-	}
 	if in.Memory != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"memory\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"memory\":")
 		out.Int32(int32(in.Memory))
 	}
 	if in.Perception != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"perception\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"perception\":")
 		out.Int32(int32(in.Perception))
 	}
 	if in.Willpower != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"willpower\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"willpower\":")
 		out.Int32(int32(in.Willpower))
+	}
+	if in.BonusRemaps != 0 {
+		const prefix string = ",\"bonus_remaps\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.BonusRemaps))
+	}
+	if true {
+		const prefix string = ",\"last_remap_date\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Raw((in.LastRemapDate).MarshalJSON())
+	}
+	if true {
+		const prefix string = ",\"accrued_remap_cooldown_date\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Raw((in.AccruedRemapCooldownDate).MarshalJSON())
 	}
 	out.RawByte('}')
 }

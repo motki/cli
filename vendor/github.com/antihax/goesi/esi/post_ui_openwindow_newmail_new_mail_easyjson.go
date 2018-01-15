@@ -103,6 +103,8 @@ func easyjsonF642f465DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *Post
 			continue
 		}
 		switch key {
+		case "subject":
+			out.Subject = string(in.String())
 		case "body":
 			out.Body = string(in.String())
 		case "recipients":
@@ -128,12 +130,10 @@ func easyjsonF642f465DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *Post
 				}
 				in.Delim(']')
 			}
-		case "subject":
-			out.Subject = string(in.String())
-		case "to_corp_or_alliance_id":
-			out.ToCorpOrAllianceId = int32(in.Int32())
 		case "to_mailing_list_id":
 			out.ToMailingListId = int32(in.Int32())
+		case "to_corp_or_alliance_id":
+			out.ToCorpOrAllianceId = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -148,23 +148,35 @@ func easyjsonF642f465EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Pos
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.Body != "" {
-		if !first {
-			out.RawByte(',')
+	if in.Subject != "" {
+		const prefix string = ",\"subject\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"body\":")
+		out.String(string(in.Subject))
+	}
+	if in.Body != "" {
+		const prefix string = ",\"body\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.String(string(in.Body))
 	}
 	if len(in.Recipients) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"recipients\":")
-		if in.Recipients == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+		const prefix string = ",\"recipients\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
 			for v5, v6 := range in.Recipients {
 				if v5 > 0 {
@@ -175,29 +187,25 @@ func easyjsonF642f465EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Pos
 			out.RawByte(']')
 		}
 	}
-	if in.Subject != "" {
-		if !first {
-			out.RawByte(',')
+	if in.ToMailingListId != 0 {
+		const prefix string = ",\"to_mailing_list_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"subject\":")
-		out.String(string(in.Subject))
+		out.Int32(int32(in.ToMailingListId))
 	}
 	if in.ToCorpOrAllianceId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"to_corp_or_alliance_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"to_corp_or_alliance_id\":")
 		out.Int32(int32(in.ToCorpOrAllianceId))
-	}
-	if in.ToMailingListId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"to_mailing_list_id\":")
-		out.Int32(int32(in.ToMailingListId))
 	}
 	out.RawByte('}')
 }

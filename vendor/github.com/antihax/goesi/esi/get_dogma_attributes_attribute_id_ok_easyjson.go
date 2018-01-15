@@ -105,24 +105,24 @@ func easyjson3dc99e5fDecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetD
 		switch key {
 		case "attribute_id":
 			out.AttributeId = int32(in.Int32())
-		case "default_value":
-			out.DefaultValue = float32(in.Float32())
-		case "description":
-			out.Description = string(in.String())
-		case "display_name":
-			out.DisplayName = string(in.String())
-		case "high_is_good":
-			out.HighIsGood = bool(in.Bool())
-		case "icon_id":
-			out.IconId = int32(in.Int32())
 		case "name":
 			out.Name = string(in.String())
+		case "description":
+			out.Description = string(in.String())
+		case "icon_id":
+			out.IconId = int32(in.Int32())
+		case "default_value":
+			out.DefaultValue = float32(in.Float32())
 		case "published":
 			out.Published = bool(in.Bool())
-		case "stackable":
-			out.Stackable = bool(in.Bool())
+		case "display_name":
+			out.DisplayName = string(in.String())
 		case "unit_id":
 			out.UnitId = int32(in.Int32())
+		case "stackable":
+			out.Stackable = bool(in.Bool())
+		case "high_is_good":
+			out.HighIsGood = bool(in.Bool())
 		default:
 			in.SkipRecursive()
 		}
@@ -138,84 +138,104 @@ func easyjson3dc99e5fEncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	first := true
 	_ = first
 	if in.AttributeId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"attribute_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"attribute_id\":")
 		out.Int32(int32(in.AttributeId))
 	}
-	if in.DefaultValue != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"default_value\":")
-		out.Float32(float32(in.DefaultValue))
-	}
-	if in.Description != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"description\":")
-		out.String(string(in.Description))
-	}
-	if in.DisplayName != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"display_name\":")
-		out.String(string(in.DisplayName))
-	}
-	if in.HighIsGood {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"high_is_good\":")
-		out.Bool(bool(in.HighIsGood))
-	}
-	if in.IconId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"icon_id\":")
-		out.Int32(int32(in.IconId))
-	}
 	if in.Name != "" {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"name\":")
 		out.String(string(in.Name))
 	}
-	if in.Published {
-		if !first {
-			out.RawByte(',')
+	if in.Description != "" {
+		const prefix string = ",\"description\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"published\":")
+		out.String(string(in.Description))
+	}
+	if in.IconId != 0 {
+		const prefix string = ",\"icon_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.IconId))
+	}
+	if in.DefaultValue != 0 {
+		const prefix string = ",\"default_value\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Float32(float32(in.DefaultValue))
+	}
+	if in.Published {
+		const prefix string = ",\"published\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.Bool(bool(in.Published))
 	}
-	if in.Stackable {
-		if !first {
-			out.RawByte(',')
+	if in.DisplayName != "" {
+		const prefix string = ",\"display_name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"stackable\":")
-		out.Bool(bool(in.Stackable))
+		out.String(string(in.DisplayName))
 	}
 	if in.UnitId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"unit_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"unit_id\":")
 		out.Int32(int32(in.UnitId))
+	}
+	if in.Stackable {
+		const prefix string = ",\"stackable\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Bool(bool(in.Stackable))
+	}
+	if in.HighIsGood {
+		const prefix string = ",\"high_is_good\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Bool(bool(in.HighIsGood))
 	}
 	out.RawByte('}')
 }

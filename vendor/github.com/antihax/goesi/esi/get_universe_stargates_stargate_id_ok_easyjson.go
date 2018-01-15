@@ -103,18 +103,18 @@ func easyjson3bdd99b0DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetU
 			continue
 		}
 		switch key {
-		case "destination":
-			easyjson3bdd99b0DecodeGithubComAntihaxGoesiEsi2(in, &out.Destination)
-		case "name":
-			out.Name = string(in.String())
-		case "position":
-			easyjson3bdd99b0DecodeGithubComAntihaxGoesiEsi3(in, &out.Position)
 		case "stargate_id":
 			out.StargateId = int32(in.Int32())
-		case "system_id":
-			out.SystemId = int32(in.Int32())
+		case "name":
+			out.Name = string(in.String())
 		case "type_id":
 			out.TypeId = int32(in.Int32())
+		case "position":
+			(out.Position).UnmarshalEasyJSON(in)
+		case "system_id":
+			out.SystemId = int32(in.Int32())
+		case "destination":
+			(out.Destination).UnmarshalEasyJSON(in)
 		default:
 			in.SkipRecursive()
 		}
@@ -129,53 +129,65 @@ func easyjson3bdd99b0EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if true {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"destination\":")
-		easyjson3bdd99b0EncodeGithubComAntihaxGoesiEsi2(out, in.Destination)
-	}
-	if in.Name != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"name\":")
-		out.String(string(in.Name))
-	}
-	if true {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"position\":")
-		easyjson3bdd99b0EncodeGithubComAntihaxGoesiEsi3(out, in.Position)
-	}
 	if in.StargateId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"stargate_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"stargate_id\":")
 		out.Int32(int32(in.StargateId))
 	}
-	if in.SystemId != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.Name != "" {
+		const prefix string = ",\"name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"system_id\":")
-		out.Int32(int32(in.SystemId))
+		out.String(string(in.Name))
 	}
 	if in.TypeId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"type_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"type_id\":")
 		out.Int32(int32(in.TypeId))
+	}
+	if true {
+		const prefix string = ",\"position\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		(in.Position).MarshalEasyJSON(out)
+	}
+	if in.SystemId != 0 {
+		const prefix string = ",\"system_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.SystemId))
+	}
+	if true {
+		const prefix string = ",\"destination\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		(in.Destination).MarshalEasyJSON(out)
 	}
 	out.RawByte('}')
 }
@@ -202,124 +214,4 @@ func (v *GetUniverseStargatesStargateIdOk) UnmarshalJSON(data []byte) error {
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *GetUniverseStargatesStargateIdOk) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson3bdd99b0DecodeGithubComAntihaxGoesiEsi1(l, v)
-}
-func easyjson3bdd99b0DecodeGithubComAntihaxGoesiEsi3(in *jlexer.Lexer, out *GetUniverseStargatesStargateIdPosition) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeString()
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "x":
-			out.X = float32(in.Float32())
-		case "y":
-			out.Y = float32(in.Float32())
-		case "z":
-			out.Z = float32(in.Float32())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjson3bdd99b0EncodeGithubComAntihaxGoesiEsi3(out *jwriter.Writer, in GetUniverseStargatesStargateIdPosition) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	if in.X != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"x\":")
-		out.Float32(float32(in.X))
-	}
-	if in.Y != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"y\":")
-		out.Float32(float32(in.Y))
-	}
-	if in.Z != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"z\":")
-		out.Float32(float32(in.Z))
-	}
-	out.RawByte('}')
-}
-func easyjson3bdd99b0DecodeGithubComAntihaxGoesiEsi2(in *jlexer.Lexer, out *GetUniverseStargatesStargateIdDestination) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeString()
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "stargate_id":
-			out.StargateId = int32(in.Int32())
-		case "system_id":
-			out.SystemId = int32(in.Int32())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjson3bdd99b0EncodeGithubComAntihaxGoesiEsi2(out *jwriter.Writer, in GetUniverseStargatesStargateIdDestination) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	if in.StargateId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"stargate_id\":")
-		out.Int32(int32(in.StargateId))
-	}
-	if in.SystemId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"system_id\":")
-		out.Int32(int32(in.SystemId))
-	}
-	out.RawByte('}')
 }

@@ -103,18 +103,26 @@ func easyjson645b03b8DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetS
 			continue
 		}
 		switch key {
-		case "attackers_score":
-			out.AttackersScore = float32(in.Float32())
 		case "campaign_id":
 			out.CampaignId = int32(in.Int32())
+		case "structure_id":
+			out.StructureId = int64(in.Int64())
+		case "solar_system_id":
+			out.SolarSystemId = int32(in.Int32())
 		case "constellation_id":
 			out.ConstellationId = int32(in.Int32())
+		case "event_type":
+			out.EventType = string(in.String())
+		case "start_time":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.StartTime).UnmarshalJSON(data))
+			}
 		case "defender_id":
 			out.DefenderId = int32(in.Int32())
 		case "defender_score":
 			out.DefenderScore = float32(in.Float32())
-		case "event_type":
-			out.EventType = string(in.String())
+		case "attackers_score":
+			out.AttackersScore = float32(in.Float32())
 		case "participants":
 			if in.IsNull() {
 				in.Skip()
@@ -138,14 +146,6 @@ func easyjson645b03b8DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetS
 				}
 				in.Delim(']')
 			}
-		case "solar_system_id":
-			out.SolarSystemId = int32(in.Int32())
-		case "start_time":
-			if data := in.Raw(); in.Ok() {
-				in.AddError((out.StartTime).UnmarshalJSON(data))
-			}
-		case "structure_id":
-			out.StructureId = int64(in.Int64())
 		default:
 			in.SkipRecursive()
 		}
@@ -160,63 +160,105 @@ func easyjson645b03b8EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.AttackersScore != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"attackers_score\":")
-		out.Float32(float32(in.AttackersScore))
-	}
 	if in.CampaignId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"campaign_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"campaign_id\":")
 		out.Int32(int32(in.CampaignId))
 	}
-	if in.ConstellationId != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.StructureId != 0 {
+		const prefix string = ",\"structure_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"constellation_id\":")
+		out.Int64(int64(in.StructureId))
+	}
+	if in.SolarSystemId != 0 {
+		const prefix string = ",\"solar_system_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.SolarSystemId))
+	}
+	if in.ConstellationId != 0 {
+		const prefix string = ",\"constellation_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.Int32(int32(in.ConstellationId))
 	}
-	if in.DefenderId != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.EventType != "" {
+		const prefix string = ",\"event_type\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"defender_id\":")
+		out.String(string(in.EventType))
+	}
+	if true {
+		const prefix string = ",\"start_time\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Raw((in.StartTime).MarshalJSON())
+	}
+	if in.DefenderId != 0 {
+		const prefix string = ",\"defender_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.Int32(int32(in.DefenderId))
 	}
 	if in.DefenderScore != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"defender_score\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"defender_score\":")
 		out.Float32(float32(in.DefenderScore))
 	}
-	if in.EventType != "" {
-		if !first {
-			out.RawByte(',')
+	if in.AttackersScore != 0 {
+		const prefix string = ",\"attackers_score\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"event_type\":")
-		out.String(string(in.EventType))
+		out.Float32(float32(in.AttackersScore))
 	}
 	if len(in.Participants) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"participants\":")
-		if in.Participants == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+		const prefix string = ",\"participants\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
 			for v5, v6 := range in.Participants {
 				if v5 > 0 {
@@ -226,30 +268,6 @@ func easyjson645b03b8EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 			}
 			out.RawByte(']')
 		}
-	}
-	if in.SolarSystemId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"solar_system_id\":")
-		out.Int32(int32(in.SolarSystemId))
-	}
-	if true {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"start_time\":")
-		out.Raw((in.StartTime).MarshalJSON())
-	}
-	if in.StructureId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"structure_id\":")
-		out.Int64(int64(in.StructureId))
 	}
 	out.RawByte('}')
 }

@@ -103,10 +103,10 @@ func easyjson8698eb80DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetU
 			continue
 		}
 		switch key {
-		case "stargate_id":
-			out.StargateId = int32(in.Int32())
 		case "system_id":
 			out.SystemId = int32(in.Int32())
+		case "stargate_id":
+			out.StargateId = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -121,21 +121,25 @@ func easyjson8698eb80EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.StargateId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"stargate_id\":")
-		out.Int32(int32(in.StargateId))
-	}
 	if in.SystemId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"system_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"system_id\":")
 		out.Int32(int32(in.SystemId))
+	}
+	if in.StargateId != 0 {
+		const prefix string = ",\"stargate_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.StargateId))
 	}
 	out.RawByte('}')
 }

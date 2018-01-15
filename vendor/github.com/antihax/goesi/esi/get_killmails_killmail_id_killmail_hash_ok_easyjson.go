@@ -103,6 +103,14 @@ func easyjsonB5ebbfcbDecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetK
 			continue
 		}
 		switch key {
+		case "killmail_id":
+			out.KillmailId = int32(in.Int32())
+		case "killmail_time":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.KillmailTime).UnmarshalJSON(data))
+			}
+		case "victim":
+			(out.Victim).UnmarshalEasyJSON(in)
 		case "attackers":
 			if in.IsNull() {
 				in.Skip()
@@ -120,24 +128,16 @@ func easyjsonB5ebbfcbDecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetK
 				}
 				for !in.IsDelim(']') {
 					var v4 GetKillmailsKillmailIdKillmailHashAttacker
-					(v4).UnmarshalEasyJSON(in)
+					easyjsonB5ebbfcbDecodeGithubComAntihaxGoesiEsi2(in, &v4)
 					out.Attackers = append(out.Attackers, v4)
 					in.WantComma()
 				}
 				in.Delim(']')
 			}
-		case "killmail_id":
-			out.KillmailId = int32(in.Int32())
-		case "killmail_time":
-			if data := in.Raw(); in.Ok() {
-				in.AddError((out.KillmailTime).UnmarshalJSON(data))
-			}
-		case "moon_id":
-			out.MoonId = int32(in.Int32())
 		case "solar_system_id":
 			out.SolarSystemId = int32(in.Int32())
-		case "victim":
-			easyjsonB5ebbfcbDecodeGithubComAntihaxGoesiEsi2(in, &out.Victim)
+		case "moon_id":
+			out.MoonId = int32(in.Int32())
 		case "war_id":
 			out.WarId = int32(in.Int32())
 		default:
@@ -154,71 +154,83 @@ func easyjsonB5ebbfcbEncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if len(in.Attackers) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"attackers\":")
-		if in.Attackers == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+	if in.KillmailId != 0 {
+		const prefix string = ",\"killmail_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.KillmailId))
+	}
+	if true {
+		const prefix string = ",\"killmail_time\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Raw((in.KillmailTime).MarshalJSON())
+	}
+	if true {
+		const prefix string = ",\"victim\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		(in.Victim).MarshalEasyJSON(out)
+	}
+	if len(in.Attackers) != 0 {
+		const prefix string = ",\"attackers\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
 			for v5, v6 := range in.Attackers {
 				if v5 > 0 {
 					out.RawByte(',')
 				}
-				(v6).MarshalEasyJSON(out)
+				easyjsonB5ebbfcbEncodeGithubComAntihaxGoesiEsi2(out, v6)
 			}
 			out.RawByte(']')
 		}
 	}
-	if in.KillmailId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"killmail_id\":")
-		out.Int32(int32(in.KillmailId))
-	}
-	if true {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"killmail_time\":")
-		out.Raw((in.KillmailTime).MarshalJSON())
-	}
-	if in.MoonId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"moon_id\":")
-		out.Int32(int32(in.MoonId))
-	}
 	if in.SolarSystemId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"solar_system_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"solar_system_id\":")
 		out.Int32(int32(in.SolarSystemId))
 	}
-	if true {
-		if !first {
-			out.RawByte(',')
+	if in.MoonId != 0 {
+		const prefix string = ",\"moon_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"victim\":")
-		easyjsonB5ebbfcbEncodeGithubComAntihaxGoesiEsi2(out, in.Victim)
+		out.Int32(int32(in.MoonId))
 	}
 	if in.WarId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"war_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"war_id\":")
 		out.Int32(int32(in.WarId))
 	}
 	out.RawByte('}')
@@ -247,7 +259,7 @@ func (v *GetKillmailsKillmailIdKillmailHashOk) UnmarshalJSON(data []byte) error 
 func (v *GetKillmailsKillmailIdKillmailHashOk) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonB5ebbfcbDecodeGithubComAntihaxGoesiEsi1(l, v)
 }
-func easyjsonB5ebbfcbDecodeGithubComAntihaxGoesiEsi2(in *jlexer.Lexer, out *GetKillmailsKillmailIdKillmailHashVictim) {
+func easyjsonB5ebbfcbDecodeGithubComAntihaxGoesiEsi2(in *jlexer.Lexer, out *GetKillmailsKillmailIdKillmailHashAttacker) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -266,43 +278,24 @@ func easyjsonB5ebbfcbDecodeGithubComAntihaxGoesiEsi2(in *jlexer.Lexer, out *GetK
 			continue
 		}
 		switch key {
-		case "alliance_id":
-			out.AllianceId = int32(in.Int32())
 		case "character_id":
 			out.CharacterId = int32(in.Int32())
 		case "corporation_id":
 			out.CorporationId = int32(in.Int32())
-		case "damage_taken":
-			out.DamageTaken = int32(in.Int32())
+		case "alliance_id":
+			out.AllianceId = int32(in.Int32())
 		case "faction_id":
 			out.FactionId = int32(in.Int32())
-		case "items":
-			if in.IsNull() {
-				in.Skip()
-				out.Items = nil
-			} else {
-				in.Delim('[')
-				if out.Items == nil {
-					if !in.IsDelim(']') {
-						out.Items = make([]GetKillmailsKillmailIdKillmailHashItem1, 0, 1)
-					} else {
-						out.Items = []GetKillmailsKillmailIdKillmailHashItem1{}
-					}
-				} else {
-					out.Items = (out.Items)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v7 GetKillmailsKillmailIdKillmailHashItem1
-					easyjsonB5ebbfcbDecodeGithubComAntihaxGoesiEsi3(in, &v7)
-					out.Items = append(out.Items, v7)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
-		case "position":
-			easyjsonB5ebbfcbDecodeGithubComAntihaxGoesiEsi4(in, &out.Position)
+		case "security_status":
+			out.SecurityStatus = float32(in.Float32())
+		case "final_blow":
+			out.FinalBlow = bool(in.Bool())
+		case "damage_done":
+			out.DamageDone = int32(in.Int32())
 		case "ship_type_id":
 			out.ShipTypeId = int32(in.Int32())
+		case "weapon_type_id":
+			out.WeaponTypeId = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -313,361 +306,99 @@ func easyjsonB5ebbfcbDecodeGithubComAntihaxGoesiEsi2(in *jlexer.Lexer, out *GetK
 		in.Consumed()
 	}
 }
-func easyjsonB5ebbfcbEncodeGithubComAntihaxGoesiEsi2(out *jwriter.Writer, in GetKillmailsKillmailIdKillmailHashVictim) {
+func easyjsonB5ebbfcbEncodeGithubComAntihaxGoesiEsi2(out *jwriter.Writer, in GetKillmailsKillmailIdKillmailHashAttacker) {
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.AllianceId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"alliance_id\":")
-		out.Int32(int32(in.AllianceId))
-	}
 	if in.CharacterId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"character_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"character_id\":")
 		out.Int32(int32(in.CharacterId))
 	}
 	if in.CorporationId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"corporation_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"corporation_id\":")
 		out.Int32(int32(in.CorporationId))
 	}
-	if in.DamageTaken != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.AllianceId != 0 {
+		const prefix string = ",\"alliance_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"damage_taken\":")
-		out.Int32(int32(in.DamageTaken))
+		out.Int32(int32(in.AllianceId))
 	}
 	if in.FactionId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"faction_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"faction_id\":")
 		out.Int32(int32(in.FactionId))
 	}
-	if len(in.Items) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"items\":")
-		if in.Items == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+	if in.SecurityStatus != 0 {
+		const prefix string = ",\"security_status\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
-			out.RawByte('[')
-			for v8, v9 := range in.Items {
-				if v8 > 0 {
-					out.RawByte(',')
-				}
-				easyjsonB5ebbfcbEncodeGithubComAntihaxGoesiEsi3(out, v9)
-			}
-			out.RawByte(']')
+			out.RawString(prefix)
 		}
+		out.Float32(float32(in.SecurityStatus))
 	}
-	if true {
-		if !first {
-			out.RawByte(',')
+	if in.FinalBlow {
+		const prefix string = ",\"final_blow\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"position\":")
-		easyjsonB5ebbfcbEncodeGithubComAntihaxGoesiEsi4(out, in.Position)
+		out.Bool(bool(in.FinalBlow))
+	}
+	if in.DamageDone != 0 {
+		const prefix string = ",\"damage_done\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.DamageDone))
 	}
 	if in.ShipTypeId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"ship_type_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"ship_type_id\":")
 		out.Int32(int32(in.ShipTypeId))
 	}
-	out.RawByte('}')
-}
-func easyjsonB5ebbfcbDecodeGithubComAntihaxGoesiEsi4(in *jlexer.Lexer, out *GetKillmailsKillmailIdKillmailHashPosition) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeString()
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "x":
-			out.X = float32(in.Float32())
-		case "y":
-			out.Y = float32(in.Float32())
-		case "z":
-			out.Z = float32(in.Float32())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonB5ebbfcbEncodeGithubComAntihaxGoesiEsi4(out *jwriter.Writer, in GetKillmailsKillmailIdKillmailHashPosition) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	if in.X != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"x\":")
-		out.Float32(float32(in.X))
-	}
-	if in.Y != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"y\":")
-		out.Float32(float32(in.Y))
-	}
-	if in.Z != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"z\":")
-		out.Float32(float32(in.Z))
-	}
-	out.RawByte('}')
-}
-func easyjsonB5ebbfcbDecodeGithubComAntihaxGoesiEsi3(in *jlexer.Lexer, out *GetKillmailsKillmailIdKillmailHashItem1) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeString()
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "flag":
-			out.Flag = int32(in.Int32())
-		case "item_type_id":
-			out.ItemTypeId = int32(in.Int32())
-		case "items":
-			if in.IsNull() {
-				in.Skip()
-				out.Items = nil
-			} else {
-				in.Delim('[')
-				if out.Items == nil {
-					if !in.IsDelim(']') {
-						out.Items = make([]GetKillmailsKillmailIdKillmailHashItem, 0, 2)
-					} else {
-						out.Items = []GetKillmailsKillmailIdKillmailHashItem{}
-					}
-				} else {
-					out.Items = (out.Items)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v10 GetKillmailsKillmailIdKillmailHashItem
-					easyjsonB5ebbfcbDecodeGithubComAntihaxGoesiEsi5(in, &v10)
-					out.Items = append(out.Items, v10)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
-		case "quantity_destroyed":
-			out.QuantityDestroyed = int64(in.Int64())
-		case "quantity_dropped":
-			out.QuantityDropped = int64(in.Int64())
-		case "singleton":
-			out.Singleton = int32(in.Int32())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonB5ebbfcbEncodeGithubComAntihaxGoesiEsi3(out *jwriter.Writer, in GetKillmailsKillmailIdKillmailHashItem1) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	if in.Flag != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"flag\":")
-		out.Int32(int32(in.Flag))
-	}
-	if in.ItemTypeId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"item_type_id\":")
-		out.Int32(int32(in.ItemTypeId))
-	}
-	if len(in.Items) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"items\":")
-		if in.Items == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+	if in.WeaponTypeId != 0 {
+		const prefix string = ",\"weapon_type_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
-			out.RawByte('[')
-			for v11, v12 := range in.Items {
-				if v11 > 0 {
-					out.RawByte(',')
-				}
-				easyjsonB5ebbfcbEncodeGithubComAntihaxGoesiEsi5(out, v12)
-			}
-			out.RawByte(']')
+			out.RawString(prefix)
 		}
-	}
-	if in.QuantityDestroyed != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"quantity_destroyed\":")
-		out.Int64(int64(in.QuantityDestroyed))
-	}
-	if in.QuantityDropped != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"quantity_dropped\":")
-		out.Int64(int64(in.QuantityDropped))
-	}
-	if in.Singleton != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"singleton\":")
-		out.Int32(int32(in.Singleton))
-	}
-	out.RawByte('}')
-}
-func easyjsonB5ebbfcbDecodeGithubComAntihaxGoesiEsi5(in *jlexer.Lexer, out *GetKillmailsKillmailIdKillmailHashItem) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeString()
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "flag":
-			out.Flag = int32(in.Int32())
-		case "item_type_id":
-			out.ItemTypeId = int32(in.Int32())
-		case "quantity_destroyed":
-			out.QuantityDestroyed = int64(in.Int64())
-		case "quantity_dropped":
-			out.QuantityDropped = int64(in.Int64())
-		case "singleton":
-			out.Singleton = int32(in.Int32())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonB5ebbfcbEncodeGithubComAntihaxGoesiEsi5(out *jwriter.Writer, in GetKillmailsKillmailIdKillmailHashItem) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	if in.Flag != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"flag\":")
-		out.Int32(int32(in.Flag))
-	}
-	if in.ItemTypeId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"item_type_id\":")
-		out.Int32(int32(in.ItemTypeId))
-	}
-	if in.QuantityDestroyed != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"quantity_destroyed\":")
-		out.Int64(int64(in.QuantityDestroyed))
-	}
-	if in.QuantityDropped != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"quantity_dropped\":")
-		out.Int64(int64(in.QuantityDropped))
-	}
-	if in.Singleton != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"singleton\":")
-		out.Int32(int32(in.Singleton))
+		out.Int32(int32(in.WeaponTypeId))
 	}
 	out.RawByte('}')
 }

@@ -149,46 +149,54 @@ func easyjson535e99f6EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	first := true
 	_ = first
 	if in.ConstellationId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"constellation_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"constellation_id\":")
 		out.Int32(int32(in.ConstellationId))
 	}
 	if in.Name != "" {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"name\":")
 		out.String(string(in.Name))
 	}
 	if true {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"position\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"position\":")
 		easyjson535e99f6EncodeGithubComAntihaxGoesiEsi2(out, in.Position)
 	}
 	if in.RegionId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"region_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"region_id\":")
 		out.Int32(int32(in.RegionId))
 	}
 	if len(in.Systems) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"systems\":")
-		if in.Systems == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+		const prefix string = ",\"systems\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
 			for v5, v6 := range in.Systems {
 				if v5 > 0 {
@@ -245,11 +253,11 @@ func easyjson535e99f6DecodeGithubComAntihaxGoesiEsi2(in *jlexer.Lexer, out *GetU
 		}
 		switch key {
 		case "x":
-			out.X = float32(in.Float32())
+			out.X = float64(in.Float64())
 		case "y":
-			out.Y = float32(in.Float32())
+			out.Y = float64(in.Float64())
 		case "z":
-			out.Z = float32(in.Float32())
+			out.Z = float64(in.Float64())
 		default:
 			in.SkipRecursive()
 		}
@@ -265,28 +273,34 @@ func easyjson535e99f6EncodeGithubComAntihaxGoesiEsi2(out *jwriter.Writer, in Get
 	first := true
 	_ = first
 	if in.X != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"x\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"x\":")
-		out.Float32(float32(in.X))
+		out.Float64(float64(in.X))
 	}
 	if in.Y != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"y\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"y\":")
-		out.Float32(float32(in.Y))
+		out.Float64(float64(in.Y))
 	}
 	if in.Z != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"z\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"z\":")
-		out.Float32(float32(in.Z))
+		out.Float64(float64(in.Z))
 	}
 	out.RawByte('}')
 }

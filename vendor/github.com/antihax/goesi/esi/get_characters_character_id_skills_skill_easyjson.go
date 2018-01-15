@@ -27,7 +27,7 @@ func easyjson3cad633cDecodeGithubComAntihaxGoesiEsi(in *jlexer.Lexer, out *GetCh
 		in.Delim('[')
 		if *out == nil {
 			if !in.IsDelim(']') {
-				*out = make(GetCharactersCharacterIdSkillsSkillList, 0, 4)
+				*out = make(GetCharactersCharacterIdSkillsSkillList, 0, 2)
 			} else {
 				*out = GetCharactersCharacterIdSkillsSkillList{}
 			}
@@ -103,12 +103,14 @@ func easyjson3cad633cDecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 			continue
 		}
 		switch key {
-		case "current_skill_level":
-			out.CurrentSkillLevel = int32(in.Int32())
 		case "skill_id":
 			out.SkillId = int32(in.Int32())
 		case "skillpoints_in_skill":
 			out.SkillpointsInSkill = int64(in.Int64())
+		case "trained_skill_level":
+			out.TrainedSkillLevel = int32(in.Int32())
+		case "active_skill_level":
+			out.ActiveSkillLevel = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -123,29 +125,45 @@ func easyjson3cad633cEncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.CurrentSkillLevel != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"current_skill_level\":")
-		out.Int32(int32(in.CurrentSkillLevel))
-	}
 	if in.SkillId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"skill_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"skill_id\":")
 		out.Int32(int32(in.SkillId))
 	}
 	if in.SkillpointsInSkill != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"skillpoints_in_skill\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"skillpoints_in_skill\":")
 		out.Int64(int64(in.SkillpointsInSkill))
+	}
+	if in.TrainedSkillLevel != 0 {
+		const prefix string = ",\"trained_skill_level\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.TrainedSkillLevel))
+	}
+	if in.ActiveSkillLevel != 0 {
+		const prefix string = ",\"active_skill_level\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.ActiveSkillLevel))
 	}
 	out.RawByte('}')
 }

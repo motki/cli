@@ -33,11 +33,11 @@ import (
 
 	"github.com/motki/motki/db"
 	"github.com/motki/motki/eveapi"
-	"github.com/motki/motki/evecentral"
 	"github.com/motki/motki/evedb"
+	"github.com/motki/motki/evemarketer"
 	"github.com/motki/motki/log"
 	"github.com/motki/motki/model"
-	_ "github.com/motki/motki/proto"
+	"github.com/motki/motki/proto"
 	"github.com/motki/motki/proto/client"
 	"github.com/motki/motki/proto/server"
 	"github.com/motki/motki/worker"
@@ -51,10 +51,10 @@ type Config struct {
 	Logging  log.Config    `toml:"logging"`
 	Database db.Config     `toml:"db"`
 	EVEAPI   eveapi.Config `toml:"eveapi"`
-	Backend  model.Config  `toml:"backend"`
+	Backend  proto.Config  `toml:"backend"`
 }
 
-// NewConfig loads a TOML configuration from the given path.
+// NewConfigFromTOMLFile loads a TOML configuration from the given path.
 func NewConfigFromTOMLFile(tomlPath string) (*Config, error) {
 	if !filepath.IsAbs(tomlPath) {
 		cwd, err := os.Getwd()
@@ -92,7 +92,7 @@ type ClientEnv struct {
 // A ClientEnv will not have an associated gRPC server, nor any database,
 // or eveapi, etc.
 func NewClientEnv(conf *Config) (*ClientEnv, error) {
-	if conf.Backend.Kind == model.BackendLocalGRPC {
+	if conf.Backend.Kind == proto.BackendLocalGRPC {
 		return nil, errors.New("app: cannot create client-only env with local grpc backend")
 	}
 	logger := log.New(conf.Logging)
@@ -189,11 +189,16 @@ type Env struct {
 	DB    *db.ConnPool
 	Model *model.Manager
 
-	EveCentral *evecentral.EveCentral
+	EveCentral *evemarketer.EveMarketer
 	EveDB      *evedb.EveDB
 	EveAPI     *eveapi.EveAPI
 
 	Server server.Server
+
+	// Prevent external packages from constructing the struct themselves.
+	//
+	// Use NewEnv or NewClientEnv to create a new MOTKI environment.
+	unexported interface{}
 }
 
 // NewEnv creates an Env using the given configuration.
@@ -205,12 +210,12 @@ func NewEnv(conf *Config) (*Env, error) {
 	}
 	work := worker.New(logger)
 
-	ec := evecentral.New()
+	ec := evemarketer.New()
 	edb := evedb.New(pool)
 	api := eveapi.New(conf.EVEAPI, logger)
 	mdl := model.NewManager(pool, edb, api, ec)
 
-	if conf.Backend.Kind == model.BackendLocalGRPC {
+	if conf.Backend.Kind == proto.BackendLocalGRPC {
 		conf.Backend.LocalGRPC.Listener = bufconn.Listen(1024)
 	}
 	cl, err := client.New(conf.Backend, logger)

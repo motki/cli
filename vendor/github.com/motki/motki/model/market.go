@@ -5,14 +5,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/motki/motki/evecentral"
+	"github.com/motki/motki/evemarketer"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 )
 
 // MarketStat is reported price information for the given type.
 type MarketStat struct {
-	Kind        evecentral.StatKind
+	Kind        evemarketer.StatKind
 	TypeID      int
 	Volume      int
 	WAvg        decimal.Decimal
@@ -96,7 +96,7 @@ func (m *Manager) getMarketStatFromDB(regionID, systemID int, typeIDs ...int) ([
 		return nil, err
 	}
 	defer m.pool.Release(c)
-	ids := []string{}
+	var ids []string
 	for _, id := range typeIDs {
 		ids = append(ids, fmt.Sprintf("%d", id))
 	}
@@ -122,7 +122,7 @@ func (m *Manager) getMarketStatFromDB(regionID, systemID int, typeIDs ...int) ([
 		return nil, err
 	}
 	defer rs.Close()
-	res := []*MarketStat{}
+	var res []*MarketStat
 	for rs.Next() {
 		r := &MarketStat{}
 		kind := ""
@@ -142,7 +142,7 @@ func (m *Manager) getMarketStatFromDB(regionID, systemID int, typeIDs ...int) ([
 		if err != nil {
 			return nil, err
 		}
-		r.Kind = evecentral.StatKind(kind)
+		r.Kind = evemarketer.StatKind(kind)
 		res = append(res, r)
 	}
 	if len(res) == 0 {
@@ -171,7 +171,7 @@ func (m *Manager) getMarketStatFromDB(regionID, systemID int, typeIDs ...int) ([
 }
 
 func (m *Manager) getMarketStatFromAPI(regionID, systemID int, typeIDs ...int) ([]*MarketStat, error) {
-	var stats []*evecentral.MarketStat
+	var stats []*evemarketer.MarketStat
 	var err error
 	switch {
 	case regionID != 0:
@@ -187,13 +187,13 @@ func (m *Manager) getMarketStatFromAPI(regionID, systemID int, typeIDs ...int) (
 	return m.apiMarketStatToDB(regionID, systemID, stats)
 }
 
-func (m *Manager) apiMarketStatToDB(regionID, systemID int, stats []*evecentral.MarketStat) ([]*MarketStat, error) {
+func (m *Manager) apiMarketStatToDB(regionID, systemID int, stats []*evemarketer.MarketStat) ([]*MarketStat, error) {
 	db, err := m.pool.Open()
 	if err != nil {
 		return nil, err
 	}
 	defer m.pool.Release(db)
-	res := []*MarketStat{}
+	var res []*MarketStat
 	for _, stat := range stats {
 		s := &MarketStat{
 			TypeID:      stat.TypeID,
@@ -262,7 +262,7 @@ func (m *Manager) getMarketPricesFromDB(typeIDs ...int) ([]*MarketPrice, error) 
 		return nil, err
 	}
 	defer m.pool.Release(c)
-	ids := []string{}
+	var ids []string
 	for _, id := range typeIDs {
 		ids = append(ids, fmt.Sprintf("%d", id))
 	}
@@ -278,7 +278,7 @@ func (m *Manager) getMarketPricesFromDB(typeIDs ...int) ([]*MarketPrice, error) 
 		return nil, err
 	}
 	defer rs.Close()
-	res := []*MarketPrice{}
+	var res []*MarketPrice
 	for rs.Next() {
 		r := &MarketPrice{}
 		err := rs.Scan(
@@ -349,7 +349,7 @@ func (m *Manager) apiMarketPricesToDB(prices []*MarketPrice) error {
 		return err
 	}
 	defer m.pool.Release(db)
-	res := []*MarketPrice{}
+	var res []*MarketPrice
 	for _, stat := range prices {
 		s := &MarketPrice{
 			TypeID: stat.TypeID,

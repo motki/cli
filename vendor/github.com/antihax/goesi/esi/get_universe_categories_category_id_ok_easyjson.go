@@ -105,6 +105,10 @@ func easyjson885ff811DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetU
 		switch key {
 		case "category_id":
 			out.CategoryId = int32(in.Int32())
+		case "name":
+			out.Name = string(in.String())
+		case "published":
+			out.Published = bool(in.Bool())
 		case "groups":
 			if in.IsNull() {
 				in.Skip()
@@ -128,10 +132,6 @@ func easyjson885ff811DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetU
 				}
 				in.Delim(']')
 			}
-		case "name":
-			out.Name = string(in.String())
-		case "published":
-			out.Published = bool(in.Bool())
 		default:
 			in.SkipRecursive()
 		}
@@ -147,22 +147,44 @@ func easyjson885ff811EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	first := true
 	_ = first
 	if in.CategoryId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"category_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"category_id\":")
 		out.Int32(int32(in.CategoryId))
 	}
-	if len(in.Groups) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"groups\":")
-		if in.Groups == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+	if in.Name != "" {
+		const prefix string = ",\"name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.Name))
+	}
+	if in.Published {
+		const prefix string = ",\"published\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Bool(bool(in.Published))
+	}
+	if len(in.Groups) != 0 {
+		const prefix string = ",\"groups\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
 			for v5, v6 := range in.Groups {
 				if v5 > 0 {
@@ -172,22 +194,6 @@ func easyjson885ff811EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 			}
 			out.RawByte(']')
 		}
-	}
-	if in.Name != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"name\":")
-		out.String(string(in.Name))
-	}
-	if in.Published {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"published\":")
-		out.Bool(bool(in.Published))
 	}
 	out.RawByte('}')
 }

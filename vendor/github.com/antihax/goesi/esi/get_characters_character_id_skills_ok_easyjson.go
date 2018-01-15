@@ -27,7 +27,7 @@ func easyjson2298aef5DecodeGithubComAntihaxGoesiEsi(in *jlexer.Lexer, out *GetCh
 		in.Delim('[')
 		if *out == nil {
 			if !in.IsDelim(']') {
-				*out = make(GetCharactersCharacterIdSkillsOkList, 0, 2)
+				*out = make(GetCharactersCharacterIdSkillsOkList, 0, 1)
 			} else {
 				*out = GetCharactersCharacterIdSkillsOkList{}
 			}
@@ -111,7 +111,7 @@ func easyjson2298aef5DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 				in.Delim('[')
 				if out.Skills == nil {
 					if !in.IsDelim(']') {
-						out.Skills = make([]GetCharactersCharacterIdSkillsSkill, 0, 4)
+						out.Skills = make([]GetCharactersCharacterIdSkillsSkill, 0, 2)
 					} else {
 						out.Skills = []GetCharactersCharacterIdSkillsSkill{}
 					}
@@ -128,6 +128,8 @@ func easyjson2298aef5DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 			}
 		case "total_sp":
 			out.TotalSp = int64(in.Int64())
+		case "unallocated_sp":
+			out.UnallocatedSp = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -143,14 +145,14 @@ func easyjson2298aef5EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	first := true
 	_ = first
 	if len(in.Skills) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"skills\":")
-		if in.Skills == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+		const prefix string = ",\"skills\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
 			for v5, v6 := range in.Skills {
 				if v5 > 0 {
@@ -162,12 +164,24 @@ func easyjson2298aef5EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 		}
 	}
 	if in.TotalSp != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"total_sp\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"total_sp\":")
 		out.Int64(int64(in.TotalSp))
+	}
+	if in.UnallocatedSp != 0 {
+		const prefix string = ",\"unallocated_sp\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.UnallocatedSp))
 	}
 	out.RawByte('}')
 }
@@ -214,12 +228,14 @@ func easyjson2298aef5DecodeGithubComAntihaxGoesiEsi2(in *jlexer.Lexer, out *GetC
 			continue
 		}
 		switch key {
-		case "current_skill_level":
-			out.CurrentSkillLevel = int32(in.Int32())
 		case "skill_id":
 			out.SkillId = int32(in.Int32())
 		case "skillpoints_in_skill":
 			out.SkillpointsInSkill = int64(in.Int64())
+		case "trained_skill_level":
+			out.TrainedSkillLevel = int32(in.Int32())
+		case "active_skill_level":
+			out.ActiveSkillLevel = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -234,29 +250,45 @@ func easyjson2298aef5EncodeGithubComAntihaxGoesiEsi2(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.CurrentSkillLevel != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"current_skill_level\":")
-		out.Int32(int32(in.CurrentSkillLevel))
-	}
 	if in.SkillId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"skill_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"skill_id\":")
 		out.Int32(int32(in.SkillId))
 	}
 	if in.SkillpointsInSkill != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"skillpoints_in_skill\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"skillpoints_in_skill\":")
 		out.Int64(int64(in.SkillpointsInSkill))
+	}
+	if in.TrainedSkillLevel != 0 {
+		const prefix string = ",\"trained_skill_level\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.TrainedSkillLevel))
+	}
+	if in.ActiveSkillLevel != 0 {
+		const prefix string = ",\"active_skill_level\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.ActiveSkillLevel))
 	}
 	out.RawByte('}')
 }

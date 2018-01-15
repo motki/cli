@@ -105,26 +105,26 @@ func easyjson22b28964DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetU
 		switch key {
 		case "bloodline_id":
 			out.BloodlineId = int32(in.Int32())
-		case "charisma":
-			out.Charisma = int32(in.Int32())
-		case "corporation_id":
-			out.CorporationId = int32(in.Int32())
-		case "description":
-			out.Description = string(in.String())
-		case "intelligence":
-			out.Intelligence = int32(in.Int32())
-		case "memory":
-			out.Memory = int32(in.Int32())
 		case "name":
 			out.Name = string(in.String())
-		case "perception":
-			out.Perception = int32(in.Int32())
+		case "description":
+			out.Description = string(in.String())
 		case "race_id":
 			out.RaceId = int32(in.Int32())
 		case "ship_type_id":
 			out.ShipTypeId = int32(in.Int32())
+		case "corporation_id":
+			out.CorporationId = int32(in.Int32())
+		case "perception":
+			out.Perception = int32(in.Int32())
 		case "willpower":
 			out.Willpower = int32(in.Int32())
+		case "charisma":
+			out.Charisma = int32(in.Int32())
+		case "memory":
+			out.Memory = int32(in.Int32())
+		case "intelligence":
+			out.Intelligence = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -140,92 +140,114 @@ func easyjson22b28964EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	first := true
 	_ = first
 	if in.BloodlineId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"bloodline_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"bloodline_id\":")
 		out.Int32(int32(in.BloodlineId))
 	}
-	if in.Charisma != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"charisma\":")
-		out.Int32(int32(in.Charisma))
-	}
-	if in.CorporationId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"corporation_id\":")
-		out.Int32(int32(in.CorporationId))
-	}
-	if in.Description != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"description\":")
-		out.String(string(in.Description))
-	}
-	if in.Intelligence != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"intelligence\":")
-		out.Int32(int32(in.Intelligence))
-	}
-	if in.Memory != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"memory\":")
-		out.Int32(int32(in.Memory))
-	}
 	if in.Name != "" {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"name\":")
 		out.String(string(in.Name))
 	}
-	if in.Perception != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.Description != "" {
+		const prefix string = ",\"description\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"perception\":")
-		out.Int32(int32(in.Perception))
+		out.String(string(in.Description))
 	}
 	if in.RaceId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"race_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"race_id\":")
 		out.Int32(int32(in.RaceId))
 	}
 	if in.ShipTypeId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"ship_type_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"ship_type_id\":")
 		out.Int32(int32(in.ShipTypeId))
 	}
-	if in.Willpower != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.CorporationId != 0 {
+		const prefix string = ",\"corporation_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"willpower\":")
+		out.Int32(int32(in.CorporationId))
+	}
+	if in.Perception != 0 {
+		const prefix string = ",\"perception\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.Perception))
+	}
+	if in.Willpower != 0 {
+		const prefix string = ",\"willpower\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.Int32(int32(in.Willpower))
+	}
+	if in.Charisma != 0 {
+		const prefix string = ",\"charisma\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.Charisma))
+	}
+	if in.Memory != 0 {
+		const prefix string = ",\"memory\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.Memory))
+	}
+	if in.Intelligence != 0 {
+		const prefix string = ",\"intelligence\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.Intelligence))
 	}
 	out.RawByte('}')
 }

@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 
 	"golang.org/x/net/context"
@@ -23,11 +24,6 @@ type SSOAuthenticator struct {
 	oauthConfig *oauth2.Config
 	scopeLock   sync.Mutex
 }
-
-// Redirect type to hide oauth2 API
-type CRESTToken oauth2.Token
-
-type CRESTTokenSource oauth2.TokenSource
 
 // NewSSOAuthenticator create a new EVE SSO Authenticator.
 // Requires your application clientID, clientSecret, and redirectURL.
@@ -52,7 +48,18 @@ func NewSSOAuthenticator(client *http.Client, clientID string, clientSecret stri
 		Scopes:      scopes,
 		RedirectURL: redirectURL,
 	}
+
 	return c
+}
+
+// ChangeAuthURL changes the oauth2 configuration url for authentication
+func (c *SSOAuthenticator) ChangeAuthURL(url string) {
+	c.oauthConfig.Endpoint.AuthURL = url
+}
+
+// ChangeTokenURL changes the oauth2 configuration url for token
+func (c *SSOAuthenticator) ChangeTokenURL(url string) {
+	c.oauthConfig.Endpoint.TokenURL = url
 }
 
 // AuthorizeURL returns a url for an end user to authenticate with EVE SSO
@@ -62,27 +69,12 @@ func NewSSOAuthenticator(client *http.Client, clientID string, clientSecret stri
 func (c *SSOAuthenticator) AuthorizeURL(state string, onlineAccess bool, scopes []string) string {
 	var url string
 
-	// lock so we cannot use another requests scopes by racing.
-	c.scopeLock.Lock()
-
-	// Save the default scopes.
-	saveScopes := c.oauthConfig.Scopes
-	if scopes != nil {
-		c.oauthConfig.Scopes = scopes
-	}
-
 	// Generate the URL
 	if onlineAccess == true {
-		url = c.oauthConfig.AuthCodeURL(state, oauth2.AccessTypeOnline)
+		url = c.oauthConfig.AuthCodeURL(state, oauth2.AccessTypeOnline, oauth2.SetAuthURLParam("scope", strings.Join(scopes, " ")))
 	} else {
-		url = c.oauthConfig.AuthCodeURL(state, oauth2.AccessTypeOffline)
+		url = c.oauthConfig.AuthCodeURL(state, oauth2.AccessTypeOffline, oauth2.SetAuthURLParam("scope", strings.Join(scopes, " ")))
 	}
-
-	// Return the scopes
-	c.oauthConfig.Scopes = saveScopes
-
-	// Unlock mutex. [TODO] This is seriously hacky... need to fix
-	c.scopeLock.Unlock()
 
 	return url
 }
@@ -90,21 +82,21 @@ func (c *SSOAuthenticator) AuthorizeURL(state string, onlineAccess bool, scopes 
 // TokenExchange exchanges the code returned to the redirectURL with
 // the CREST server to an access token. A caching client must be passed.
 // This client MUST cache per CCP guidelines or face banning.
-func (c *SSOAuthenticator) TokenExchange(code string) (*CRESTToken, error) {
+func (c *SSOAuthenticator) TokenExchange(code string) (*oauth2.Token, error) {
 	tok, err := c.oauthConfig.Exchange(createContext(c.httpClient), code)
 	if err != nil {
 		return nil, err
 	}
-	return (*CRESTToken)(tok), nil
+	return tok, nil
 }
 
 // TokenSource creates a refreshable token that can be passed to ESI functions
-func (c *SSOAuthenticator) TokenSource(token *CRESTToken) (CRESTTokenSource, error) {
-	return (CRESTTokenSource)(c.oauthConfig.TokenSource(createContext(c.httpClient), (*oauth2.Token)(token))), nil
+func (c *SSOAuthenticator) TokenSource(token *oauth2.Token) (oauth2.TokenSource, error) {
+	return c.oauthConfig.TokenSource(createContext(c.httpClient), token), nil
 }
 
 type VerifyResponse struct {
-	CharacterID        int64
+	CharacterID        int32
 	CharacterName      string
 	ExpiresOn          string
 	Scopes             string
@@ -194,10 +186,8 @@ func (c *SSOAuthenticator) executeRequest(req *http.Request) (*http.Response, er
 	if res.StatusCode == http.StatusOK ||
 		res.StatusCode == http.StatusCreated {
 		return res, nil
-	} else {
-		return res, errors.New(res.Status)
 	}
-
+	return res, errors.New(res.Status)
 }
 
 // Add custom clients to the context.
@@ -208,7 +198,7 @@ func createContext(httpClient *http.Client) context.Context {
 }
 
 // TokenToJSON helper function to convert a token to a storable format.
-func TokenToJSON(token *CRESTToken) (string, error) {
+func TokenToJSON(token *oauth2.Token) (string, error) {
 	if d, err := json.Marshal(token); err != nil {
 		return "", err
 	} else {
@@ -217,8 +207,8 @@ func TokenToJSON(token *CRESTToken) (string, error) {
 }
 
 // TokenFromJSON helper function to convert stored JSON to a token.
-func TokenFromJSON(jsonStr string) (*CRESTToken, error) {
-	var token CRESTToken
+func TokenFromJSON(jsonStr string) (*oauth2.Token, error) {
+	var token oauth2.Token
 	if err := json.Unmarshal([]byte(jsonStr), &token); err != nil {
 		return nil, err
 	}

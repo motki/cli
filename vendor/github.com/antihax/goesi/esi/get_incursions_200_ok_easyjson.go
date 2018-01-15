@@ -103,12 +103,20 @@ func easyjson8404fadcDecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetI
 			continue
 		}
 		switch key {
-		case "constellation_id":
-			out.ConstellationId = int32(in.Int32())
-		case "faction_id":
-			out.FactionId = int32(in.Int32())
+		case "type":
+			out.Type_ = string(in.String())
+		case "state":
+			out.State = string(in.String())
+		case "influence":
+			out.Influence = float32(in.Float32())
 		case "has_boss":
 			out.HasBoss = bool(in.Bool())
+		case "faction_id":
+			out.FactionId = int32(in.Int32())
+		case "constellation_id":
+			out.ConstellationId = int32(in.Int32())
+		case "staging_solar_system_id":
+			out.StagingSolarSystemId = int32(in.Int32())
 		case "infested_solar_systems":
 			if in.IsNull() {
 				in.Skip()
@@ -132,14 +140,6 @@ func easyjson8404fadcDecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetI
 				}
 				in.Delim(']')
 			}
-		case "influence":
-			out.Influence = float32(in.Float32())
-		case "staging_solar_system_id":
-			out.StagingSolarSystemId = int32(in.Int32())
-		case "state":
-			out.State = string(in.String())
-		case "type":
-			out.Type_ = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -154,39 +154,85 @@ func easyjson8404fadcEncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.ConstellationId != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.Type_ != "" {
+		const prefix string = ",\"type\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"constellation_id\":")
-		out.Int32(int32(in.ConstellationId))
+		out.String(string(in.Type_))
 	}
-	if in.FactionId != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.State != "" {
+		const prefix string = ",\"state\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"faction_id\":")
-		out.Int32(int32(in.FactionId))
+		out.String(string(in.State))
+	}
+	if in.Influence != 0 {
+		const prefix string = ",\"influence\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Float32(float32(in.Influence))
 	}
 	if in.HasBoss {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"has_boss\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"has_boss\":")
 		out.Bool(bool(in.HasBoss))
 	}
-	if len(in.InfestedSolarSystems) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"infested_solar_systems\":")
-		if in.InfestedSolarSystems == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+	if in.FactionId != 0 {
+		const prefix string = ",\"faction_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.FactionId))
+	}
+	if in.ConstellationId != 0 {
+		const prefix string = ",\"constellation_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.ConstellationId))
+	}
+	if in.StagingSolarSystemId != 0 {
+		const prefix string = ",\"staging_solar_system_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.StagingSolarSystemId))
+	}
+	if len(in.InfestedSolarSystems) != 0 {
+		const prefix string = ",\"infested_solar_systems\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
 			for v5, v6 := range in.InfestedSolarSystems {
 				if v5 > 0 {
@@ -196,38 +242,6 @@ func easyjson8404fadcEncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 			}
 			out.RawByte(']')
 		}
-	}
-	if in.Influence != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"influence\":")
-		out.Float32(float32(in.Influence))
-	}
-	if in.StagingSolarSystemId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"staging_solar_system_id\":")
-		out.Int32(int32(in.StagingSolarSystemId))
-	}
-	if in.State != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"state\":")
-		out.String(string(in.State))
-	}
-	if in.Type_ != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"type\":")
-		out.String(string(in.Type_))
 	}
 	out.RawByte('}')
 }

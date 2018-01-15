@@ -3,8 +3,9 @@ package model_test
 import (
 	"testing"
 
-	"github.com/motki/motki/model"
 	"github.com/shopspring/decimal"
+
+	"github.com/motki/motki/model"
 )
 
 // testProduct is designed to show the characteristics of the Cost algorithm.
@@ -114,6 +115,10 @@ func TestProductCostZeroME(t *testing.T) {
 		return
 	}
 	id124 := prod.Materials[0]
+	if id124.TypeID != 124 {
+		t.Errorf("expected first material to be type ID 124, got %d", id124.TypeID)
+		return
+	}
 	id124.MaterialEfficiency = decimal.Zero
 	prod.MaterialEfficiency = decimal.Zero
 	if cost := prod.Cost(); !cost.Equals(decimal.NewFromFloat(122000)) {
@@ -134,6 +139,10 @@ func TestProductCostBatchSizeOne(t *testing.T) {
 		return
 	}
 	id124 := prod.Materials[0]
+	if id124.TypeID != 124 {
+		t.Errorf("expected first material to be type ID 124, got %d", id124.TypeID)
+		return
+	}
 	id124.BatchSize = 1
 	prod.BatchSize = 1
 	if cost := prod.Cost(); !cost.Equals(decimal.NewFromFloat(111435)) {

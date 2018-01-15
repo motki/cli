@@ -103,22 +103,22 @@ func easyjsonD86c7128DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetU
 			continue
 		}
 		switch key {
-		case "collision_file":
-			out.CollisionFile = string(in.String())
-		case "graphic_file":
-			out.GraphicFile = string(in.String())
 		case "graphic_id":
 			out.GraphicId = int32(in.Int32())
-		case "icon_folder":
-			out.IconFolder = string(in.String())
-		case "sof_dna":
-			out.SofDna = string(in.String())
-		case "sof_fation_name":
-			out.SofFationName = string(in.String())
-		case "sof_hull_name":
-			out.SofHullName = string(in.String())
+		case "graphic_file":
+			out.GraphicFile = string(in.String())
 		case "sof_race_name":
 			out.SofRaceName = string(in.String())
+		case "sof_fation_name":
+			out.SofFationName = string(in.String())
+		case "sof_dna":
+			out.SofDna = string(in.String())
+		case "sof_hull_name":
+			out.SofHullName = string(in.String())
+		case "collision_file":
+			out.CollisionFile = string(in.String())
+		case "icon_folder":
+			out.IconFolder = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -133,69 +133,85 @@ func easyjsonD86c7128EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.CollisionFile != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"collision_file\":")
-		out.String(string(in.CollisionFile))
-	}
-	if in.GraphicFile != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"graphic_file\":")
-		out.String(string(in.GraphicFile))
-	}
 	if in.GraphicId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"graphic_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"graphic_id\":")
 		out.Int32(int32(in.GraphicId))
 	}
-	if in.IconFolder != "" {
-		if !first {
-			out.RawByte(',')
+	if in.GraphicFile != "" {
+		const prefix string = ",\"graphic_file\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"icon_folder\":")
-		out.String(string(in.IconFolder))
-	}
-	if in.SofDna != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"sof_dna\":")
-		out.String(string(in.SofDna))
-	}
-	if in.SofFationName != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"sof_fation_name\":")
-		out.String(string(in.SofFationName))
-	}
-	if in.SofHullName != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"sof_hull_name\":")
-		out.String(string(in.SofHullName))
+		out.String(string(in.GraphicFile))
 	}
 	if in.SofRaceName != "" {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"sof_race_name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"sof_race_name\":")
 		out.String(string(in.SofRaceName))
+	}
+	if in.SofFationName != "" {
+		const prefix string = ",\"sof_fation_name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.SofFationName))
+	}
+	if in.SofDna != "" {
+		const prefix string = ",\"sof_dna\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.SofDna))
+	}
+	if in.SofHullName != "" {
+		const prefix string = ",\"sof_hull_name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.SofHullName))
+	}
+	if in.CollisionFile != "" {
+		const prefix string = ",\"collision_file\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.CollisionFile))
+	}
+	if in.IconFolder != "" {
+		const prefix string = ",\"icon_folder\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.IconFolder))
 	}
 	out.RawByte('}')
 }

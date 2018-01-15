@@ -105,26 +105,26 @@ func easyjson50807c65DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetF
 		switch key {
 		case "character_id":
 			out.CharacterId = int32(in.Int32())
-		case "join_time":
-			if data := in.Raw(); in.Ok() {
-				in.AddError((out.JoinTime).UnmarshalJSON(data))
-			}
+		case "ship_type_id":
+			out.ShipTypeId = int32(in.Int32())
+		case "wing_id":
+			out.WingId = int64(in.Int64())
+		case "squad_id":
+			out.SquadId = int64(in.Int64())
 		case "role":
 			out.Role = string(in.String())
 		case "role_name":
 			out.RoleName = string(in.String())
-		case "ship_type_id":
-			out.ShipTypeId = int32(in.Int32())
-		case "solar_system_id":
-			out.SolarSystemId = int32(in.Int32())
-		case "squad_id":
-			out.SquadId = int64(in.Int64())
-		case "station_id":
-			out.StationId = int64(in.Int64())
+		case "join_time":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.JoinTime).UnmarshalJSON(data))
+			}
 		case "takes_fleet_warp":
 			out.TakesFleetWarp = bool(in.Bool())
-		case "wing_id":
-			out.WingId = int64(in.Int64())
+		case "solar_system_id":
+			out.SolarSystemId = int32(in.Int32())
+		case "station_id":
+			out.StationId = int64(in.Int64())
 		default:
 			in.SkipRecursive()
 		}
@@ -140,84 +140,104 @@ func easyjson50807c65EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	first := true
 	_ = first
 	if in.CharacterId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"character_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"character_id\":")
 		out.Int32(int32(in.CharacterId))
 	}
-	if true {
-		if !first {
-			out.RawByte(',')
+	if in.ShipTypeId != 0 {
+		const prefix string = ",\"ship_type_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"join_time\":")
-		out.Raw((in.JoinTime).MarshalJSON())
+		out.Int32(int32(in.ShipTypeId))
+	}
+	if in.WingId != 0 {
+		const prefix string = ",\"wing_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int64(int64(in.WingId))
+	}
+	if in.SquadId != 0 {
+		const prefix string = ",\"squad_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int64(int64(in.SquadId))
 	}
 	if in.Role != "" {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"role\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"role\":")
 		out.String(string(in.Role))
 	}
 	if in.RoleName != "" {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"role_name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"role_name\":")
 		out.String(string(in.RoleName))
 	}
-	if in.ShipTypeId != 0 {
-		if !first {
-			out.RawByte(',')
+	if true {
+		const prefix string = ",\"join_time\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"ship_type_id\":")
-		out.Int32(int32(in.ShipTypeId))
-	}
-	if in.SolarSystemId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"solar_system_id\":")
-		out.Int32(int32(in.SolarSystemId))
-	}
-	if in.SquadId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"squad_id\":")
-		out.Int64(int64(in.SquadId))
-	}
-	if in.StationId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"station_id\":")
-		out.Int64(int64(in.StationId))
+		out.Raw((in.JoinTime).MarshalJSON())
 	}
 	if in.TakesFleetWarp {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"takes_fleet_warp\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"takes_fleet_warp\":")
 		out.Bool(bool(in.TakesFleetWarp))
 	}
-	if in.WingId != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.SolarSystemId != 0 {
+		const prefix string = ",\"solar_system_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"wing_id\":")
-		out.Int64(int64(in.WingId))
+		out.Int32(int32(in.SolarSystemId))
+	}
+	if in.StationId != 0 {
+		const prefix string = ",\"station_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int64(int64(in.StationId))
 	}
 	out.RawByte('}')
 }

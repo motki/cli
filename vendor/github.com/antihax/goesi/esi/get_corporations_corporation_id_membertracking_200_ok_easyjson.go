@@ -103,26 +103,26 @@ func easyjson9caa59d7DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 			continue
 		}
 		switch key {
-		case "base_id":
-			out.BaseId = int32(in.Int32())
 		case "character_id":
 			out.CharacterId = int32(in.Int32())
-		case "location_id":
-			out.LocationId = int64(in.Int64())
-		case "logoff_date":
-			if data := in.Raw(); in.Ok() {
-				in.AddError((out.LogoffDate).UnmarshalJSON(data))
-			}
-		case "logon_date":
-			if data := in.Raw(); in.Ok() {
-				in.AddError((out.LogonDate).UnmarshalJSON(data))
-			}
-		case "ship_type_id":
-			out.ShipTypeId = int32(in.Int32())
 		case "start_date":
 			if data := in.Raw(); in.Ok() {
 				in.AddError((out.StartDate).UnmarshalJSON(data))
 			}
+		case "base_id":
+			out.BaseId = int32(in.Int32())
+		case "logon_date":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.LogonDate).UnmarshalJSON(data))
+			}
+		case "logoff_date":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.LogoffDate).UnmarshalJSON(data))
+			}
+		case "location_id":
+			out.LocationId = int64(in.Int64())
+		case "ship_type_id":
+			out.ShipTypeId = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -137,61 +137,75 @@ func easyjson9caa59d7EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.BaseId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"base_id\":")
-		out.Int32(int32(in.BaseId))
-	}
 	if in.CharacterId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"character_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"character_id\":")
 		out.Int32(int32(in.CharacterId))
 	}
-	if in.LocationId != 0 {
-		if !first {
-			out.RawByte(',')
+	if true {
+		const prefix string = ",\"start_date\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"location_id\":")
-		out.Int64(int64(in.LocationId))
+		out.Raw((in.StartDate).MarshalJSON())
+	}
+	if in.BaseId != 0 {
+		const prefix string = ",\"base_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.BaseId))
 	}
 	if true {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"logon_date\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"logoff_date\":")
-		out.Raw((in.LogoffDate).MarshalJSON())
-	}
-	if true {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"logon_date\":")
 		out.Raw((in.LogonDate).MarshalJSON())
 	}
-	if in.ShipTypeId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"ship_type_id\":")
-		out.Int32(int32(in.ShipTypeId))
-	}
 	if true {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"logoff_date\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"start_date\":")
-		out.Raw((in.StartDate).MarshalJSON())
+		out.Raw((in.LogoffDate).MarshalJSON())
+	}
+	if in.LocationId != 0 {
+		const prefix string = ",\"location_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int64(int64(in.LocationId))
+	}
+	if in.ShipTypeId != 0 {
+		const prefix string = ",\"ship_type_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.ShipTypeId))
 	}
 	out.RawByte('}')
 }

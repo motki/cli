@@ -103,12 +103,12 @@ func easyjsonAc671b93DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetF
 			continue
 		}
 		switch key {
+		case "yesterday":
+			out.Yesterday = int32(in.Int32())
 		case "last_week":
 			out.LastWeek = int32(in.Int32())
 		case "total":
 			out.Total = int32(in.Int32())
-		case "yesterday":
-			out.Yesterday = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -123,29 +123,35 @@ func easyjsonAc671b93EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.LastWeek != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.Yesterday != 0 {
+		const prefix string = ",\"yesterday\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"last_week\":")
+		out.Int32(int32(in.Yesterday))
+	}
+	if in.LastWeek != 0 {
+		const prefix string = ",\"last_week\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.Int32(int32(in.LastWeek))
 	}
 	if in.Total != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"total\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"total\":")
 		out.Int32(int32(in.Total))
-	}
-	if in.Yesterday != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"yesterday\":")
-		out.Int32(int32(in.Yesterday))
 	}
 	out.RawByte('}')
 }

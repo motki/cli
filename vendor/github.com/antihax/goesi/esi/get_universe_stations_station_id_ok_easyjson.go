@@ -103,22 +103,28 @@ func easyjsonBde2b678DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetU
 			continue
 		}
 		switch key {
-		case "max_dockable_ship_volume":
-			out.MaxDockableShipVolume = float32(in.Float32())
+		case "station_id":
+			out.StationId = int32(in.Int32())
 		case "name":
 			out.Name = string(in.String())
-		case "office_rental_cost":
-			out.OfficeRentalCost = float32(in.Float32())
 		case "owner":
 			out.Owner = int32(in.Int32())
-		case "position":
-			(out.Position).UnmarshalEasyJSON(in)
+		case "type_id":
+			out.TypeId = int32(in.Int32())
 		case "race_id":
 			out.RaceId = int32(in.Int32())
+		case "position":
+			easyjsonBde2b678DecodeGithubComAntihaxGoesiEsi2(in, &out.Position)
+		case "system_id":
+			out.SystemId = int32(in.Int32())
 		case "reprocessing_efficiency":
 			out.ReprocessingEfficiency = float32(in.Float32())
 		case "reprocessing_stations_take":
 			out.ReprocessingStationsTake = float32(in.Float32())
+		case "max_dockable_ship_volume":
+			out.MaxDockableShipVolume = float32(in.Float32())
+		case "office_rental_cost":
+			out.OfficeRentalCost = float32(in.Float32())
 		case "services":
 			if in.IsNull() {
 				in.Skip()
@@ -142,12 +148,6 @@ func easyjsonBde2b678DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetU
 				}
 				in.Delim(']')
 			}
-		case "station_id":
-			out.StationId = int32(in.Int32())
-		case "system_id":
-			out.SystemId = int32(in.Int32())
-		case "type_id":
-			out.TypeId = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -162,79 +162,125 @@ func easyjsonBde2b678EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.MaxDockableShipVolume != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.StationId != 0 {
+		const prefix string = ",\"station_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"max_dockable_ship_volume\":")
-		out.Float32(float32(in.MaxDockableShipVolume))
+		out.Int32(int32(in.StationId))
 	}
 	if in.Name != "" {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"name\":")
 		out.String(string(in.Name))
 	}
-	if in.OfficeRentalCost != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"office_rental_cost\":")
-		out.Float32(float32(in.OfficeRentalCost))
-	}
 	if in.Owner != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"owner\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"owner\":")
 		out.Int32(int32(in.Owner))
 	}
-	if true {
-		if !first {
-			out.RawByte(',')
+	if in.TypeId != 0 {
+		const prefix string = ",\"type_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"position\":")
-		(in.Position).MarshalEasyJSON(out)
+		out.Int32(int32(in.TypeId))
 	}
 	if in.RaceId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"race_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"race_id\":")
 		out.Int32(int32(in.RaceId))
 	}
-	if in.ReprocessingEfficiency != 0 {
-		if !first {
-			out.RawByte(',')
+	if true {
+		const prefix string = ",\"position\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"reprocessing_efficiency\":")
+		easyjsonBde2b678EncodeGithubComAntihaxGoesiEsi2(out, in.Position)
+	}
+	if in.SystemId != 0 {
+		const prefix string = ",\"system_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.SystemId))
+	}
+	if in.ReprocessingEfficiency != 0 {
+		const prefix string = ",\"reprocessing_efficiency\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.Float32(float32(in.ReprocessingEfficiency))
 	}
 	if in.ReprocessingStationsTake != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"reprocessing_stations_take\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"reprocessing_stations_take\":")
 		out.Float32(float32(in.ReprocessingStationsTake))
 	}
-	if len(in.Services) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"services\":")
-		if in.Services == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+	if in.MaxDockableShipVolume != 0 {
+		const prefix string = ",\"max_dockable_ship_volume\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		out.Float32(float32(in.MaxDockableShipVolume))
+	}
+	if in.OfficeRentalCost != 0 {
+		const prefix string = ",\"office_rental_cost\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Float32(float32(in.OfficeRentalCost))
+	}
+	if len(in.Services) != 0 {
+		const prefix string = ",\"services\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
 			for v5, v6 := range in.Services {
 				if v5 > 0 {
@@ -244,30 +290,6 @@ func easyjsonBde2b678EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 			}
 			out.RawByte(']')
 		}
-	}
-	if in.StationId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"station_id\":")
-		out.Int32(int32(in.StationId))
-	}
-	if in.SystemId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"system_id\":")
-		out.Int32(int32(in.SystemId))
-	}
-	if in.TypeId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"type_id\":")
-		out.Int32(int32(in.TypeId))
 	}
 	out.RawByte('}')
 }
@@ -294,4 +316,75 @@ func (v *GetUniverseStationsStationIdOk) UnmarshalJSON(data []byte) error {
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *GetUniverseStationsStationIdOk) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonBde2b678DecodeGithubComAntihaxGoesiEsi1(l, v)
+}
+func easyjsonBde2b678DecodeGithubComAntihaxGoesiEsi2(in *jlexer.Lexer, out *GetUniverseStationsStationIdPosition) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeString()
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "x":
+			out.X = float64(in.Float64())
+		case "y":
+			out.Y = float64(in.Float64())
+		case "z":
+			out.Z = float64(in.Float64())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonBde2b678EncodeGithubComAntihaxGoesiEsi2(out *jwriter.Writer, in GetUniverseStationsStationIdPosition) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	if in.X != 0 {
+		const prefix string = ",\"x\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Float64(float64(in.X))
+	}
+	if in.Y != 0 {
+		const prefix string = ",\"y\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Float64(float64(in.Y))
+	}
+	if in.Z != 0 {
+		const prefix string = ",\"z\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Float64(float64(in.Z))
+	}
+	out.RawByte('}')
 }

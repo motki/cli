@@ -103,30 +103,34 @@ func easyjsonDab14328DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 			continue
 		}
 		switch key {
-		case "alliance_id":
-			out.AllianceId = int32(in.Int32())
+		case "name":
+			out.Name = string(in.String())
+		case "ticker":
+			out.Ticker = string(in.String())
+		case "member_count":
+			out.MemberCount = int32(in.Int32())
 		case "ceo_id":
 			out.CeoId = int32(in.Int32())
-		case "corporation_description":
-			out.CorporationDescription = string(in.String())
-		case "corporation_name":
-			out.CorporationName = string(in.String())
-		case "creation_date":
+		case "alliance_id":
+			out.AllianceId = int32(in.Int32())
+		case "description":
+			out.Description = string(in.String())
+		case "tax_rate":
+			out.TaxRate = float32(in.Float32())
+		case "date_founded":
 			if data := in.Raw(); in.Ok() {
-				in.AddError((out.CreationDate).UnmarshalJSON(data))
+				in.AddError((out.DateFounded).UnmarshalJSON(data))
 			}
 		case "creator_id":
 			out.CreatorId = int32(in.Int32())
-		case "faction":
-			out.Faction = string(in.String())
-		case "member_count":
-			out.MemberCount = int32(in.Int32())
-		case "tax_rate":
-			out.TaxRate = float32(in.Float32())
-		case "ticker":
-			out.Ticker = string(in.String())
 		case "url":
 			out.Url = string(in.String())
+		case "faction_id":
+			out.FactionId = int32(in.Int32())
+		case "home_station_id":
+			out.HomeStationId = int32(in.Int32())
+		case "shares":
+			out.Shares = int64(in.Int64())
 		default:
 			in.SkipRecursive()
 		}
@@ -141,93 +145,135 @@ func easyjsonDab14328EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.AllianceId != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.Name != "" {
+		const prefix string = ",\"name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"alliance_id\":")
-		out.Int32(int32(in.AllianceId))
-	}
-	if in.CeoId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"ceo_id\":")
-		out.Int32(int32(in.CeoId))
-	}
-	if in.CorporationDescription != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"corporation_description\":")
-		out.String(string(in.CorporationDescription))
-	}
-	if in.CorporationName != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"corporation_name\":")
-		out.String(string(in.CorporationName))
-	}
-	if true {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"creation_date\":")
-		out.Raw((in.CreationDate).MarshalJSON())
-	}
-	if in.CreatorId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"creator_id\":")
-		out.Int32(int32(in.CreatorId))
-	}
-	if in.Faction != "" {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"faction\":")
-		out.String(string(in.Faction))
-	}
-	if in.MemberCount != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"member_count\":")
-		out.Int32(int32(in.MemberCount))
-	}
-	if in.TaxRate != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"tax_rate\":")
-		out.Float32(float32(in.TaxRate))
+		out.String(string(in.Name))
 	}
 	if in.Ticker != "" {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"ticker\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"ticker\":")
 		out.String(string(in.Ticker))
 	}
-	if in.Url != "" {
-		if !first {
-			out.RawByte(',')
+	if in.MemberCount != 0 {
+		const prefix string = ",\"member_count\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"url\":")
+		out.Int32(int32(in.MemberCount))
+	}
+	if in.CeoId != 0 {
+		const prefix string = ",\"ceo_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.CeoId))
+	}
+	if in.AllianceId != 0 {
+		const prefix string = ",\"alliance_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.AllianceId))
+	}
+	if in.Description != "" {
+		const prefix string = ",\"description\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.Description))
+	}
+	if in.TaxRate != 0 {
+		const prefix string = ",\"tax_rate\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Float32(float32(in.TaxRate))
+	}
+	if true {
+		const prefix string = ",\"date_founded\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Raw((in.DateFounded).MarshalJSON())
+	}
+	if in.CreatorId != 0 {
+		const prefix string = ",\"creator_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.CreatorId))
+	}
+	if in.Url != "" {
+		const prefix string = ",\"url\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.String(string(in.Url))
+	}
+	if in.FactionId != 0 {
+		const prefix string = ",\"faction_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.FactionId))
+	}
+	if in.HomeStationId != 0 {
+		const prefix string = ",\"home_station_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.HomeStationId))
+	}
+	if in.Shares != 0 {
+		const prefix string = ",\"shares\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int64(int64(in.Shares))
 	}
 	out.RawByte('}')
 }

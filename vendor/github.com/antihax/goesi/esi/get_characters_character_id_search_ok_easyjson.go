@@ -241,25 +241,25 @@ func easyjson67db0fd7DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 				}
 				in.Delim(']')
 			}
-		case "inventorytype":
+		case "inventory_type":
 			if in.IsNull() {
 				in.Skip()
-				out.Inventorytype = nil
+				out.InventoryType = nil
 			} else {
 				in.Delim('[')
-				if out.Inventorytype == nil {
+				if out.InventoryType == nil {
 					if !in.IsDelim(']') {
-						out.Inventorytype = make([]int32, 0, 16)
+						out.InventoryType = make([]int32, 0, 16)
 					} else {
-						out.Inventorytype = []int32{}
+						out.InventoryType = []int32{}
 					}
 				} else {
-					out.Inventorytype = (out.Inventorytype)[:0]
+					out.InventoryType = (out.InventoryType)[:0]
 				}
 				for !in.IsDelim(']') {
 					var v10 int32
 					v10 = int32(in.Int32())
-					out.Inventorytype = append(out.Inventorytype, v10)
+					out.InventoryType = append(out.InventoryType, v10)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -287,25 +287,25 @@ func easyjson67db0fd7DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 				}
 				in.Delim(']')
 			}
-		case "solarsystem":
+		case "solar_system":
 			if in.IsNull() {
 				in.Skip()
-				out.Solarsystem = nil
+				out.SolarSystem = nil
 			} else {
 				in.Delim('[')
-				if out.Solarsystem == nil {
+				if out.SolarSystem == nil {
 					if !in.IsDelim(']') {
-						out.Solarsystem = make([]int32, 0, 16)
+						out.SolarSystem = make([]int32, 0, 16)
 					} else {
-						out.Solarsystem = []int32{}
+						out.SolarSystem = []int32{}
 					}
 				} else {
-					out.Solarsystem = (out.Solarsystem)[:0]
+					out.SolarSystem = (out.SolarSystem)[:0]
 				}
 				for !in.IsDelim(']') {
 					var v12 int32
 					v12 = int32(in.Int32())
-					out.Solarsystem = append(out.Solarsystem, v12)
+					out.SolarSystem = append(out.SolarSystem, v12)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -356,29 +356,6 @@ func easyjson67db0fd7DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 				}
 				in.Delim(']')
 			}
-		case "wormhole":
-			if in.IsNull() {
-				in.Skip()
-				out.Wormhole = nil
-			} else {
-				in.Delim('[')
-				if out.Wormhole == nil {
-					if !in.IsDelim(']') {
-						out.Wormhole = make([]int32, 0, 16)
-					} else {
-						out.Wormhole = []int32{}
-					}
-				} else {
-					out.Wormhole = (out.Wormhole)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v15 int32
-					v15 = int32(in.Int32())
-					out.Wormhole = append(out.Wormhole, v15)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
 		default:
 			in.SkipRecursive()
 		}
@@ -394,229 +371,210 @@ func easyjson67db0fd7EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	first := true
 	_ = first
 	if len(in.Agent) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"agent\":")
-		if in.Agent == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+		const prefix string = ",\"agent\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
-			for v16, v17 := range in.Agent {
-				if v16 > 0 {
+			for v15, v16 := range in.Agent {
+				if v15 > 0 {
 					out.RawByte(',')
 				}
-				out.Int32(int32(v17))
+				out.Int32(int32(v16))
 			}
 			out.RawByte(']')
 		}
 	}
 	if len(in.Alliance) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"alliance\":")
-		if in.Alliance == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+		const prefix string = ",\"alliance\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
-			for v18, v19 := range in.Alliance {
-				if v18 > 0 {
+			for v17, v18 := range in.Alliance {
+				if v17 > 0 {
 					out.RawByte(',')
 				}
-				out.Int32(int32(v19))
+				out.Int32(int32(v18))
 			}
 			out.RawByte(']')
 		}
 	}
 	if len(in.Character) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"character\":")
-		if in.Character == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+		const prefix string = ",\"character\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
-			for v20, v21 := range in.Character {
-				if v20 > 0 {
+			for v19, v20 := range in.Character {
+				if v19 > 0 {
 					out.RawByte(',')
 				}
-				out.Int32(int32(v21))
+				out.Int32(int32(v20))
 			}
 			out.RawByte(']')
 		}
 	}
 	if len(in.Constellation) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"constellation\":")
-		if in.Constellation == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+		const prefix string = ",\"constellation\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
-			for v22, v23 := range in.Constellation {
-				if v22 > 0 {
+			for v21, v22 := range in.Constellation {
+				if v21 > 0 {
 					out.RawByte(',')
 				}
-				out.Int32(int32(v23))
+				out.Int32(int32(v22))
 			}
 			out.RawByte(']')
 		}
 	}
 	if len(in.Corporation) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"corporation\":")
-		if in.Corporation == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+		const prefix string = ",\"corporation\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
-			for v24, v25 := range in.Corporation {
-				if v24 > 0 {
+			for v23, v24 := range in.Corporation {
+				if v23 > 0 {
 					out.RawByte(',')
 				}
-				out.Int32(int32(v25))
+				out.Int32(int32(v24))
 			}
 			out.RawByte(']')
 		}
 	}
 	if len(in.Faction) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"faction\":")
-		if in.Faction == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+		const prefix string = ",\"faction\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
-			for v26, v27 := range in.Faction {
-				if v26 > 0 {
+			for v25, v26 := range in.Faction {
+				if v25 > 0 {
 					out.RawByte(',')
 				}
-				out.Int32(int32(v27))
+				out.Int32(int32(v26))
 			}
 			out.RawByte(']')
 		}
 	}
-	if len(in.Inventorytype) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"inventorytype\":")
-		if in.Inventorytype == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+	if len(in.InventoryType) != 0 {
+		const prefix string = ",\"inventory_type\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
-			for v28, v29 := range in.Inventorytype {
-				if v28 > 0 {
+			for v27, v28 := range in.InventoryType {
+				if v27 > 0 {
 					out.RawByte(',')
 				}
-				out.Int32(int32(v29))
+				out.Int32(int32(v28))
 			}
 			out.RawByte(']')
 		}
 	}
 	if len(in.Region) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"region\":")
-		if in.Region == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+		const prefix string = ",\"region\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
-			for v30, v31 := range in.Region {
-				if v30 > 0 {
+			for v29, v30 := range in.Region {
+				if v29 > 0 {
 					out.RawByte(',')
 				}
-				out.Int32(int32(v31))
+				out.Int32(int32(v30))
 			}
 			out.RawByte(']')
 		}
 	}
-	if len(in.Solarsystem) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"solarsystem\":")
-		if in.Solarsystem == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+	if len(in.SolarSystem) != 0 {
+		const prefix string = ",\"solar_system\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
-			for v32, v33 := range in.Solarsystem {
-				if v32 > 0 {
+			for v31, v32 := range in.SolarSystem {
+				if v31 > 0 {
 					out.RawByte(',')
 				}
-				out.Int32(int32(v33))
+				out.Int32(int32(v32))
 			}
 			out.RawByte(']')
 		}
 	}
 	if len(in.Station) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"station\":")
-		if in.Station == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+		const prefix string = ",\"station\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
-			for v34, v35 := range in.Station {
-				if v34 > 0 {
+			for v33, v34 := range in.Station {
+				if v33 > 0 {
 					out.RawByte(',')
 				}
-				out.Int32(int32(v35))
+				out.Int32(int32(v34))
 			}
 			out.RawByte(']')
 		}
 	}
 	if len(in.Structure) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"structure\":")
-		if in.Structure == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
+		const prefix string = ",\"structure\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
 		} else {
+			out.RawString(prefix)
+		}
+		{
 			out.RawByte('[')
-			for v36, v37 := range in.Structure {
-				if v36 > 0 {
+			for v35, v36 := range in.Structure {
+				if v35 > 0 {
 					out.RawByte(',')
 				}
-				out.Int64(int64(v37))
-			}
-			out.RawByte(']')
-		}
-	}
-	if len(in.Wormhole) != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"wormhole\":")
-		if in.Wormhole == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
-		} else {
-			out.RawByte('[')
-			for v38, v39 := range in.Wormhole {
-				if v38 > 0 {
-					out.RawByte(',')
-				}
-				out.Int32(int32(v39))
+				out.Int64(int64(v36))
 			}
 			out.RawByte(']')
 		}

@@ -103,14 +103,14 @@ func easyjsonBceff015DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetW
 			continue
 		}
 		switch key {
-		case "alliance_id":
-			out.AllianceId = int32(in.Int32())
 		case "corporation_id":
 			out.CorporationId = int32(in.Int32())
-		case "isk_destroyed":
-			out.IskDestroyed = float32(in.Float32())
+		case "alliance_id":
+			out.AllianceId = int32(in.Int32())
 		case "ships_killed":
 			out.ShipsKilled = int32(in.Int32())
+		case "isk_destroyed":
+			out.IskDestroyed = float32(in.Float32())
 		default:
 			in.SkipRecursive()
 		}
@@ -125,37 +125,45 @@ func easyjsonBceff015EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.AllianceId != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"alliance_id\":")
-		out.Int32(int32(in.AllianceId))
-	}
 	if in.CorporationId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"corporation_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"corporation_id\":")
 		out.Int32(int32(in.CorporationId))
 	}
-	if in.IskDestroyed != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.AllianceId != 0 {
+		const prefix string = ",\"alliance_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"isk_destroyed\":")
-		out.Float32(float32(in.IskDestroyed))
+		out.Int32(int32(in.AllianceId))
 	}
 	if in.ShipsKilled != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"ships_killed\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"ships_killed\":")
 		out.Int32(int32(in.ShipsKilled))
+	}
+	if in.IskDestroyed != 0 {
+		const prefix string = ",\"isk_destroyed\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Float32(float32(in.IskDestroyed))
 	}
 	out.RawByte('}')
 }

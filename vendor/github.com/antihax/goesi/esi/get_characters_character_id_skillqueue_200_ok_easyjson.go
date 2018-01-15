@@ -103,26 +103,26 @@ func easyjsonEbf16696DecodeGithubComAntihaxGoesiEsi1(in *jlexer.Lexer, out *GetC
 			continue
 		}
 		switch key {
+		case "skill_id":
+			out.SkillId = int32(in.Int32())
 		case "finish_date":
 			if data := in.Raw(); in.Ok() {
 				in.AddError((out.FinishDate).UnmarshalJSON(data))
 			}
-		case "finished_level":
-			out.FinishedLevel = int32(in.Int32())
-		case "level_end_sp":
-			out.LevelEndSp = int32(in.Int32())
-		case "level_start_sp":
-			out.LevelStartSp = int32(in.Int32())
-		case "queue_position":
-			out.QueuePosition = int32(in.Int32())
-		case "skill_id":
-			out.SkillId = int32(in.Int32())
 		case "start_date":
 			if data := in.Raw(); in.Ok() {
 				in.AddError((out.StartDate).UnmarshalJSON(data))
 			}
+		case "finished_level":
+			out.FinishedLevel = int32(in.Int32())
+		case "queue_position":
+			out.QueuePosition = int32(in.Int32())
 		case "training_start_sp":
 			out.TrainingStartSp = int32(in.Int32())
+		case "level_end_sp":
+			out.LevelEndSp = int32(in.Int32())
+		case "level_start_sp":
+			out.LevelStartSp = int32(in.Int32())
 		default:
 			in.SkipRecursive()
 		}
@@ -137,69 +137,85 @@ func easyjsonEbf16696EncodeGithubComAntihaxGoesiEsi1(out *jwriter.Writer, in Get
 	out.RawByte('{')
 	first := true
 	_ = first
-	if true {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"finish_date\":")
-		out.Raw((in.FinishDate).MarshalJSON())
-	}
-	if in.FinishedLevel != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"finished_level\":")
-		out.Int32(int32(in.FinishedLevel))
-	}
-	if in.LevelEndSp != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"level_end_sp\":")
-		out.Int32(int32(in.LevelEndSp))
-	}
-	if in.LevelStartSp != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"level_start_sp\":")
-		out.Int32(int32(in.LevelStartSp))
-	}
-	if in.QueuePosition != 0 {
-		if !first {
-			out.RawByte(',')
-		}
-		first = false
-		out.RawString("\"queue_position\":")
-		out.Int32(int32(in.QueuePosition))
-	}
 	if in.SkillId != 0 {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"skill_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"skill_id\":")
 		out.Int32(int32(in.SkillId))
 	}
 	if true {
-		if !first {
-			out.RawByte(',')
+		const prefix string = ",\"finish_date\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"start_date\":")
+		out.Raw((in.FinishDate).MarshalJSON())
+	}
+	if true {
+		const prefix string = ",\"start_date\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.Raw((in.StartDate).MarshalJSON())
 	}
-	if in.TrainingStartSp != 0 {
-		if !first {
-			out.RawByte(',')
+	if in.FinishedLevel != 0 {
+		const prefix string = ",\"finished_level\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
 		}
-		first = false
-		out.RawString("\"training_start_sp\":")
+		out.Int32(int32(in.FinishedLevel))
+	}
+	if in.QueuePosition != 0 {
+		const prefix string = ",\"queue_position\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.QueuePosition))
+	}
+	if in.TrainingStartSp != 0 {
+		const prefix string = ",\"training_start_sp\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
 		out.Int32(int32(in.TrainingStartSp))
+	}
+	if in.LevelEndSp != 0 {
+		const prefix string = ",\"level_end_sp\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.LevelEndSp))
+	}
+	if in.LevelStartSp != 0 {
+		const prefix string = ",\"level_start_sp\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Int32(int32(in.LevelStartSp))
 	}
 	out.RawByte('}')
 }
