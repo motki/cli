@@ -403,7 +403,7 @@ func (c ProductCommand) getProductLineIndex(p *model.Product) map[int]*model.Pro
 // newProduct creates a new production chain and opens it in the editor.
 func (c ProductCommand) newProduct(args ...string) {
 	if p := c.previewProduct(args...); p != nil {
-		c.productEditor(p)
+		c.newProductEditor(p).Loop()
 	}
 }
 
@@ -428,7 +428,7 @@ func (c ProductCommand) editProduct(args ...string) {
 		return
 	}
 	c.printProductInfo(product)
-	c.productEditor(product)
+	c.newProductEditor(product).Loop()
 }
 
 // previewProduct displays a default view for a given typeID.
@@ -507,10 +507,4 @@ func (c ProductCommand) listProducts() {
 			text.PadTextRight(c.getProductName(prod), 42),
 			prod.TypeID)
 	}
-}
-
-// productEditor starts an interactive session for managing the given production chain.
-func (c ProductCommand) productEditor(p *model.Product) {
-	ed := c.newProductEditor(p)
-	ed.loop()
 }

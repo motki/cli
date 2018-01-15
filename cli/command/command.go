@@ -1,7 +1,5 @@
 package command
 
-import "strings"
-
 // validateIntGreaterThan returns an integer validator.
 //
 // This validator ensures the value received is greater than the given minimum.
@@ -23,8 +21,4 @@ func validateStringIsOneOf(valid []string) func(string) (string, bool) {
 		}
 		return val, false
 	}
-}
-
-var transformStringToCaps = func(val string) (string, bool) {
-	return strings.ToUpper(val), true
 }

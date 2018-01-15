@@ -6,10 +6,11 @@ import (
 
 	"github.com/motki/motki/model"
 
+	"github.com/motki/motki-cli/cli/editor"
 	"github.com/motki/motki-cli/cli/text"
 )
 
-func (c ProductCommand) newProductEditor(p *model.Product) *editor {
+func (c ProductCommand) newProductEditor(p *model.Product) *editor.Editor {
 	lineIndex := c.getProductLineIndex(p)
 	shownLineNumberHint := false
 	var validLineNumber = func(val int) (int, bool) {
@@ -44,7 +45,7 @@ func (c ProductCommand) newProductEditor(p *model.Product) *editor {
 	}
 	var (
 		// Save production chain.
-		cmdSave = newEditorCommandFunc(
+		cmdSave = editor.NewCommand(
 			"S",
 			"Save the current production chain.",
 			[]string{},
@@ -59,7 +60,7 @@ func (c ProductCommand) newProductEditor(p *model.Product) *editor {
 			})
 
 		// Save the production chain and exit the editor.
-		cmdSaveQuit = newEditorCommandFunc(
+		cmdSaveQuit = editor.NewCommand(
 			"SQ",
 			"Save the current production chain and exit the editor.",
 			[]string{},
@@ -70,11 +71,11 @@ func (c ProductCommand) newProductEditor(p *model.Product) *editor {
 					return err
 				}
 				fmt.Println("Production chain saved.")
-				return errExitEditor
+				return editor.ErrExitEditor
 			})
 
 		// View the production chain details.
-		cmdView = newEditorCommandFunc(
+		cmdView = editor.NewCommand(
 			"V",
 			"Print the current production chain's details.",
 			[]string{},
@@ -85,7 +86,7 @@ func (c ProductCommand) newProductEditor(p *model.Product) *editor {
 			})
 
 		// View the blueprint inventory overview.
-		cmdBlueprintOverview = newEditorCommandFunc(
+		cmdBlueprintOverview = editor.NewCommand(
 			"O",
 			"Print the materials inventory details.",
 			[]string{},
@@ -95,7 +96,7 @@ func (c ProductCommand) newProductEditor(p *model.Product) *editor {
 			})
 
 		// View the details of an item in the chain.
-		cmdDetail = newEditorCommandFunc(
+		cmdDetail = editor.NewCommand(
 			"D",
 			"Show detailed information for a specific chain item.",
 			[]string{"[#]"},
@@ -111,13 +112,13 @@ func (c ProductCommand) newProductEditor(p *model.Product) *editor {
 				fmt.Printf("Showing detail for %s.\n\n", c.getProductName(prod))
 				c.printProductInfo(prod)
 				fmt.Println("Enter Q or S to return to the previous product.")
-				c.productEditor(prod)
+				c.newProductEditor(prod).Loop()
 				fmt.Printf("Returned to detail for %s\n", c.getProductName(p))
 				return nil
 			})
 
 		// Edit the average cost per unit of an item in the chain.
-		cmdEditCost = newEditorCommandFunc(
+		cmdEditCost = editor.NewCommand(
 			"C",
 			"Set the cost per unit for a specific chain item.",
 			[]string{"[#]"},
@@ -137,9 +138,9 @@ func (c ProductCommand) newProductEditor(p *model.Product) *editor {
 			})
 
 		// Edit material efficiency of an item in the chain.
-		cmdEditME = newEditorCommandFunc(
+		cmdEditME = editor.NewCommand(
 			"F",
-			"Edit material efficiency for a specific item in the chain.",
+			"Set the material efficiency for a specific item in the chain.",
 			[]string{"[#]"},
 			func(args []string) error {
 				prod, ok := promptLineNumber("Edit material efficiency for which line", firstArg(args))
@@ -157,7 +158,7 @@ func (c ProductCommand) newProductEditor(p *model.Product) *editor {
 			})
 
 		// Edit production mode (buy or sell) of an item in the chain.
-		cmdEditMode = newEditorCommandFunc(
+		cmdEditMode = editor.NewCommand(
 			"M",
 			"Set the production mode (buy or build) for a specific chain item.",
 			[]string{"[#]"},
@@ -181,7 +182,7 @@ func (c ProductCommand) newProductEditor(p *model.Product) *editor {
 			})
 
 		// Edit production batch size of an item in the chain.
-		cmdEditBatchSize = newEditorCommandFunc(
+		cmdEditBatchSize = editor.NewCommand(
 			"B",
 			"Set the batch size for a specific chain item.",
 			[]string{"[#]"},
@@ -204,7 +205,7 @@ func (c ProductCommand) newProductEditor(p *model.Product) *editor {
 			})
 
 		// Edit the sell price of the final product.
-		cmdEditSellPrice = newEditorCommandFunc(
+		cmdEditSellPrice = editor.NewCommand(
 			"P",
 			"Set the sell price per unit for the final product.",
 			[]string{},
@@ -220,7 +221,7 @@ func (c ProductCommand) newProductEditor(p *model.Product) *editor {
 			})
 
 		// Edit the sell region of the final product.
-		cmdEditSellRegion = newEditorCommandFunc(
+		cmdEditSellRegion = editor.NewCommand(
 			"R",
 			"Set the market region for the production chain.",
 			[]string{},
@@ -246,7 +247,7 @@ func (c ProductCommand) newProductEditor(p *model.Product) *editor {
 			})
 
 		// Update all product costs per unit to current market values.
-		cmdUpdateMarketPrices = newEditorCommandFunc(
+		cmdUpdateMarketPrices = editor.NewCommand(
 			"U",
 			"Update market prices from evemarketer.com.",
 			[]string{},
@@ -261,7 +262,7 @@ func (c ProductCommand) newProductEditor(p *model.Product) *editor {
 			})
 	)
 
-	return newEditor(c.env, `The production chain editor is an interactive application for managing arbitrary production chains. Individual components can be tagged as either "buy" or "build". Cost projections, with material efficiency and batch size accounted for, are updated accordingly. The target market region and target final sell price can also be modified for the production chain as a whole.
+	return editor.New(c.env, `The production chain editor is an interactive application for managing arbitrary production chains. Individual components can be tagged as either "buy" or "build". Cost projections, with material efficiency and batch size accounted for, are updated accordingly. The target market region and target final sell price can also be modified for the production chain as a whole.
 
 When invoking a tool and omitting an optional parameter, an interactive prompt will begin to collect the necessary information.
 
