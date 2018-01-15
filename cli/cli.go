@@ -4,13 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 
+	"github.com/mattn/go-isatty"
 	"github.com/peterh/liner"
 
-	"github.com/motki/motki/log"
-
 	"github.com/motki/motki-cli/cli/text"
+	"github.com/motki/motki/log"
 )
 
 // A Command is a single command that a Server supports.
@@ -85,7 +86,7 @@ func (srv *Server) SetCommands(commands ...Command) {
 
 // LoopCLI starts an endless loop to perform commands read from stdin.
 func (srv *Server) LoopCLI() {
-	if !liner.TerminalSupported() {
+	if !isatty.IsTerminal(os.Stdout.Fd()) || !liner.TerminalSupported() {
 		srv.logger.Error("terminal not supported")
 		return
 	}
