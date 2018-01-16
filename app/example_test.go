@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/motki/core/log"
+	"github.com/motki/core/proto"
+	"github.com/motki/core/proto/client"
 	"github.com/motki/motki-cli/app"
-	"github.com/motki/motki/log"
-	"github.com/motki/motki/proto"
-	"github.com/motki/motki/proto/client"
 )
 
 // ExampleNewCLIEnv_LoopCLI shows the bare-minimum to connect to the public MOTKI

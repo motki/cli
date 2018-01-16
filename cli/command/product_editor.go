@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/motki/motki/model"
+	"github.com/motki/core/model"
 
 	"github.com/motki/motki-cli/cli/editor"
 	"github.com/motki/motki-cli/cli/text"

@@ -10,9 +10,9 @@ import (
 	"github.com/peterh/liner"
 	"github.com/shopspring/decimal"
 
-	"github.com/motki/motki/evedb"
-	"github.com/motki/motki/log"
-	"github.com/motki/motki/proto/client"
+	"github.com/motki/core/evedb"
+	"github.com/motki/core/log"
+	"github.com/motki/core/proto/client"
 
 	"github.com/motki/motki-cli/cli/text"
 )

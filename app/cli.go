@@ -15,7 +15,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/motki/motki/app"
+	"github.com/motki/core/app"
 
 	"github.com/motki/motki-cli/cli"
 	"github.com/motki/motki-cli/cli/command"

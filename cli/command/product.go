@@ -7,9 +7,9 @@ import (
 
 	"github.com/shopspring/decimal"
 
-	"github.com/motki/motki/log"
-	"github.com/motki/motki/model"
-	"github.com/motki/motki/proto/client"
+	"github.com/motki/core/log"
+	"github.com/motki/core/model"
+	"github.com/motki/core/proto/client"
 
 	"github.com/motki/motki-cli/cli"
 	"github.com/motki/motki-cli/cli/text"

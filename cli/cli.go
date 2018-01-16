@@ -10,8 +10,8 @@ import (
 	"github.com/mattn/go-isatty"
 	"github.com/peterh/liner"
 
+	"github.com/motki/core/log"
 	"github.com/motki/motki-cli/cli/text"
-	"github.com/motki/motki/log"
 )
 
 // A Command is a single command that a Server supports.

@@ -22,10 +22,10 @@ import (
 	"os"
 	"strings"
 
+	"github.com/motki/core/log"
+	"github.com/motki/core/proto"
+	"github.com/motki/core/proto/client"
 	"github.com/motki/motki-cli/app"
-	"github.com/motki/motki/log"
-	"github.com/motki/motki/proto"
-	"github.com/motki/motki/proto/client"
 )
 
 var serverAddr = flag.String("server", "motki.org:18443", "Backend server host and port.")
