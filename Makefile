@@ -62,7 +62,7 @@ ARCHES ?= amd64
 OSES   ?= linux darwin windows
 
 # Components to build up a valid "go build" command.
-build_version := $(if $(shell test -d .git && echo "1"),$(shell $(GIT) describe --always),snapshot)
+build_version := $(if $(shell test -d .git && echo "1"),$(shell $(GIT) describe --always --tags),snapshot)
 build_base    := $(GO) build -ldflags "-s -w -X main.Version=$(build_version)"
 build_name     = $(PREFIX)$1$(if $(filter $(GOOS),windows),.exe,)
 build_src      = ./cmd/$(word 1,$(subst _, ,$(subst ., ,$(subst $(PREFIX),,$1))))/*.go
