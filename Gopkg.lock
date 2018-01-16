@@ -65,7 +65,7 @@
   branch = "master"
   name = "github.com/motki/core"
   packages = ["app","db","eveapi","evedb","evemarketer","log","model","proto","proto/client","proto/server","worker"]
-  revision = "dd8e1ad0379241362507481e7b31b5489e177f8d"
+  revision = "211a50bc8d5e7c05ad2fd574a48da981a2d88773"
 
 [[projects]]
   branch = "master"
