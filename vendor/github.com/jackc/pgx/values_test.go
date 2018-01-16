@@ -67,14 +67,6 @@ func TestTimestampTzTranscode(t *testing.T) {
 	if !inputTime.Equal(outputTime) {
 		t.Errorf("Did not transcode time successfully: %v is not %v", outputTime, inputTime)
 	}
-
-	err = conn.QueryRow("select $1::timestamptz", inputTime).Scan(&outputTime)
-	if err != nil {
-		t.Fatalf("QueryRow Scan failed: %v", err)
-	}
-	if !inputTime.Equal(outputTime) {
-		t.Errorf("Did not transcode time successfully: %v is not %v", outputTime, inputTime)
-	}
 }
 
 // TODO - move these tests to pgtype
@@ -929,6 +921,13 @@ func TestRowDecode(t *testing.T) {
 				int32(1),
 				"cat",
 				time.Date(2015, 1, 1, 8, 12, 42, 0, time.UTC).Local(),
+			},
+		},
+		{
+			"select row(100.0::float, 1.09::float)",
+			[]interface{}{
+				float64(100),
+				float64(1.09),
 			},
 		},
 	}

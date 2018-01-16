@@ -36,16 +36,26 @@ func TestRecordTranscode(t *testing.T) {
 			},
 		},
 		{
+			sql: `select row(100.0::float4, 1.09::float4)`,
+			expected: pgtype.Record{
+				Fields: []pgtype.Value{
+					&pgtype.Float4{Float: 100, Status: pgtype.Present},
+					&pgtype.Float4{Float: 1.09, Status: pgtype.Present},
+				},
+				Status: pgtype.Present,
+			},
+		},
+		{
 			sql: `select row('foo'::text, array[1, 2, null, 4]::int4[], 42::int4)`,
 			expected: pgtype.Record{
 				Fields: []pgtype.Value{
 					&pgtype.Text{String: "foo", Status: pgtype.Present},
 					&pgtype.Int4Array{
 						Elements: []pgtype.Int4{
-							pgtype.Int4{Int: 1, Status: pgtype.Present},
-							pgtype.Int4{Int: 2, Status: pgtype.Present},
-							pgtype.Int4{Status: pgtype.Null},
-							pgtype.Int4{Int: 4, Status: pgtype.Present},
+							{Int: 1, Status: pgtype.Present},
+							{Int: 2, Status: pgtype.Present},
+							{Status: pgtype.Null},
+							{Int: 4, Status: pgtype.Present},
 						},
 						Dimensions: []pgtype.ArrayDimension{{Length: 4, LowerBound: 1}},
 						Status:     pgtype.Present,
@@ -87,8 +97,30 @@ func TestRecordTranscode(t *testing.T) {
 		}
 
 		if !reflect.DeepEqual(tt.expected, result) {
-			t.Errorf("%d: expected %v, got %v", i, tt.expected, result)
+			t.Errorf("%d: expected %#v, got %#v", i, tt.expected, result)
 		}
+	}
+}
+
+func TestRecordWithUnknownOID(t *testing.T) {
+	conn := testutil.MustConnectPgx(t)
+	defer testutil.MustClose(t, conn)
+
+	_, err := conn.Exec(`drop type if exists floatrange;
+
+create type floatrange as range (
+  subtype = float8,
+  subtype_diff = float8mi
+);`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Exec("drop type floatrange")
+
+	var result pgtype.Record
+	err = conn.QueryRow("select row('foo'::text, floatrange(1, 10), 'bar'::text)").Scan(&result)
+	if err == nil {
+		t.Errorf("expected error but none")
 	}
 }
 

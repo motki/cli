@@ -17,6 +17,33 @@ import (
 	"github.com/jackc/pgx/pgtype"
 )
 
+func TestCrateDBConnect(t *testing.T) {
+	t.Parallel()
+
+	if cratedbConnConfig == nil {
+		t.Skip("Skipping due to undefined cratedbConnConfig")
+	}
+
+	conn, err := pgx.Connect(*cratedbConnConfig)
+	if err != nil {
+		t.Fatalf("Unable to establish connection: %v", err)
+	}
+
+	var result int
+	err = conn.QueryRow("select 1 +1").Scan(&result)
+	if err != nil {
+		t.Fatalf("QueryRow Scan unexpectedly failed: %v", err)
+	}
+	if result != 2 {
+		t.Errorf("bad result: %d", result)
+	}
+
+	err = conn.Close()
+	if err != nil {
+		t.Fatal("Unable to close connection")
+	}
+}
+
 func TestConnect(t *testing.T) {
 	t.Parallel()
 
@@ -226,6 +253,31 @@ func TestConnectWithConnectionRefused(t *testing.T) {
 	if err == nil {
 		t.Fatal("Expected error establishing connection to bad port")
 	}
+}
+
+func TestConnectWithPreferSimpleProtocol(t *testing.T) {
+	t.Parallel()
+
+	connConfig := *defaultConnConfig
+	connConfig.PreferSimpleProtocol = true
+
+	conn := mustConnect(t, connConfig)
+	defer closeConn(t, conn)
+
+	// If simple protocol is used we should be able to correctly scan the result
+	// into a pgtype.Text as the integer will have been encoded in text.
+
+	var s pgtype.Text
+	err := conn.QueryRow("select $1::int4", 42).Scan(&s)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if s.Get() != "42" {
+		t.Fatalf(`expected "42", got %v`, s)
+	}
+
+	ensureConnValid(t, conn)
 }
 
 func TestConnectCustomDialer(t *testing.T) {
@@ -515,18 +567,31 @@ func TestParseDSN(t *testing.T) {
 				},
 			},
 		},
+		{
+			url: "user=jack host=localhost dbname=mydb connect_timeout=10",
+			connParams: pgx.ConnConfig{
+				User:     "jack",
+				Host:     "localhost",
+				Database: "mydb",
+				TLSConfig: &tls.Config{
+					InsecureSkipVerify: true,
+				},
+				Dial:              (&net.Dialer{Timeout: 10 * time.Second, KeepAlive: 5 * time.Minute}).Dial,
+				UseFallbackTLS:    true,
+				FallbackTLSConfig: nil,
+				RuntimeParams:     map[string]string{},
+			},
+		},
 	}
 
 	for i, tt := range tests {
-		connParams, err := pgx.ParseDSN(tt.url)
+		actual, err := pgx.ParseDSN(tt.url)
 		if err != nil {
 			t.Errorf("%d. Unexpected error from pgx.ParseDSN(%q) => %v", i, tt.url, err)
 			continue
 		}
 
-		if !reflect.DeepEqual(connParams, tt.connParams) {
-			t.Errorf("%d. expected %#v got %#v", i, tt.connParams, connParams)
-		}
+		testConnConfigEquals(t, tt.connParams, actual, strconv.Itoa(i))
 	}
 }
 
@@ -646,6 +711,21 @@ func TestParseConnectionString(t *testing.T) {
 			},
 		},
 		{
+			url: "postgres://jack@localhost/mydb?connect_timeout=10",
+			connParams: pgx.ConnConfig{
+				User:     "jack",
+				Host:     "localhost",
+				Database: "mydb",
+				TLSConfig: &tls.Config{
+					InsecureSkipVerify: true,
+				},
+				Dial:              (&net.Dialer{Timeout: 10 * time.Second, KeepAlive: 5 * time.Minute}).Dial,
+				UseFallbackTLS:    true,
+				FallbackTLSConfig: nil,
+				RuntimeParams:     map[string]string{},
+			},
+		},
+		{
 			url: "user=jack password=secret host=localhost port=5432 dbname=mydb sslmode=disable",
 			connParams: pgx.ConnConfig{
 				User:          "jack",
@@ -737,20 +817,87 @@ func TestParseConnectionString(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		connParams, err := pgx.ParseConnectionString(tt.url)
+		actual, err := pgx.ParseConnectionString(tt.url)
 		if err != nil {
 			t.Errorf("%d. Unexpected error from pgx.ParseDSN(%q) => %v", i, tt.url, err)
 			continue
 		}
 
-		if !reflect.DeepEqual(connParams, tt.connParams) {
-			t.Errorf("%d. expected %#v got %#v", i, tt.connParams, connParams)
+		testConnConfigEquals(t, tt.connParams, actual, strconv.Itoa(i))
+	}
+}
+
+func testConnConfigEquals(t *testing.T, expected pgx.ConnConfig, actual pgx.ConnConfig, testName string) {
+	if actual.Host != expected.Host {
+		t.Errorf("%s: expected Host to be %v got %v", testName, expected.Host, actual.Host)
+	}
+	if actual.Database != expected.Database {
+		t.Errorf("%s: expected Database to be %v got %v", testName, expected.Database, actual.Database)
+	}
+	if actual.Port != expected.Port {
+		t.Errorf("%s: expected Port to be %v got %v", testName, expected.Port, actual.Port)
+	}
+	if actual.Port != expected.Port {
+		t.Errorf("%s: expected Port to be %v got %v", testName, expected.Port, actual.Port)
+	}
+	if actual.User != expected.User {
+		t.Errorf("%s: expected User to be %v got %v", testName, expected.User, actual.User)
+	}
+	if actual.Password != expected.Password {
+		t.Errorf("%s: expected Password to be %v got %v", testName, expected.Password, actual.Password)
+	}
+	// Cannot test value of underlying Dialer stuct but can at least test if Dial func is set.
+	if (actual.Dial != nil) != (expected.Dial != nil) {
+		t.Errorf("%s: expected Dial mismatch", testName)
+	}
+
+	if !reflect.DeepEqual(actual.RuntimeParams, expected.RuntimeParams) {
+		t.Errorf("%s: expected RuntimeParams to be %#v got %#v", testName, expected.RuntimeParams, actual.RuntimeParams)
+	}
+
+	tlsTests := []struct {
+		name     string
+		expected *tls.Config
+		actual   *tls.Config
+	}{
+		{
+			name:     "TLSConfig",
+			expected: expected.TLSConfig,
+			actual:   actual.TLSConfig,
+		},
+		{
+			name:     "FallbackTLSConfig",
+			expected: expected.FallbackTLSConfig,
+			actual:   actual.FallbackTLSConfig,
+		},
+	}
+	for _, tlsTest := range tlsTests {
+		name := tlsTest.name
+		expected := tlsTest.expected
+		actual := tlsTest.actual
+
+		if expected == nil && actual != nil {
+			t.Errorf("%s / %s: expected nil, but it was set", testName, name)
+		} else if expected != nil && actual == nil {
+			t.Errorf("%s / %s: expected to be set, but got nil", testName, name)
+		} else if expected != nil && actual != nil {
+			if actual.InsecureSkipVerify != expected.InsecureSkipVerify {
+				t.Errorf("%s / %s: expected InsecureSkipVerify to be %v got %v", testName, name, expected.InsecureSkipVerify, actual.InsecureSkipVerify)
+			}
+
+			if actual.ServerName != expected.ServerName {
+				t.Errorf("%s / %s: expected ServerName to be %v got %v", testName, name, expected.ServerName, actual.ServerName)
+			}
 		}
+	}
+
+	if actual.UseFallbackTLS != expected.UseFallbackTLS {
+		t.Errorf("%s: expected UseFallbackTLS to be %v got %v", testName, expected.UseFallbackTLS, actual.UseFallbackTLS)
 	}
 }
 
 func TestParseEnvLibpq(t *testing.T) {
-	pgEnvvars := []string{"PGHOST", "PGPORT", "PGDATABASE", "PGUSER", "PGPASSWORD", "PGAPPNAME", "PGSSLMODE"}
+	pgEnvvars := []string{"PGHOST", "PGPORT", "PGDATABASE", "PGUSER", "PGPASSWORD", "PGAPPNAME", "PGSSLMODE", "PGCONNECT_TIMEOUT"}
 
 	savedEnv := make(map[string]string)
 	for _, n := range pgEnvvars {
@@ -783,11 +930,12 @@ func TestParseEnvLibpq(t *testing.T) {
 		{
 			name: "Normal PG vars",
 			envvars: map[string]string{
-				"PGHOST":     "123.123.123.123",
-				"PGPORT":     "7777",
-				"PGDATABASE": "foo",
-				"PGUSER":     "bar",
-				"PGPASSWORD": "baz",
+				"PGHOST":            "123.123.123.123",
+				"PGPORT":            "7777",
+				"PGDATABASE":        "foo",
+				"PGUSER":            "bar",
+				"PGPASSWORD":        "baz",
+				"PGCONNECT_TIMEOUT": "10",
 			},
 			config: pgx.ConnConfig{
 				Host:              "123.123.123.123",
@@ -798,6 +946,7 @@ func TestParseEnvLibpq(t *testing.T) {
 				TLSConfig:         &tls.Config{InsecureSkipVerify: true},
 				UseFallbackTLS:    true,
 				FallbackTLSConfig: nil,
+				Dial:              (&net.Dialer{Timeout: 10 * time.Second, KeepAlive: 5 * time.Minute}).Dial,
 				RuntimeParams:     map[string]string{},
 			},
 		},
@@ -854,7 +1003,7 @@ func TestParseEnvLibpq(t *testing.T) {
 				"PGSSLMODE": "require",
 			},
 			config: pgx.ConnConfig{
-				TLSConfig:      &tls.Config{},
+				TLSConfig:      &tls.Config{InsecureSkipVerify: true},
 				UseFallbackTLS: false,
 				RuntimeParams:  map[string]string{},
 			},
@@ -913,71 +1062,13 @@ func TestParseEnvLibpq(t *testing.T) {
 			}
 		}
 
-		config, err := pgx.ParseEnvLibpq()
+		actual, err := pgx.ParseEnvLibpq()
 		if err != nil {
 			t.Errorf("%s: Unexpected error from pgx.ParseLibpq() => %v", tt.name, err)
 			continue
 		}
 
-		if config.Host != tt.config.Host {
-			t.Errorf("%s: expected Host to be %v got %v", tt.name, tt.config.Host, config.Host)
-		}
-		if config.Port != tt.config.Port {
-			t.Errorf("%s: expected Port to be %v got %v", tt.name, tt.config.Port, config.Port)
-		}
-		if config.Port != tt.config.Port {
-			t.Errorf("%s: expected Port to be %v got %v", tt.name, tt.config.Port, config.Port)
-		}
-		if config.User != tt.config.User {
-			t.Errorf("%s: expected User to be %v got %v", tt.name, tt.config.User, config.User)
-		}
-		if config.Password != tt.config.Password {
-			t.Errorf("%s: expected Password to be %v got %v", tt.name, tt.config.Password, config.Password)
-		}
-
-		if !reflect.DeepEqual(config.RuntimeParams, tt.config.RuntimeParams) {
-			t.Errorf("%s: expected RuntimeParams to be %#v got %#v", tt.name, tt.config.RuntimeParams, config.RuntimeParams)
-		}
-
-		tlsTests := []struct {
-			name     string
-			expected *tls.Config
-			actual   *tls.Config
-		}{
-			{
-				name:     "TLSConfig",
-				expected: tt.config.TLSConfig,
-				actual:   config.TLSConfig,
-			},
-			{
-				name:     "FallbackTLSConfig",
-				expected: tt.config.FallbackTLSConfig,
-				actual:   config.FallbackTLSConfig,
-			},
-		}
-		for _, tlsTest := range tlsTests {
-			name := tlsTest.name
-			expected := tlsTest.expected
-			actual := tlsTest.actual
-
-			if expected == nil && actual != nil {
-				t.Errorf("%s / %s: expected nil, but it was set", tt.name, name)
-			} else if expected != nil && actual == nil {
-				t.Errorf("%s / %s: expected to be set, but got nil", tt.name, name)
-			} else if expected != nil && actual != nil {
-				if actual.InsecureSkipVerify != expected.InsecureSkipVerify {
-					t.Errorf("%s / %s: expected InsecureSkipVerify to be %v got %v", tt.name, name, expected.InsecureSkipVerify, actual.InsecureSkipVerify)
-				}
-
-				if actual.ServerName != expected.ServerName {
-					t.Errorf("%s / %s: expected ServerName to be %v got %v", tt.name, name, expected.ServerName, actual.ServerName)
-				}
-			}
-		}
-
-		if config.UseFallbackTLS != tt.config.UseFallbackTLS {
-			t.Errorf("%s: expected UseFallbackTLS to be %v got %v", tt.name, tt.config.UseFallbackTLS, config.UseFallbackTLS)
-		}
+		testConnConfigEquals(t, tt.config, actual, tt.name)
 	}
 }
 
@@ -1186,6 +1277,34 @@ func TestConnExecExSuppliedIncorrectParameterOIDs(t *testing.T) {
 	mustExec(t, conn, "create temporary table foo(name varchar primary key);")
 
 	_, err := conn.ExecEx(
+		context.Background(),
+		"insert into foo(name) values($1);",
+		&pgx.QueryExOptions{ParameterOIDs: []pgtype.OID{pgtype.Int4OID}},
+		"bar'; drop table foo;--",
+	)
+	if err == nil {
+		t.Fatal("expected error but got none")
+	}
+}
+
+func TestConnExecExIncorrectParameterOIDsAfterAnotherQuery(t *testing.T) {
+	t.Parallel()
+
+	conn := mustConnect(t, *defaultConnConfig)
+	defer closeConn(t, conn)
+
+	mustExec(t, conn, "create temporary table foo(name varchar primary key);")
+
+	var s string
+	err := conn.QueryRow("insert into foo(name) values('baz') returning name;").Scan(&s)
+	if err != nil {
+		t.Errorf("Executing query failed: %v", err)
+	}
+	if s != "baz" {
+		t.Errorf("Query did not return expected value: %v", s)
+	}
+
+	_, err = conn.ExecEx(
 		context.Background(),
 		"insert into foo(name) values($1);",
 		&pgx.QueryExOptions{ParameterOIDs: []pgtype.OID{pgtype.Int4OID}},
@@ -1921,6 +2040,34 @@ end$$;`)
 
 	if msg != "hello, world" {
 		t.Errorf("msg => %v, want %v", msg, "hello, world")
+	}
+
+	ensureConnValid(t, conn)
+}
+
+func TestConnInitConnInfo(t *testing.T) {
+	conn := mustConnect(t, *defaultConnConfig)
+	defer closeConn(t, conn)
+
+	// spot check that the standard postgres type names aren't qualified
+	nameOIDs := map[string]pgtype.OID{
+		"_int8": pgtype.Int8ArrayOID,
+		"int8":  pgtype.Int8OID,
+		"json":  pgtype.JSONOID,
+		"text":  pgtype.TextOID,
+	}
+	for name, oid := range nameOIDs {
+		dtByName, ok := conn.ConnInfo.DataTypeForName(name)
+		if !ok {
+			t.Fatalf("Expected type named %v to be present", name)
+		}
+		dtByOID, ok := conn.ConnInfo.DataTypeForOID(oid)
+		if !ok {
+			t.Fatalf("Expected type OID %v to be present", oid)
+		}
+		if dtByName != dtByOID {
+			t.Fatalf("Expected type named %v to be the same as type OID %v", name, oid)
+		}
 	}
 
 	ensureConnValid(t, conn)
