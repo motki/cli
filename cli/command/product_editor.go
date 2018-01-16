@@ -238,10 +238,12 @@ func (c ProductCommand) newProductEditor(p *model.Product) *editor.Editor {
 					}
 				}
 				setRegion(p)
-				if _, err := c.client.UpdateProductPrices(p); err != nil {
+				prod, err := c.client.UpdateProductPrices(p)
+				if err != nil {
 					c.logger.Errorf("unable to fetch market prices for region %d: %s", region.RegionID, err.Error())
 					fmt.Println("Error loading production chain prices, try again.")
 				}
+				*p = *prod
 				fmt.Printf("Updated %s target region to %s.\n", c.getProductName(p), c.getRegionName(p.MarketRegionID))
 				return nil
 			})
@@ -249,14 +251,16 @@ func (c ProductCommand) newProductEditor(p *model.Product) *editor.Editor {
 		// Update all product costs per unit to current market values.
 		cmdUpdateMarketPrices = editor.NewCommand(
 			"U",
-			"Update market prices from evemarketer.com.",
+			"Update market prices with regional data from evemarketer.com.",
 			[]string{},
 			func(_ []string) error {
-				if _, err := c.client.UpdateProductPrices(p); err != nil {
+				prod, err := c.client.UpdateProductPrices(p)
+				if err != nil {
 					c.logger.Errorf("unable to fetch market prices for region %d: %s", p.MarketRegionID, err.Error())
 					fmt.Println("Error loading production chain prices, try again.")
 					return nil
 				}
+				*p = *prod
 				fmt.Println("Production chain prices updated.")
 				return nil
 			})
