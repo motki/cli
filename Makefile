@@ -1,4 +1,4 @@
-# motki-cli Makefile
+# motki/cli Makefile
 
 # Build the motki binary:
 #   make

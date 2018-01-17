@@ -9,5 +9,5 @@ import (
 // Config represents the configuration of a MOTKI Env.
 //
 // This exists as a type alias so that packages depending on this package do not
-// need to import both "github.com/motki/core/app" and "github.com/motki/motki-cli/app".
+// need to import both "github.com/motki/core/app" and "github.com/motki/cli/app".
 type Config = app.Config

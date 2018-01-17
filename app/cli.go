@@ -1,14 +1,14 @@
-// Package app contains functionality related to creating an integrated
+// Package app contains functionality related to creating an interactive
 // command-line interface environment with all the necessary dependencies.
 //
-// The goal with this package is to provide a single, reusable base for
-// getting a MOTKI CLI application up and running.
+// The goal of the app package is to provide a single, reusable base for
+// building client-only MOTKI CLI applications.
 //
-// This package imports every other motki-cli package. As such, it cannot
+// This package imports every other motki/cli package. As such, it cannot
 // be imported from the "library" portion of the project. It is intended to be
 // used from external packages only. For a real example of this, check the motki
 // command source code.
-package app
+package app // import "github.com/motki/cli/app"
 
 import (
 	"fmt"
@@ -17,9 +17,9 @@ import (
 
 	"github.com/motki/core/app"
 
-	"github.com/motki/motki-cli/cli"
-	"github.com/motki/motki-cli/cli/command"
-	"github.com/motki/motki-cli/cli/text"
+	"github.com/motki/cli"
+	"github.com/motki/cli/command"
+	"github.com/motki/cli/text"
 )
 
 // A CLIEnv wraps a ClientEnv, providing CLI specific facilities.

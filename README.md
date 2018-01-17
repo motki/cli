@@ -1,15 +1,23 @@
-# motki-cli
+# MOTKI CLI
 
 Command `motki` contains interactive command-line tools for managing EVE Online character and corporation assets and industrial processes.
 
-[![GoDoc](https://godoc.org/github.com/motki/motki-cli?status.svg)](https://godoc.org/github.com/motki/motki-cli)
+[![GoDoc](https://godoc.org/github.com/motki/cli?status.svg)](https://godoc.org/github.com/motki/cli)
 
 
 ## Getting started
 
-Download the [latest pre-built `motki` binary](https://github.com/motki/motki-cli/releases/latest) for your platform.
+Download the [latest pre-built `motki` binary](https://github.com/motki/cli/releases/latest) for your platform.
 
 > Note that the default configuration connects to `motki.org:18443` using SSL.
+
+#### Install with `go get`
+
+Alternatively, you can install the MOTKI CLI with `go get`.
+
+```bash
+go get -u github.com/motki/cli/cmd/motki
+```
 
 ### Command-line options
 
@@ -46,33 +54,58 @@ To authenticate:
    ```
    MOTKI_USERNAME=username MOTKI_PASSWORD=password motki
    ```
-   
+
+
 ## Building
 
-Install `motki` using `go get`.
+The recommended way to build this project is using `make`, though it is compatible with `go get` and friends.
 
-```bash
-go get -u github.com/motki/motki-cli/...
-```
-
-The project is buildable with Go tools alone.
-
-```bash
-cd $GOPATH/src/github.com/motki/motki-cli
-go build ./cmd/motki/*.go
-```
+Prerequisites:
+1. A semi-recent version of `git`.
+2. A valid `go` toolchain install and environment configuration.
 
 ### Building with `make`
 
-Use the included Makefile to build the program.
+1. Clone or download and extract the source code and place it in the proper place inside your `$GOPATH`.
+   ```bash
+   mkdir -p $GOPATH/src/github.com/motki
+   git clone https://github.com/motki/cli $GOPATH/src/github.com/motki/cli
+   cd $GOPATH/src/github.com/motki/cli
+   ```
+
+2. Use the included Makefile to build the application.
+   ```bash
+   cd $GOPATH/src/github.com/motki/cli
+   make build
+   ```
+
+#### Cross-compiling the application
+
+Each build target supports specifying `GOOS` and `GOARCH` to facilitate cross-compiling. For example, building the MOTKI CLI for 32-bit ARM linux:
 
 ```bash
-cd $GOPATH/src/github.com/motki/motki-cli
-make build
+make build GOOS="linux" GOARCH="arm"
 ```
 
-Build the `motki` program for a combination of OSes and architectures.
+> See the [Go language documentation for more information](https://golang.org/doc/install/source#environment) on supported OSes and architectures.
+
+Build the `motki` program for a combination of OSes and architectures with `make matrix`. Use `OSES` and `ARCHES` to configure which platforms to target.
 
 ```bash
 make matrix OSES="windows linux darwin" ARCHES="amd64 x86"
+```
+
+### Building with `go`
+
+Download and install `motki` and its dependencies using `go get`.
+
+```bash
+go get -u github.com/motki/cli/...
+```
+
+After `go get` exits successfully, you should have a new command in your `$GOBIN` called `motki`.
+
+```bash
+cd $GOPATH/src/github.com/motki/cli
+go build ./cmd/motki/*.go
 ```

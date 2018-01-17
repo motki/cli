@@ -11,8 +11,8 @@ import (
 	"github.com/motki/core/model"
 	"github.com/motki/core/proto/client"
 
-	"github.com/motki/motki-cli/cli"
-	"github.com/motki/motki-cli/cli/text"
+	"github.com/motki/cli"
+	"github.com/motki/cli/text"
 )
 
 const (

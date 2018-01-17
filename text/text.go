@@ -1,4 +1,5 @@
-package text
+// Package text contains functions for formatting console text.
+package text // import "github.com/motki/cli/text"
 
 import (
 	"bytes"

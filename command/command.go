@@ -1,4 +1,6 @@
-package command
+// Package command contains the implementations for subcommands supported by
+// the motki command.
+package command // import "github.com/motki/cli/command"
 
 // validateIntGreaterThan returns an integer validator.
 //

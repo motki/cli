@@ -6,8 +6,8 @@ import (
 
 	"github.com/motki/core/model"
 
-	"github.com/motki/motki-cli/cli/editor"
-	"github.com/motki/motki-cli/cli/text"
+	"github.com/motki/cli/editor"
+	"github.com/motki/cli/text"
 )
 
 func (c ProductCommand) newProductEditor(p *model.Product) *editor.Editor {

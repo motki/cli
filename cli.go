@@ -1,4 +1,9 @@
-package cli
+// Package cli is a command-line interface and supporting libraries for interacting with
+// a remote MOTKI application server.
+//
+// This project contains the motki command source code, as well text-processing
+// functionality.
+package cli // import "github.com/motki/cli"
 
 import (
 	"errors"
@@ -11,7 +16,8 @@ import (
 	"github.com/peterh/liner"
 
 	"github.com/motki/core/log"
-	"github.com/motki/motki-cli/cli/text"
+
+	"github.com/motki/cli/text"
 )
 
 // A Command is a single command that a Server supports.
@@ -44,7 +50,7 @@ type Server struct {
 
 	abort chan struct{}
 
-	// commands contains all the commands registered with the p.
+	// commands contains all the commands registered with the Server.
 	commands []Command
 
 	// commandLookup acts as a lookup table, pairing a Command with each prefix it specifies.

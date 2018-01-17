@@ -14,9 +14,10 @@ import (
 	"github.com/motki/core/log"
 	"github.com/motki/core/proto/client"
 
-	"github.com/motki/motki-cli/cli/text"
+	"github.com/motki/cli/text"
 )
 
+// A Prompter handles prompting the user for well-defined input.
 type Prompter struct {
 	logger log.Logger
 	cli    *Server
@@ -36,7 +37,7 @@ func NewPrompter(cli *Server, cl client.Client, logger log.Logger) *Prompter {
 // If defVal is not nil, the prompt will be pre-populated with the default
 // value.
 //
-// Additionally, any number of filter funcs can be passed in to perform
+// Additionally, any number of filter functions can be passed in to perform
 // custom validation and filtering on the user's input. Filter functions
 // receive the value received from the prompt and return the new value and
 // and indicator whether the value is valid.

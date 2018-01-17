@@ -1,14 +1,15 @@
-package editor
+// Package editor is an interactive command-line editor that supports
+// sub-commands with arguments.
+package editor // import "github.com/motki/cli/editor"
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/pkg/errors"
 
-	"strings"
-
-	"github.com/motki/motki-cli/cli"
-	"github.com/motki/motki-cli/cli/text"
+	"github.com/motki/cli"
+	"github.com/motki/cli/text"
 )
 
 var ErrCommandNotFound = errors.New("command not found")

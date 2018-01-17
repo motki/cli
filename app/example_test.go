@@ -7,7 +7,8 @@ import (
 	"github.com/motki/core/log"
 	"github.com/motki/core/proto"
 	"github.com/motki/core/proto/client"
-	"github.com/motki/motki-cli/app"
+
+	"github.com/motki/cli/app"
 )
 
 // ExampleNewCLIEnv_LoopCLI shows the bare-minimum to connect to the public MOTKI

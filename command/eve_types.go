@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/motki/motki-cli/cli"
-	"github.com/motki/motki-cli/cli/text"
+	"github.com/motki/cli"
+	"github.com/motki/cli/text"
 )
 
 // EVETypesCommand provides item type lookup and display.

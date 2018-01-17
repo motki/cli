@@ -1,4 +1,4 @@
-// Command motki is a utility for interacting with a remote motki application
+// Command motki is a utility for interacting with a remote MOTKI application
 // server.
 //
 //  Usage of motki:
@@ -14,6 +14,17 @@
 //      	Backend server host and port. (default "motki.org:18443")
 //    -version
 //      	Display the application version.
+//
+// By default, the motki command connects to the public MOTKI server available
+// at https://motki.org. Override this functionality by passing the -server flag on
+// the command line.
+//
+//   motki -server myserverhost:8443
+//
+// To start an authenticated session, you must pass the -credentials flag on the
+// command line.
+//
+//   motki -credentials frank:mypass
 package main
 
 import (
@@ -22,10 +33,11 @@ import (
 	"os"
 	"strings"
 
+	"github.com/motki/cli/app"
+
 	"github.com/motki/core/log"
 	"github.com/motki/core/proto"
 	"github.com/motki/core/proto/client"
-	"github.com/motki/motki-cli/app"
 )
 
 var serverAddr = flag.String("server", "motki.org:18443", "Backend server host and port.")
@@ -46,7 +58,7 @@ var Version = "dev"
 func main() {
 	flag.Parse()
 	if *version {
-		fmt.Printf("%s %s. %s\n", os.Args[0], Version, "https://github.com/motki/motki-cli")
+		fmt.Printf("%s %s. %s\n", os.Args[0], Version, "https://github.com/motki/cli")
 		os.Exit(0)
 	}
 
