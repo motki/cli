@@ -15,11 +15,6 @@ import (
 	"github.com/motki/cli/text"
 )
 
-const (
-	nameCacheKeyRegions = "regions"
-	nameCacheKeyTypes   = "types"
-)
-
 // ProductCommand provides an interactive manager for production chains.
 type ProductCommand struct {
 	character *model.Character
@@ -29,8 +24,6 @@ type ProductCommand struct {
 	env    *cli.Prompter
 	logger log.Logger
 	client client.Client
-
-	nameCache map[string]map[int]string
 }
 
 func NewProductCommand(cl client.Client, p *cli.Prompter, logger log.Logger) ProductCommand {
@@ -55,11 +48,7 @@ func NewProductCommand(cl client.Client, p *cli.Prompter, logger log.Logger) Pro
 		corpID,
 		p,
 		logger,
-		cl,
-		map[string]map[int]string{
-			nameCacheKeyRegions: {},
-			nameCacheKeyTypes:   {},
-		}}
+		cl}
 }
 
 func (c ProductCommand) Prefixes() []string {
@@ -133,29 +122,21 @@ func (c ProductCommand) PrintHelp() {
 
 // getProductName returns the given product's name.
 func (c ProductCommand) getProductName(p *model.Product) string {
-	if n, ok := c.nameCache[nameCacheKeyTypes][p.TypeID]; ok {
-		return n
-	}
 	t, err := c.client.GetItemType(p.TypeID)
 	if err != nil {
 		c.logger.Debugf("unable to get item name: %s", err.Error())
 		return strconv.Itoa(p.ProductID)
 	}
-	c.nameCache[nameCacheKeyTypes][p.TypeID] = t.Name
 	return t.Name
 }
 
 // getRegionName returns the given region's name.
 func (c ProductCommand) getRegionName(regionID int) string {
-	if n, ok := c.nameCache[nameCacheKeyRegions][regionID]; ok {
-		return n
-	}
 	r, err := c.client.GetRegion(regionID)
 	if err != nil {
 		c.logger.Debugf("unable to get region name: %s", err.Error())
 		return strconv.Itoa(regionID)
 	}
-	c.nameCache[nameCacheKeyRegions][regionID] = r.Name
 	return r.Name
 }
 
