@@ -226,7 +226,7 @@ func (a *CorporationApiService) GetCorporationsCorporationIdAlliancehistory(ctx 
 }
 
 /* CorporationApiService Get corporation blueprints
-Returns a list of blueprints the corporation owns  ---  This route is cached for up to 3600 seconds  --- Requires one of the following EVE corporation role(s): Director
+Returns a list of blueprints the corporation owns  ---  This route is cached for up to 3600 seconds  --- Requires one of the following EVE corporation role(s): Director  --- [This route has an available update](https://esi.tech.ccp.is/diff/latest/dev/#GET-/corporations/{corporation_id}/blueprints/)
 
 * @param ctx context.Context Authentication Context
 @param corporationId An EVE corporation ID
@@ -331,7 +331,7 @@ func (a *CorporationApiService) GetCorporationsCorporationIdBlueprints(ctx conte
 }
 
 /* CorporationApiService Get all corporation ALSC logs
-Returns logs recorded in the past seven days from all audit log secure containers (ALSC) owned by a given corporation  ---  This route is cached for up to 600 seconds  --- Requires one of the following EVE corporation role(s): Director
+Returns logs recorded in the past seven days from all audit log secure containers (ALSC) owned by a given corporation  ---  This route is cached for up to 600 seconds  --- Requires one of the following EVE corporation role(s): Director  --- [This route has an available update](https://esi.tech.ccp.is/diff/latest/dev/#GET-/corporations/{corporation_id}/containers/logs/)
 
 * @param ctx context.Context Authentication Context
 @param corporationId An EVE corporation ID
@@ -1732,8 +1732,8 @@ func (a *CorporationApiService) GetCorporationsCorporationIdRolesHistory(ctx con
 	return successPayload, localVarHttpResponse, err
 }
 
-/* CorporationApiService Get corporation members
-Return the current member list of a corporation, the token&#39;s character need to be a member of the corporation.  ---  This route is cached for up to 3600 seconds
+/* CorporationApiService Get corporation shareholders
+Return the current shareholders of a corporation.  ---  This route is cached for up to 3600 seconds  --- Requires one of the following EVE corporation role(s): Director
 
 * @param ctx context.Context Authentication Context
 @param corporationId An EVE corporation ID
@@ -2056,7 +2056,6 @@ Returns various settings and fuels of a starbase (POS)  ---  This route is cache
 @param systemId The solar system this starbase (POS) is located in,
 @param optional (nil or map[string]interface{}) with one or more of:
     @param "datasource" (string) The server name you would like data from
-    @param "page" (int32) Which page of results to return
     @param "token" (string) Access token to use if unable to set a header
     @param "userAgent" (string) Client identifier, takes precedence over headers
     @param "xUserAgent" (string) Client identifier, takes precedence over User-Agent
@@ -2085,9 +2084,6 @@ func (a *CorporationApiService) GetCorporationsCorporationIdStarbasesStarbaseId(
 	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
 		return successPayload, nil, err
 	}
-	if err := typeCheckParameter(localVarOptionals["page"], "int32", "page"); err != nil {
-		return successPayload, nil, err
-	}
 	if err := typeCheckParameter(localVarOptionals["token"], "string", "token"); err != nil {
 		return successPayload, nil, err
 	}
@@ -2100,9 +2096,6 @@ func (a *CorporationApiService) GetCorporationsCorporationIdStarbasesStarbaseId(
 
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
-	}
-	if localVarTempParam, localVarOk := localVarOptionals["page"].(int32); localVarOk {
-		localVarQueryParams.Add("page", parameterToString(localVarTempParam, ""))
 	}
 	localVarQueryParams.Add("system_id", parameterToString(systemId, ""))
 	if localVarTempParam, localVarOk := localVarOptionals["token"].(string); localVarOk {
@@ -2157,7 +2150,7 @@ func (a *CorporationApiService) GetCorporationsCorporationIdStarbasesStarbaseId(
 }
 
 /* CorporationApiService Get corporation structures
-Get a list of corporation structures  ---  This route is cached for up to 3600 seconds  --- Requires one of the following EVE corporation role(s): StationManager
+Get a list of corporation structures. This route&#39;s version includes the changes to structures detailed in this blog: https://www.eveonline.com/article/upwell-2.0-structures-changes-coming-on-february-13th  ---  This route is cached for up to 3600 seconds  --- Requires one of the following EVE corporation role(s): StationManager
 
 * @param ctx context.Context Authentication Context
 @param corporationId An EVE corporation ID
@@ -2179,7 +2172,7 @@ func (a *CorporationApiService) GetCorporationsCorporationIdStructures(ctx conte
 	)
 
 	// create path and map variables
-	localVarPath := a.client.basePath + "/v1/corporations/{corporation_id}/structures/"
+	localVarPath := a.client.basePath + "/v2/corporations/{corporation_id}/structures/"
 	localVarPath = strings.Replace(localVarPath, "{"+"corporation_id"+"}", fmt.Sprintf("%v", corporationId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -2544,103 +2537,4 @@ func (a *CorporationApiService) GetCorporationsNpccorps(ctx context.Context, loc
 	}
 
 	return successPayload, localVarHttpResponse, err
-}
-
-/* CorporationApiService Update structure vulnerability schedule
-Update the vulnerability window schedule of a corporation structure  ---
-
-* @param ctx context.Context Authentication Context
-@param corporationId An EVE corporation ID
-@param newSchedule New vulnerability window schedule for the structure
-@param structureId A structure ID
-@param optional (nil or map[string]interface{}) with one or more of:
-    @param "datasource" (string) The server name you would like data from
-    @param "token" (string) Access token to use if unable to set a header
-    @param "userAgent" (string) Client identifier, takes precedence over headers
-    @param "xUserAgent" (string) Client identifier, takes precedence over User-Agent
-@return */
-func (a *CorporationApiService) PutCorporationsCorporationIdStructuresStructureId(ctx context.Context, corporationId int32, newSchedule []PutCorporationsCorporationIdStructuresStructureIdNewSchedule, structureId int64, localVarOptionals map[string]interface{}) (*http.Response, error) {
-	var (
-		localVarHttpMethod = strings.ToUpper("Put")
-		localVarPostBody   interface{}
-		localVarFileName   string
-		localVarFileBytes  []byte
-	)
-
-	// create path and map variables
-	localVarPath := a.client.basePath + "/v1/corporations/{corporation_id}/structures/{structure_id}/"
-	localVarPath = strings.Replace(localVarPath, "{"+"corporation_id"+"}", fmt.Sprintf("%v", corporationId), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"structure_id"+"}", fmt.Sprintf("%v", structureId), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	if corporationId < 1 {
-		return nil, reportError("corporationId must be greater than 1")
-	}
-	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
-		return nil, err
-	}
-	if err := typeCheckParameter(localVarOptionals["token"], "string", "token"); err != nil {
-		return nil, err
-	}
-	if err := typeCheckParameter(localVarOptionals["userAgent"], "string", "userAgent"); err != nil {
-		return nil, err
-	}
-	if err := typeCheckParameter(localVarOptionals["xUserAgent"], "string", "xUserAgent"); err != nil {
-		return nil, err
-	}
-
-	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
-		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
-	}
-	if localVarTempParam, localVarOk := localVarOptionals["token"].(string); localVarOk {
-		localVarQueryParams.Add("token", parameterToString(localVarTempParam, ""))
-	}
-	if localVarTempParam, localVarOk := localVarOptionals["userAgent"].(string); localVarOk {
-		localVarQueryParams.Add("user_agent", parameterToString(localVarTempParam, ""))
-	}
-
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
-
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{
-		"application/json",
-	}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
-	if localVarTempParam, localVarOk := localVarOptionals["xUserAgent"].(string); localVarOk {
-		localVarHeaderParams["X-User-Agent"] = parameterToString(localVarTempParam, "")
-	}
-	// body params
-	localVarPostBody = &newSchedule
-
-	r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	localVarHttpResponse, err := a.client.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarHttpResponse, err
-	}
-	defer localVarHttpResponse.Body.Close()
-	if localVarHttpResponse.StatusCode >= 300 {
-		bodyBytes, _ := ioutil.ReadAll(localVarHttpResponse.Body)
-		return localVarHttpResponse, reportError("Status: %v, Body: %s", localVarHttpResponse.Status, bodyBytes)
-	}
-
-	return localVarHttpResponse, err
 }

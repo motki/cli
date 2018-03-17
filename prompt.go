@@ -32,6 +32,17 @@ func NewPrompter(cli *Server, cl client.Client, logger log.Logger) *Prompter {
 	}
 }
 
+// Prompt displays the prompt and returns the string input.
+func (p *Prompter) Prompt(prompt string) (string, error) {
+	return p.PromptWithSuggestion(prompt, "", 0)
+}
+
+// PromptWithSuggestion displays prompt and an editable text with cursor at
+// given position.
+func (p *Prompter) PromptWithSuggestion(prompt string, text string, pos int) (string, error) {
+	return p.cli.PromptWithSuggestion(prompt, text, pos)
+}
+
 // PromptInt prompts the user for a valid integer input.
 //
 // If defVal is not nil, the prompt will be pre-populated with the default

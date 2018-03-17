@@ -22,13 +22,12 @@
 
 package esi
 
-/* A list of PutCorporationsCorporationIdStructuresStructureIdNewSchedule. */
+/* A list of GetLoyaltyStoresCorporationIdOffersNotFound. */
 //easyjson:json
-type PutCorporationsCorporationIdStructuresStructureIdNewScheduleList []PutCorporationsCorporationIdStructuresStructureIdNewSchedule
+type GetLoyaltyStoresCorporationIdOffersNotFoundList []GetLoyaltyStoresCorporationIdOffersNotFound
 
-/* new_schedule object */
+/* Not found */
 //easyjson:json
-type PutCorporationsCorporationIdStructuresStructureIdNewSchedule struct {
-	Day  int32 `json:"day,omitempty"`  /* Day of the week, zero-indexed to Monday */
-	Hour int32 `json:"hour,omitempty"` /* Hour of the day evetime, zero-indexed to midnight */
+type GetLoyaltyStoresCorporationIdOffersNotFound struct {
+	Error_ string `json:"error,omitempty"` /* Not found message */
 }

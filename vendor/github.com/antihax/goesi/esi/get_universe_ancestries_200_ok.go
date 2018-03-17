@@ -22,13 +22,17 @@
 
 package esi
 
-/* A list of GetCorporationsCorporationIdStructuresCurrentVul. */
+/* A list of GetUniverseAncestries200Ok. */
 //easyjson:json
-type GetCorporationsCorporationIdStructuresCurrentVulList []GetCorporationsCorporationIdStructuresCurrentVul
+type GetUniverseAncestries200OkList []GetUniverseAncestries200Ok
 
-/* current_vul object */
+/* 200 ok object */
 //easyjson:json
-type GetCorporationsCorporationIdStructuresCurrentVul struct {
-	Day  int32 `json:"day,omitempty"`  /* day integer */
-	Hour int32 `json:"hour,omitempty"` /* hour integer */
+type GetUniverseAncestries200Ok struct {
+	Id               int32  `json:"id,omitempty"`                /* id integer */
+	Name             string `json:"name,omitempty"`              /* name string */
+	BloodlineId      int32  `json:"bloodline_id,omitempty"`      /* The bloodline associated with this ancestry */
+	Description      string `json:"description,omitempty"`       /* description string */
+	ShortDescription string `json:"short_description,omitempty"` /* short_description string */
+	IconId           int32  `json:"icon_id,omitempty"`           /* icon_id integer */
 }

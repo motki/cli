@@ -51,6 +51,10 @@ func NewProductCommand(cl client.Client, p *cli.Prompter, logger log.Logger) Pro
 		cl}
 }
 
+func (c ProductCommand) RequiresAuth() bool {
+	return true
+}
+
 func (c ProductCommand) Prefixes() []string {
 	return []string{"product", "prod"}
 }

@@ -23,7 +23,7 @@ func CenterText(text string, width int) string {
 	replacements := make([][]byte, len(lines))
 
 	for i, line := range lines {
-		var padding int = (width - len(line)) / 2
+		padding := (width - len(line)) / 2
 		if padding < 0 {
 			padding = 0
 		}

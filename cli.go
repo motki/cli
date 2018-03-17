@@ -43,10 +43,23 @@ type Command interface {
 	PrintHelp()
 }
 
+// authRequirer is implemented by commands that require authentication
+// to function. This allows filtering of unworkable commands from being registered.
+type authRequirer interface {
+	Command
+	RequiresAuth() bool
+}
+
+// Authenticator is implemented by a type that is responsible for authentication.
+type Authenticator interface {
+	Authenticated() bool
+}
+
 // A Server handles command-line requests and prints responses to standard output.
 type Server struct {
 	*liner.State
 	logger log.Logger
+	auth   Authenticator
 
 	abort chan struct{}
 
@@ -58,10 +71,11 @@ type Server struct {
 }
 
 // NewServer initializes a new CLI server.
-func NewServer(logger log.Logger) *Server {
+func NewServer(logger log.Logger, a Authenticator) *Server {
 	return &Server{
 		State:  liner.NewLiner(),
 		logger: logger,
+		auth:   a,
 
 		abort: make(chan struct{}, 1),
 
@@ -153,6 +167,12 @@ func (srv *Server) PrintHelp() {
 
 Commands:`)
 	for _, cmd := range srv.commands {
+		if v, ok := cmd.(authRequirer); ok && v.RequiresAuth() {
+			if !srv.auth.Authenticated() {
+				// Not authenticated, skip this command.
+				continue
+			}
+		}
 		for _, prefix := range cmd.Prefixes() {
 			fmt.Printf("  %s %s\n", text.Boldf(text.PadTextRight(prefix, 15)), cmd.Description())
 			break
@@ -183,7 +203,7 @@ func (c quitCommand) Description() string {
 
 func (c quitCommand) PrintHelp() {
 	fmt.Println()
-	fmt.Printf(`Command "quit" exits the application.
+	fmt.Printf(`Command \"%s\" exits the application.
 
 Aliases for quit:
 	quit
@@ -191,7 +211,7 @@ Aliases for quit:
 	exit
 	\q
 
-%s`, text.WrapText(`Additionally, the program can be exited by sending a SIGINT or SIGKILL signal, for example by pressing CTRL+C.`, text.StandardTerminalWidthInChars))
+%s`, text.Boldf("quit"), text.WrapText(`Additionally, the program can be exited by sending a SIGINT or SIGKILL signal, for example by pressing CTRL+C.`, text.StandardTerminalWidthInChars))
 	fmt.Println()
 }
 
@@ -207,9 +227,19 @@ func (c helpCommand) Prefixes() []string {
 func (c helpCommand) Handle(subcmd string, args ...string) {
 	if len(subcmd) > 0 {
 		if cmd, ok := c.env.commandLookup[subcmd]; ok {
+			if aer, ok := cmd.(authRequirer); ok && aer.RequiresAuth() {
+				if !c.env.auth.Authenticated() {
+					fmt.Printf("Command \"%s\" requires authentication.\n", text.Boldf(subcmd))
+					fmt.Printf("Run %s with the %s flag to authenticate. For example:\n", text.Boldf("motki"), text.Boldf("-credentials"))
+					fmt.Printf("  motki -credentials frank:mypass\n\n")
+					fmt.Printf("Run %s for additional information.\n", text.Boldf("motki -h"))
+					return
+				}
+			}
 			cmd.PrintHelp()
 			return
 		}
+		fmt.Println("Unknown command:", subcmd)
 	}
 	c.PrintHelp()
 }

@@ -71,6 +71,6 @@ about items that exist in the EVE universe.`, text.Boldf("types")), text.Standar
 		text.Boldf(text.PadTextRight("show [query|typeID]", 25)))
 	fmt.Println()
 	fmt.Println()
-	fmt.Println(text.WrapText(`Note that the registry are identical, and either one accepts an optional integer or string argument. If an integer is given as an argument or in the prompt, the command will attempt to load the Item Type with the given Type ID. If a string is given as an argument or in the prompt, the command will show results matching the input.`, text.StandardTerminalWidthInChars))
+	fmt.Println(text.WrapText(`Note that the commands are identical, and either one accepts an optional integer or string argument. If an integer is given as an argument or in the prompt, the command will attempt to load the Item Type with the given Type ID. If a string is given as an argument or in the prompt, the command will show results matching the input.`, text.StandardTerminalWidthInChars))
 	fmt.Println()
 }
