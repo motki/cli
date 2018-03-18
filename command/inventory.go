@@ -214,6 +214,7 @@ func (c InventoryCommand) listInventory(alertsOnly bool) {
 		for _, it := range group {
 			belowThreshold := it.CurrentLevel < it.MinimumLevel
 			if alertsOnly && !belowThreshold {
+				// We're only showing alerts and this item is above the threshold.
 				continue
 			}
 			qty := strconv.Itoa(it.CurrentLevel)
