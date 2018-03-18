@@ -68,7 +68,7 @@ func (c InventoryV2Command) Description() string {
 	if c.corp == nil {
 		return "Requires authentication."
 	}
-	return fmt.Sprintf("Manipulate inventory for %s.", c.corp.Name)
+	return fmt.Sprintf("EXPERIMENTAL: Interactive inventory management.")
 }
 
 type selectItem struct {
@@ -476,7 +476,12 @@ func (c InventoryV2Command) Handle(subcmd string, args ...string) {
 
 func (c InventoryV2Command) PrintHelp() {
 	fmt.Println()
-	fmt.Println(fmt.Sprintf(`Command "%s" is an interactive editor used for manipulating inventory thresholds and alerting.`, text.Boldf("inventory2")))
+	fmt.Println(text.WrapText(
+		fmt.Sprintf(`Command "%s" is an interactive editor used for manipulating inventory thresholds and alerting.`, text.Boldf("inventory2")),
+		text.StandardTerminalWidthInChars))
+	fmt.Println()
+	fmt.Println(text.Boldf("EXPERIMENTAL"))
+	fmt.Println(text.WrapText("This command is experimental and definitely still has issues left to be worked out. You have been warned.", text.StandardTerminalWidthInChars))
 	fmt.Println()
 	if c.corp != nil {
 		fmt.Println(text.Boldf("Character linked!"))
@@ -484,7 +489,7 @@ func (c InventoryV2Command) PrintHelp() {
 			text.Boldf(c.character.Name),
 			text.Boldf(c.corp.Name)))
 		fmt.Println()
-		fmt.Println(text.WrapText(`This command will operate on inventory for your corporation. Corporation-owned assets will be tracked to display available and missing materials.`, text.StandardTerminalWidthInChars))
+		fmt.Println(text.WrapText(`This command will operate on inventory for your corporation. Corporation-owned structures and assets are used when calculating inventory levels. If an inventory level goes below a configurable threshold, it is made to stand out when viewing the list.`, text.StandardTerminalWidthInChars))
 	}
 	fmt.Println()
 }
