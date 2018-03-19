@@ -54,6 +54,7 @@ deps_ensured := $(foreach dep,$(deps),$(call ensure_dep,$(dep)))
 #   make build GOOS=linux GOARCH=arm7
 GOOS   ?= $(shell $(GO) env GOOS)
 GOARCH ?= $(shell $(GO) env GOARCH)
+GOPATH ?= $(shell $(GO) env GOPATH)
 
 # When using the "matrix" target, these specify which OSes and arches to target.
 # These are both overridable from the command line. For example:
@@ -63,12 +64,13 @@ OSES   ?= linux darwin windows
 
 # Components to build up a valid "go build" command.
 build_version := $(if $(shell test -d .git && echo "1"),$(shell $(GIT) describe --always --tags),snapshot)
-build_base    := $(GO) build -ldflags "-s -w -X main.Version=$(build_version)"
+build_base    := CGO_ENABLED=0 $(GO) build -ldflags="-w -s -X main.Version=$(build_version)" \
+                                 -gcflags="-trimpath=$(GOPATH)/src" -asmflags="-trimpath=$(GOPATH)/src"
 build_name     = $(PREFIX)$1$(if $(filter $(GOOS),windows),.exe,)
 build_src      = ./cmd/$(word 1,$(subst _, ,$(subst ., ,$(subst $(PREFIX),,$1))))/*.go
 build_cmd      = GOOS=$(GOOS) GOARCH=$(GOARCH) $(build_base) -o $1 $(call build_src,$1)
 release_name   = $(call build_name,$1_$(GOOS)_$(GOARCH))
-release_cmd    = $(subst build -ldflags, build -tags release -ldflags,$(call build_cmd,$1))
+release_cmd    = $(subst build -ldflags, build -a -tags release -ldflags,$(call build_cmd,$1))
 
 # These define the programs that get built. Adding more targets is
 # automatic as long as the source code for the target exists in
