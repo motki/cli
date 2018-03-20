@@ -5,16 +5,16 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
+
+	"github.com/peterh/liner"
+
+	"github.com/motki/cli"
+	"github.com/motki/cli/text"
 
 	"github.com/motki/core/log"
 	"github.com/motki/core/model"
 	"github.com/motki/core/proto/client"
-
-	"strings"
-
-	"github.com/motki/cli"
-	"github.com/motki/cli/text"
-	"github.com/peterh/liner"
 )
 
 // InventoryCommand provides an interactive manager for Inventory.

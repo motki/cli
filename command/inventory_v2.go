@@ -2,22 +2,21 @@ package command
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
+	"strings"
+	"time"
+
+	"github.com/gdamore/tcell"
+	"github.com/rivo/tview"
+
+	"github.com/motki/cli"
+	"github.com/motki/cli/text"
+	"github.com/motki/cli/text/banner"
 
 	"github.com/motki/core/log"
 	"github.com/motki/core/model"
 	"github.com/motki/core/proto/client"
-
-	"strings"
-
-	"sync/atomic"
-
-	"sort"
-
-	"github.com/gdamore/tcell"
-	"github.com/motki/cli"
-	"github.com/motki/cli/text"
-	"github.com/rivo/tview"
 )
 
 // InventoryV2Command provides an interactive manager for Inventory.
@@ -91,7 +90,8 @@ type superSelect struct {
 
 func newSuperSelect(app *tview.Application, title string, val *selectItem, fn searchFn) *superSelect {
 	display := tview.NewInputField()
-	display.SetLabel(text.PadTextRight(title, 14))
+	display.SetLabel(text.PadTextRight(title, 14)).
+		SetPlaceholder("Enter search terms")
 	selection := tview.NewDropDown()
 	selection.SetLabel(text.PadTextRight(title, 14))
 	sel := &superSelect{
@@ -138,339 +138,410 @@ func (s *superSelect) SetFormAttributes(label string, labelColor, bgColor, field
 	return s
 }
 
-func (c InventoryV2Command) Handle(subcmd string, args ...string) {
-	its, err := c.groupByLocation(c.client.GetInventory())
-	if err != nil {
-		c.logger.Debugf("unable to fetch inventory: %s", err.Error())
-		fmt.Println("Error loading inventory from db, try again.")
-		return
+// newLoadingScreen creates a new tview.Flex with the given logo text displayed prominently.
+// This section is straight up lifted from tview's demo. Thanks rivo!
+// https://github.com/rivo/tview/blob/761e3d72da6c156aff91324b479f5cbf2272f53f/demos/presentation/cover.go
+func newLoadingScreen(logo string) *tview.Flex {
+	// What's the size of the logo?
+	lines := strings.Split(logo, "\n")
+	logoWidth := 0
+	logoHeight := len(lines)
+	for _, line := range lines {
+		if len(line) > logoWidth {
+			logoWidth = len(line)
+		}
 	}
-	app := tview.NewApplication()
+	logoBox := tview.NewTextView().
+		SetTextColor(tcell.ColorBlue)
+	fmt.Fprint(logoBox, logo)
 
-	var newItem func(*model.Location) *tview.Flex
-	var editItem func(*model.Location, *model.InventoryItem) *tview.Flex
+	// Create a frame for the subtitle and navigation infos.
+	frame := tview.NewFrame(tview.NewBox()).
+		SetBorders(0, 0, 0, 0, 0, 0).
+		AddText("Loading inventory...", true, tview.AlignCenter, tcell.ColorWhite).
+		AddText("", true, tview.AlignCenter, tcell.ColorWhite).
+		AddText("Please stand by.", true, tview.AlignCenter, tcell.ColorBlue)
 
-	var refreshLocations func()
+	// Create a Flex layout that centers the logo and subtitle.
+	loadScreen := tview.NewFlex().
+		SetDirection(tview.FlexRow).
+		AddItem(tview.NewBox(), 0, 7, false).
+		AddItem(tview.NewFlex().
+			AddItem(tview.NewBox(), 0, 1, false).
+			AddItem(logoBox, logoWidth, 1, true).
+			AddItem(tview.NewBox(), 0, 1, false), logoHeight, 1, true).
+		AddItem(frame, 0, 10, false)
+
+	return loadScreen
+}
+
+type inventoryApp struct {
+	client client.Client
+	logger log.Logger
+
+	app         *tview.Application
+	layout      *tview.Flex
+	locListing  *tview.Table
+	itemListing *tview.Table
+
+	corpID int
+	inv    *inventory
+
+	rowToLocID map[int]int
+
+	currentLoc     *location
+	currentItem    *model.InventoryItem
+	currentItemRow int
+}
+
+func newInventoryApp(cl client.Client, logger log.Logger, corpID int) (*inventoryApp, error) {
+	a := &inventoryApp{
+		client:      cl,
+		logger:      logger,
+		app:         tview.NewApplication(),
+		layout:      tview.NewFlex(),
+		locListing:  tview.NewTable(),
+		itemListing: tview.NewTable(),
+		corpID:      corpID,
+		rowToLocID:  make(map[int]int),
+	}
 
 	// Locations listing
-	locations := tview.NewTable()
-	locations.SetBorder(true).SetTitle("Select Location").SetTitleAlign(tview.AlignLeft)
-	locations.SetBorderPadding(0, 0, 1, 1)
-	locations.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+	a.locListing.SetBorder(true).SetTitle("Select Location").SetTitleAlign(tview.AlignLeft)
+	a.locListing.SetBorderPadding(0, 0, 1, 1)
+	a.locListing.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyEsc {
-			app.Stop()
+			a.app.Stop()
 			return nil
 		} else if event.Key() == tcell.KeyCtrlN {
-			app.SetRoot(newItem(nil), true)
+			a.app.SetRoot(a.newItemScreen(nil), true)
 			return nil
 		}
 		return event
 	})
 
 	// Items table
-	items := tview.NewTable()
-	items.SetBorder(true).SetTitle("Inventory").SetTitleAlign(tview.AlignLeft)
-	items.SetBorderPadding(0, 0, 1, 1)
-	items.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+	a.itemListing.SetBorder(true).SetTitle("Inventory").SetTitleAlign(tview.AlignLeft)
+	a.itemListing.SetBorderPadding(0, 0, 1, 1)
+	a.itemListing.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyEsc {
-			app.SetFocus(locations)
+			a.app.SetFocus(a.locListing)
 			return nil
 		} else if event.Key() == tcell.KeyCtrlN {
-			app.SetRoot(newItem(nil), true)
+			a.app.SetRoot(a.newItemScreen(nil), true)
 			return nil
 		}
 		return event
 	})
 
 	// Configure layout
-	layout := tview.NewFlex()
-	layout.SetDirection(tview.FlexRow)
-	layout.AddItem(locations, 0, 1, true)
-	layout.AddItem(items, 0, 3, false)
+	a.layout.SetDirection(tview.FlexRow)
+	a.layout.AddItem(a.locListing, 0, 1, true)
+	a.layout.AddItem(a.itemListing, 0, 3, false)
 
-	// Current location selected (the row index)
-	var currLoc int64
-	// Map of row in location list to slice of items in items table.
-	itemMap := make(map[int][]*model.InventoryItem)
-	// Map of row in location list to the location it represents.
-	locMap := make(map[int]*model.Location)
-	// Map of location ID to row in location list.
-	rowLocMap := make(map[int]int)
-
-	addItem := func(it *model.InventoryItem) {
-		its[it.LocationID] = append(its[it.LocationID], it)
-		refreshLocations()
-		atomic.StoreInt64(&currLoc, int64(rowLocMap[it.LocationID]))
-	}
-
-	refreshLocations = func() {
-		locations.Clear()
-		var i int
-		for loc, items := range its {
-			rowLocMap[loc] = i
-			locMap[i], err = c.client.GetLocation(loc)
-			if err != nil {
-				//?
-				c.logger.Warnf("unable to get location: %s", err)
-				continue
-			}
-			name, system := c.getLocationName(loc)
-			func(i int, items []*model.InventoryItem) {
-				locations.SetCell(i, 0, tview.NewTableCell(fmt.Sprintf("%s - %s", name, system)).
-					SetExpansion(1).SetTextColor(tcell.ColorLightGrey))
-				itemMap[i] = items
-			}(i, items)
-			i++
+	// Selection handlers.
+	a.locListing.SetSelectable(true, false).SetSelectedFunc(func(row, col int) {
+		loc, ok := a.inv.locIDIndex[a.rowToLocID[row]]
+		if !ok {
+			a.logger.Warnf("expected locIDIndex to contain ")
 		}
-		locations.ScrollToBeginning()
-	}
+		a.currentLoc = loc
+		a.currentItem = nil
+		a.currentItemRow = 0
+		a.refresh()
+	})
+	a.itemListing.SetSelectable(true, false).SetSelectedFunc(func(row, col int) {
+		it := a.currentLoc.Inventory[row-1]
+		a.app.SetRoot(a.editItemScreen(a.currentLoc, it), true)
+	})
 
-	selectLocation := func(row, col int) {
-		atomic.StoreInt64(&currLoc, int64(row))
-		its := itemMap[row]
-		sort.Sort(itemSlice(its))
-		items.Clear()
-		app.SetFocus(items)
-		items.SetCell(0, 0, tview.NewTableCell("Type ID").SetTextColor(tcell.ColorWhite).SetSelectable(false))
-		items.SetCell(0, 1, tview.NewTableCell("Name").SetTextColor(tcell.ColorWhite).SetSelectable(false))
-		items.SetCell(0, 2, tview.NewTableCell("").SetTextColor(tcell.ColorWhite).SetSelectable(false))
-		items.SetCell(0, 3,
-			tview.NewTableCell("Qty").SetAlign(tview.AlignRight).SetTextColor(tcell.ColorWhite).SetSelectable(false))
-		items.SetFixed(1, 0)
-		for j, it := range its {
-			r := j + 1
-			belowThreshold := it.CurrentLevel < it.MinimumLevel
-			var alert string
-			alertColor := tcell.ColorLightGrey
-			if belowThreshold {
-				alert = " !"
-				alertColor = tcell.ColorRed
-			}
-			items.SetCell(r, 0, tview.NewTableCell(strconv.Itoa(it.TypeID)).SetTextColor(tcell.ColorLightGrey))
-			items.SetCell(r, 1, tview.NewTableCell(c.getInventoryName(it)).SetExpansion(2).SetTextColor(tcell.ColorLightGrey))
-			items.SetCell(r, 2, tview.NewTableCell(alert).SetTextColor(alertColor))
-			items.SetCell(r, 3,
-				tview.NewTableCell(strconv.Itoa(it.CurrentLevel)).SetAlign(tview.AlignRight).SetTextColor(tcell.ColorLightGrey))
+	// Load the data concurrently.
+	go func() {
+		var err error
+		a.inv, err = newInventory(a.client)
+		if err != nil {
+			a.logger.Debugf("unable to fetch inventory: %s", err.Error())
+			fmt.Println("Error loading inventory from db, try again.")
+			a.app.Stop()
+			return
 		}
-		items.ScrollToBeginning()
-	}
 
-	// Helpers.
-	cancelFn := func() {
-		selectLocation(int(atomic.LoadInt64(&currLoc)), 0)
-		app.SetRoot(layout, true)
-		app.SetFocus(items)
+		a.reset()
+	}()
+
+	return a, nil
+}
+
+func (a *inventoryApp) Run() error {
+	var logo string
+	if corp, err := a.client.GetCorporation(a.corpID); err != nil {
+		a.logger.Warnf("error getting corporation details: %s", err.Error())
+		logo = "[MOTKI]"
+	} else {
+		logo = banner.Sprintf("[%s]", corp.Ticker)
 	}
-	readOnlyFn := func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyTab {
-			return event
-		} else if event.Key() == tcell.KeyEsc {
-			cancelFn()
-		}
+	return a.app.SetRoot(newLoadingScreen(logo), true).Run()
+}
+
+func (a *inventoryApp) escFn(event *tcell.EventKey) *tcell.EventKey {
+	if event.Key() == tcell.KeyEsc {
+		a.reset()
 		return nil
 	}
-	escFn := func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyEsc {
-			cancelFn()
-			return nil
+	return event
+}
+
+// Create a new disabled, read-only input with the given title and val.
+func (a *inventoryApp) newDisabledInput(title, val string) *tview.InputField {
+	input := tview.NewInputField().SetLabel(text.PadTextLeft(title, 14)).SetText(val)
+	input.SetBorderPadding(1, 1, 1, 1)
+	input.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyTab {
+			return event
 		}
-		return event
-	}
+		return a.escFn(event)
+	})
+	input.SetLabelColor(tcell.ColorLightGrey)
+	input.SetFieldBackgroundColor(tcell.ColorDarkGrey)
+	return input
+}
 
-	// Create a new disabled, read-only input with the given title and val.
-	newDisabledInput := func(title, val string) *tview.InputField {
-		input := tview.NewInputField().SetLabel(text.PadTextLeft(title, 14)).SetText(val)
-		input.SetBorderPadding(1, 1, 1, 1)
-		input.SetInputCapture(readOnlyFn)
-		input.SetLabelColor(tcell.ColorLightGrey)
-		input.SetFieldBackgroundColor(tcell.ColorDarkGrey)
-		return input
-	}
+func (a *inventoryApp) newItemScreen(loc *location) *tview.Flex {
+	editor := tview.NewFlex()
+	editor.SetDirection(tview.FlexRow)
+	editor.SetBorder(true)
+	editor.SetTitle("New Inventory Item").SetTitleAlign(tview.AlignLeft)
 
-	newItem = func(loc *model.Location) *tview.Flex {
-		editor := tview.NewFlex()
-		editor.SetDirection(tview.FlexRow)
-		editor.SetBorder(true)
-		editor.SetTitle("New Inventory Item").SetTitleAlign(tview.AlignLeft)
-
-		typeInput := newSuperSelect(app, "Type", nil, func(input string) (matches []*selectItem) {
-			if res, err := c.client.QueryItemTypes(input); err == nil {
-				for _, r := range res {
-					matches = append(matches, &selectItem{strconv.Itoa(r.ID), r.Name})
-				}
-			}
-			return matches
-		})
-
-		locInput := newSuperSelect(app, "Location", nil, func(input string) (matches []*selectItem) {
-			if res, err := c.client.QueryLocations(input); err == nil {
-				for _, r := range res {
-					matches = append(matches, &selectItem{strconv.Itoa(r.LocationID), r.String()})
-				}
-			}
-			return matches
-		})
-
-		// Editable minimum level input.
-		minInput := tview.NewInputField().
-			SetLabel(text.PadTextLeft("Minimum Level", 14)).
-			SetText("0")
-		minInput.SetInputCapture(escFn)
-		minInput.SetAcceptanceFunc(func(in string, last rune) bool {
-			if _, err := strconv.Atoi(in); err != nil {
-				return false
-			}
-			return true
-		})
-
-		// Closure to be called to save changes.
-		saveFn := func() {
-			typID, _ := strconv.Atoi(typeInput.selected.id)
-			locID, _ := strconv.Atoi(locInput.selected.id)
-			min, _ := strconv.Atoi(minInput.GetText())
-			cancel := true
-			// Suspend the main application.
-			app.Suspend(func() {
-				// Create a new application to display a modal.
-				mApp := tview.NewApplication()
-				// Configure the modal.
-				modal := tview.NewModal()
-				modal.SetTitle("Saving...")
-				modal.SetText("Saving item...")
-
-				// Save the item in a goroutine.
-				go func() {
-					it, err := c.client.NewInventoryItem(typID, locID)
-					if err != nil {
-						c.logger.Warnf("error saving inventory item: %s", err)
-						// Error, so don't cancel the edits.
-						cancel = false
-					} else if it.MinimumLevel != min {
-						it.MinimumLevel = min
-						err = c.client.SaveInventoryItem(it)
-						if err != nil {
-							c.logger.Warnf("error saving inventory item: %s", err)
-							// Error, so don't cancel the edits.
-							cancel = false
-						}
-					}
-					if err == nil {
-						addItem(it)
-					}
-					// Stop the modal application when we are done saving.
-					mApp.Stop()
-				}()
-				mApp.SetRoot(modal, false).Run()
-			})
-			if cancel {
-				// Exit this editor and return to the main layout.
-				cancelFn()
+	typeInput := newSuperSelect(a.app, "Type", nil, func(input string) (matches []*selectItem) {
+		if res, err := a.client.QueryItemTypes(input); err == nil {
+			for _, r := range res {
+				matches = append(matches, &selectItem{strconv.Itoa(r.ID), r.Name})
 			}
 		}
+		return matches
+	})
 
-		form := tview.NewForm()
-		form.AddFormItem(typeInput).AddFormItem(locInput).AddFormItem(minInput)
-		form.AddButton("Save New", saveFn)
-
-		editor.AddItem(form, 0, 1, true)
-
-		return editor
-	}
-
-	// editItem launches a "subcommand" to edit the given inventory item.
-	editItem = func(loc *model.Location, it *model.InventoryItem) *tview.Flex {
-		editor := tview.NewFlex()
-		editor.SetDirection(tview.FlexRow)
-		editor.SetBorder(true)
-		editor.SetTitle("Edit Inventory Item").SetTitleAlign(tview.AlignLeft)
-
-		// Disabled Location input.
-		locInput := newDisabledInput("Location", loc.String())
-		editor.AddItem(locInput, 0, 1, false)
-
-		// Disabled item name input.
-		itemInput := newDisabledInput("Type", c.getInventoryName(it))
-		editor.AddItem(itemInput, 0, 1, false)
-
-		// Disabled current level input.
-		currInput := newDisabledInput("Current Level", strconv.Itoa(it.CurrentLevel))
-		editor.AddItem(currInput, 0, 1, false)
-
-		// Editable minimum level input.
-		minInput := tview.NewInputField().
-			SetLabel(text.PadTextLeft("Minimum Level", 14)).
-			SetText(strconv.Itoa(it.MinimumLevel))
-		minInput.SetInputCapture(escFn)
-		minInput.SetAcceptanceFunc(func(in string, last rune) bool {
-			if _, err := strconv.Atoi(in); err != nil {
-				return false
+	locInput := newSuperSelect(a.app, "Location", nil, func(input string) (matches []*selectItem) {
+		if res, err := a.client.QueryLocations(input); err == nil {
+			for _, r := range res {
+				matches = append(matches, &selectItem{strconv.Itoa(r.LocationID), r.String()})
 			}
-			return true
-		})
+		}
+		return matches
+	})
 
-		// Closure to be called to save changes.
-		saveFn := func() {
+	// Editable minimum level input.
+	minInput := tview.NewInputField().
+		SetLabel(text.PadTextLeft("Minimum Level", 14)).
+		SetText("0")
+	minInput.SetInputCapture(a.escFn)
+	minInput.SetAcceptanceFunc(func(in string, last rune) bool {
+		if _, err := strconv.Atoi(in); err != nil {
+			return false
+		}
+		return true
+	})
+
+	form := tview.NewForm()
+	form.AddFormItem(typeInput).AddFormItem(locInput).AddFormItem(minInput)
+	form.AddButton("Save New", func() {
+		typID, _ := strconv.Atoi(typeInput.selected.id)
+		locID, _ := strconv.Atoi(locInput.selected.id)
+		min, _ := strconv.Atoi(minInput.GetText())
+		a.doSave(nil, func(_ *model.InventoryItem) *model.InventoryItem {
+			it, err := a.client.NewInventoryItem(typID, locID)
+			if err != nil {
+				a.logger.Warnf("error saving inventory item: %s", err)
+				return nil
+			}
+			if it.MinimumLevel != min {
+				it.MinimumLevel = min
+			}
+			return it
+		})
+	})
+
+	editor.AddItem(form, 0, 1, true)
+
+	return editor
+}
+
+func (a *inventoryApp) editItemScreen(loc *location, it *model.InventoryItem) *tview.Flex {
+	a.currentItem = it
+
+	editor := tview.NewFlex()
+	editor.SetDirection(tview.FlexRow)
+	editor.SetBorder(true)
+	editor.SetTitle("Edit Inventory Item").SetTitleAlign(tview.AlignLeft)
+
+	// Disabled Location input.
+	locInput := a.newDisabledInput("Location", loc.String())
+	editor.AddItem(locInput, 0, 1, false)
+
+	// Disabled item name input.
+	itemInput := a.newDisabledInput("Type", a.getInventoryName(it))
+	editor.AddItem(itemInput, 0, 1, false)
+
+	// Disabled current level input.
+	currInput := a.newDisabledInput("Current Level", strconv.Itoa(it.CurrentLevel))
+	editor.AddItem(currInput, 0, 1, false)
+
+	// Editable minimum level input.
+	minInput := tview.NewInputField().
+		SetLabel(text.PadTextLeft("Minimum Level", 14)).
+		SetText(strconv.Itoa(it.MinimumLevel))
+	minInput.SetInputCapture(a.escFn)
+	minInput.SetAcceptanceFunc(func(in string, last rune) bool {
+		if _, err := strconv.Atoi(in); err != nil {
+			return false
+		}
+		return true
+	})
+
+	// Configure form.
+	form := tview.NewForm()
+	form.AddFormItem(minInput).
+		AddButton("Save Changes", func() {
 			val := minInput.GetText()
 			v, err := strconv.Atoi(val)
 			if err != nil {
 				return
 			}
 			it.MinimumLevel = v
-			cancel := true
-			// Suspend the main application.
-			app.Suspend(func() {
-				// Create a new application to display a modal.
-				mApp := tview.NewApplication()
-				// Configure the modal.
-				modal := tview.NewModal()
-				modal.SetTitle("Saving...")
-				modal.SetText("Saving item...")
+			a.doSave(it, nil)
+		})
+	form.SetCancelFunc(a.reset)
 
-				// Save the item in a goroutine.
-				go func() {
-					err := c.client.SaveInventoryItem(it)
-					if err != nil {
-						c.logger.Warnf("error saving inventory item: %s", err)
-						// Error, so don't cancel the edits.
-						cancel = false
-					}
-					// Stop the modal application when we are done saving.
-					mApp.Stop()
-				}()
-				mApp.SetRoot(modal, false).Run()
-			})
-			if cancel {
-				// Exit this editor and return to the main layout.
-				cancelFn()
-			}
-		}
+	editor.AddItem(form, 0, 2, true)
 
-		// Configure form.
-		form := tview.NewForm()
-		form.AddFormItem(minInput).
-			AddButton("Save Changes", saveFn)
-		form.SetCancelFunc(cancelFn)
+	return editor
+}
 
-		editor.AddItem(form, 0, 2, true)
-
-		return editor
+func (a *inventoryApp) reset() {
+	a.refresh()
+	a.app.SetRoot(a.layout, true)
+	if a.currentLoc != nil {
+		a.app.SetFocus(a.itemListing)
+	} else {
+		a.app.SetFocus(a.locListing)
 	}
+	a.app.Draw()
+}
 
-	// Selection handlers.
-	locations.SetSelectable(true, false).SetSelectedFunc(selectLocation)
-	items.SetSelectable(true, false).SetSelectedFunc(func(row, col int) {
-		pr := int(atomic.LoadInt64(&currLoc))
-		loc := locMap[pr]
-		it := itemMap[pr][row-1]
-		app.SetRoot(editItem(loc, it), true)
-	})
+func (a *inventoryApp) refresh() {
+	// Refresh the locations listing.
+	a.locListing.Clear()
+	a.inv.Sort()
+	a.locListing.ScrollToBeginning()
+	for i, loc := range a.inv.locations {
+		if loc == a.currentLoc {
+			a.locListing.Select(i, 0)
+		}
+		name, system := loc.Name()
+		a.locListing.SetCell(i, 0,
+			tview.NewTableCell(fmt.Sprintf("%s - %s", system, name)).
+				SetExpansion(1).SetTextColor(tcell.ColorLightGrey))
+		a.rowToLocID[i] = loc.LocationID
 
-	// Populate the locations table.
-	refreshLocations()
+	}
+	a.itemListing.Clear()
+	a.itemListing.ScrollToBeginning()
 
-	// Start the command.
-	if err := app.SetRoot(layout, true).SetFocus(layout).Run(); err != nil {
-		panic(err)
+	// Next, refresh the items listing.
+	loc := a.currentLoc
+	if loc == nil {
+		return
+	}
+	loc.Sort()
+	a.currentItemRow = 0
+	a.app.SetFocus(a.itemListing)
+	a.itemListing.SetCell(0, 0,
+		tview.NewTableCell("Type ID").
+			SetTextColor(tcell.ColorWhite).SetSelectable(false))
+	a.itemListing.SetCell(0, 1,
+		tview.NewTableCell("Name").
+			SetTextColor(tcell.ColorWhite).SetSelectable(false))
+	a.itemListing.SetCell(0, 2,
+		tview.NewTableCell("").SetTextColor(tcell.ColorWhite).SetSelectable(false))
+	a.itemListing.SetCell(0, 3,
+		tview.NewTableCell("Qty").
+			SetAlign(tview.AlignRight).SetTextColor(tcell.ColorWhite).SetSelectable(false))
+	a.itemListing.SetFixed(1, 0)
+	for j, it := range loc.Inventory {
+		r := j + 1
+		if it == a.currentItem {
+			a.itemListing.Select(r, 0)
+		}
+		var alert string
+		alertColor := tcell.ColorLightGrey
+		if belowThreshold(it) {
+			alert = " !"
+			alertColor = tcell.ColorRed
+		}
+		a.itemListing.SetCell(r, 0, tview.NewTableCell(strconv.Itoa(it.TypeID)).
+			SetTextColor(tcell.ColorLightGrey))
+		a.itemListing.SetCell(r, 1, tview.NewTableCell(a.getInventoryName(it)).
+			SetExpansion(2).SetTextColor(tcell.ColorLightGrey))
+		a.itemListing.SetCell(r, 2, tview.NewTableCell(alert).SetTextColor(alertColor))
+		a.itemListing.SetCell(r, 3,
+			tview.NewTableCell(strconv.Itoa(it.CurrentLevel)).SetAlign(tview.AlignRight).
+				SetTextColor(tcell.ColorLightGrey))
+	}
+}
+
+func (a *inventoryApp) doSave(it *model.InventoryItem, fn func(*model.InventoryItem) *model.InventoryItem) {
+	// Configure the modal.
+	modal := tview.NewModal()
+	modal.SetTitle("Saving...")
+	modal.SetText("Saving item.")
+	a.app.SetRoot(modal, false).Draw()
+
+	done := make(chan struct{})
+	go func() {
+		select {
+		case <-done:
+			return
+
+		case <-time.After(3 * time.Second):
+			modal := tview.NewModal()
+			modal.SetTitle("Still saving...")
+			modal.SetText("It's taking longer than expected. Please stand by.")
+			a.app.SetRoot(modal, false).Draw()
+		}
+	}()
+
+	// Save the item in a goroutine.
+	go func() {
+		defer close(done)
+		if fn != nil {
+			it = fn(it)
+		}
+		err := a.client.SaveInventoryItem(it)
+		if err != nil {
+			a.logger.Warnf("error saving inventory item: %s", err)
+			// Error, so don't cancel the edits.
+			return
+		}
+		// Reset back to our listings.
+		if err = a.inv.Track(it); err != nil {
+			a.logger.Warnf("error tracking item in local inventory: %s", err.Error())
+			a.app.Stop()
+			return
+		}
+		a.currentLoc = a.inv.locIDIndex[it.LocationID]
+		a.currentItem = it
+		a.reset()
+	}()
+}
+
+func (c InventoryV2Command) Handle(subcmd string, args ...string) {
+	a, err := newInventoryApp(c.client, c.logger, c.corpID)
+	if err != nil {
+		c.logger.Warnf("error initializing inventory app: %s", err.Error())
+	}
+	err = a.Run()
+	if err != nil {
+		c.logger.Warnf("error running inventory app: %s", err.Error())
 	}
 }
 
@@ -495,49 +566,102 @@ func (c InventoryV2Command) PrintHelp() {
 }
 
 // getInventoryName returns the given Inventory's name.
-func (c InventoryV2Command) getInventoryName(p *model.InventoryItem) string {
-	t, err := c.client.GetItemType(p.TypeID)
+func (a *inventoryApp) getInventoryName(p *model.InventoryItem) string {
+	t, err := a.client.GetItemType(p.TypeID)
 	if err != nil {
-		c.logger.Debugf("unable to get item name: %s", err.Error())
+		a.logger.Debugf("unable to get item name: %s", err.Error())
 		return strconv.Itoa(p.TypeID)
 	}
 	return t.Name
 }
 
-// getRegionName returns the given location's name.
-func (c InventoryV2Command) getLocationName(locationID int) (name string, system string) {
-	r, err := c.client.GetLocation(locationID)
-	if err != nil {
-		c.logger.Debugf("unable to get location: %s", err.Error())
-		return "[Error]", ""
-	}
-	if r.IsCitadel() {
-		name = r.Structure.Name
-	} else if r.IsStation() {
-		name = r.Station.Name
+// Name returns the given location's name.
+func (l *location) Name() (name string, system string) {
+	if l.IsCitadel() {
+		name = l.Structure.Name
+	} else if l.IsStation() {
+		name = l.Station.Name
 	}
 	parts := strings.SplitN(name, " - ", 2)
 	if len(parts) == 2 {
 		name = parts[1]
 	}
-	system = r.System.Name
+	system = l.System.Name
 	return name, system
 }
 
-func (c InventoryV2Command) groupByLocation(items []*model.InventoryItem, err error) (map[int][]*model.InventoryItem, error) {
+type location struct {
+	*model.Location
+
+	Inventory []*model.InventoryItem
+}
+
+func (l *location) Sort() {
+	sort.Sort(itemSlice(l.Inventory))
+}
+
+type inventory struct {
+	cl client.Client
+
+	locations []*location
+
+	// LocationID to location.
+	locIDIndex map[int]*location
+
+	// ItemID to location.
+	itemIDLocIndex map[itemID]*location
+}
+
+func newInventory(cl client.Client) (*inventory, error) {
+	items, err := cl.GetInventory()
 	if err != nil {
 		return nil, err
 	}
-	res := make(map[int][]*model.InventoryItem)
+	inv := &inventory{
+		cl:             cl,
+		locations:      make([]*location, 0),
+		locIDIndex:     make(map[int]*location),
+		itemIDLocIndex: make(map[itemID]*location)}
 	for _, it := range items {
-		loc, err := c.client.GetLocation(it.LocationID)
-		if err != nil {
+		if err := inv.Track(it); err != nil {
 			return nil, err
 		}
-		id := loc.ParentID()
-		res[id] = append(res[id], it)
 	}
-	return res, nil
+	return inv, nil
+}
+
+func (i *inventory) Sort() {
+	sort.Sort(locSlice(i.locations))
+}
+
+type itemID struct {
+	TypeID     int
+	LocationID int
+}
+
+func getItemID(it *model.InventoryItem) itemID {
+	return itemID{it.TypeID, it.LocationID}
+}
+
+func (i *inventory) Track(it *model.InventoryItem) error {
+	itID := getItemID(it)
+	if _, ok := i.itemIDLocIndex[itID]; ok {
+		// Already tracked
+		return nil
+	}
+	loc, ok := i.locIDIndex[it.LocationID]
+	if !ok {
+		dl, err := i.cl.GetLocation(it.LocationID)
+		if err != nil {
+			return err
+		}
+		loc = &location{Location: dl}
+		i.locations = append(i.locations, loc)
+		i.locIDIndex[it.LocationID] = loc
+	}
+	i.itemIDLocIndex[itID] = loc
+	loc.Inventory = append(loc.Inventory, it)
+	return nil
 }
 
 type itemSlice []*model.InventoryItem
@@ -566,5 +690,21 @@ func (s itemSlice) Len() int {
 
 // Swap swaps the elements with indexes i and j.
 func (s itemSlice) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+type locSlice []*location
+
+func (s locSlice) Less(i, j int) bool {
+	return s[i].System.Name < s[j].System.Name
+}
+
+// Len is the number of elements in the collection.
+func (s locSlice) Len() int {
+	return len(s)
+}
+
+// Swap swaps the elements with indexes i and j.
+func (s locSlice) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
