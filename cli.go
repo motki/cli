@@ -107,8 +107,7 @@ func (srv *Server) SetCommands(commands ...Command) {
 // LoopCLI starts an endless loop to perform commands read from stdin.
 func (srv *Server) LoopCLI() {
 	if !isatty.IsTerminal(os.Stdout.Fd()) || !liner.TerminalSupported() {
-		srv.logger.Error("terminal not supported")
-		return
+		srv.logger.Warn("terminal not supported")
 	}
 	for {
 		err := func() error {

@@ -100,7 +100,8 @@ func NewCLIEnv(conf CLIConfig, historyPath string) (*CLIEnv, error) {
 		command.NewEVETypesCommand(prompter),
 		command.NewProductCommand(appEnv.Client, prompter, appEnv.Logger),
 		command.NewInventoryCommand(appEnv.Client, prompter, appEnv.Logger),
-		command.NewInventoryV2Command(appEnv.Client, prompter, appEnv.Logger))
+		command.NewInventoryV2Command(appEnv.Client, prompter, appEnv.Logger),
+		command.NewBannerCommand(prompter))
 	srv.SetCtrlCAborts(true)
 	env := &CLIEnv{
 		ClientEnv: appEnv,

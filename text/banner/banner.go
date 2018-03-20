@@ -54,10 +54,8 @@ func init() {
 // A Font is a data type that contains information necessary
 // to render text using arbitrary ASCII art fonts.
 type Font struct {
-	raw     string
-	height  int
+	size    int
 	encoded map[byte]*letter
-	font    [numRows][]byte
 }
 
 // NewFont attempts to read the font data stored in file.
@@ -87,12 +85,11 @@ func NewFontString(font string) (*Font, error) {
 	fo := &Font{
 		encoded: make(map[byte]*letter),
 	}
-	fo.raw = font
-	return fo, fo.generate()
+	return fo, fo.generate(font)
 }
 
 func (f *Font) Size() int {
-	return f.height
+	return f.size
 }
 
 // A letter describes the width, height, and make up of a font glyph.
@@ -142,7 +139,7 @@ func (l letter) String() string {
 	return strings.Join(l.lines, "\n")
 }
 
-func (f *Font) parseRows(raw string) (lines [numRows][]byte, err error) {
+func parseRows(raw string) (lines [numRows][]byte, err error) {
 	curr := 0
 	seenNonEmpty := false
 	for _, l := range strings.Split(raw, "\n") {
@@ -180,21 +177,21 @@ func (f *Font) parseRows(raw string) (lines [numRows][]byte, err error) {
 }
 
 // generate parses and prepares the font for use in rendering text.
-func (f *Font) generate() error {
+func (f *Font) generate(raw string) error {
 	var err error
 
 	// Parse the font data into rows of glyphs.
-	f.font, err = f.parseRows(f.raw)
+	rawRows, err := parseRows(raw)
 	if err != nil {
 		return err
 	}
 
 	// Gather the dimensions of the font.
-	heights := make([]int, len(f.font))
-	lengths := make([]int, len(f.font))
+	heights := make([]int, len(rawRows))
+	lengths := make([]int, len(rawRows))
 	lowH := 10
 	maxH := 0
-	for i, l := range f.font {
+	for i, l := range rawRows {
 		pli := bytes.Split(l, []byte("\n"))
 		for _, line := range pli {
 			if len(line) > lengths[i] {
@@ -210,7 +207,7 @@ func (f *Font) generate() error {
 		}
 	}
 
-	// Normalize the height of the font.
+	// Normalize the size of the font.
 	if lowH != maxH {
 		// TODO: There still seems to be issues here.
 		// Best bet is to try to ensure all the rows parse to the same heights.
@@ -218,7 +215,7 @@ func (f *Font) generate() error {
 		// ensure the letters end up aligned: the { at the beginning of each line
 		// usually sets the pace for the rest of the line nicely.
 		targetH := maxH
-		for i, lb := range f.font {
+		for i, lb := range rawRows {
 			l := append([]byte{}, bytes.Trim(lb, "\n")...)
 			h := bytes.Count(l, []byte("\n"))
 			if h < targetH {
@@ -231,21 +228,21 @@ func (f *Font) generate() error {
 			} else if targetH > h {
 				// This row is too tall, remove the first line and hope that's
 				// enough.
-				idx := bytes.Index(f.font[i], []byte("\n"))
+				idx := bytes.Index(rawRows[i], []byte("\n"))
 				l = l[idx+1:]
 			}
 			// Update font data.
-			f.font[i] = l
+			rawRows[i] = l
 			// And font metadata.
-			heights[i] = bytes.Count(f.font[i], []byte("\n"))
+			heights[i] = bytes.Count(rawRows[i], []byte("\n"))
 		}
 	}
 
-	// Take for granted that the heights are identical now.
-	height := heights[0]
+	// Take for granted that the heights are identical from now on.
+	f.size = heights[0]
 
 	// Separate individual font glyphs.
-	for i, l := range f.font {
+	for i, l := range rawRows {
 		// Remove spaces from the reference text to simplify iterating over it.
 		ref := bytes.Replace(base[i], []byte(" "), []byte{}, -1)
 
@@ -258,7 +255,7 @@ func (f *Font) generate() error {
 
 		// The tailing column position that has been processed.
 		last := 0
-		// Currently skipping columns (last column was all spaces)
+		// Currently skipping columns (last column processed was all spaces)
 		skip := true
 
 		// Check each column for white-space. Use this as a signal
@@ -267,11 +264,12 @@ func (f *Font) generate() error {
 			// Because characters span multiple lines, check the entire height
 			// of the column for whitespace.
 			spaceColumn := true
-			for k := 0; k < height; k++ {
+			for k := 0; k < f.size; k++ {
 				ln := lns[k]
 				if len(ln) > j && ln[j] != ' ' {
 					// Found something that wasn't a space!
 					spaceColumn = false
+					// No need to continue checking for non-space.
 					break
 				}
 			}
@@ -284,55 +282,62 @@ func (f *Font) generate() error {
 					skip = false
 					continue
 				}
-
-			} else {
-				// Is a space, are we already skipping?
-				if !skip {
-					// No, this is the end of a letter.
-					// Start skipping whitespace.
-					skip = true
-					// And add everything from last to j in all rows to the current glyph.
-					f.encoded[currChar] = &letter{}
-					w := 0
-					// Again, operate on the entire height and width of the row
-					for k := 0; k < height; k++ {
-						ln := lns[k]
-						var lne string
-						// Be sure to handle short lines in the mix of things.
-						if len(ln) > j {
-							lne = string(ln[last:j])
-						} else if last > len(ln) {
-							// The last column was already past the end of this line.
-							lne = ""
-						} else {
-							// Add everything since last time, even though it's a bit short.
-							lne = string(ln[last:])
-						}
-						f.encoded[currChar].lines = append(f.encoded[currChar].lines, lne)
-						if len(lne) > w {
-							w = len(lne)
-						}
-					}
-					// Done encoding, set the width and height.
-					f.encoded[currChar].width = w
-					f.encoded[currChar].height = height
-					// And move on.
-					p++
-					if p >= len(ref) {
-						break
-					}
-					currChar = ref[p]
-					last = j
-					continue
-				}
-				// We were already skipping and we found another space.
-				// Keep on skipping.
-				last = j
+				// Otherwise, we already knew we were inside a letter, and we are still in it.
+				// No need to do anything but loop back around and process the next column.
+				continue
 			}
+
+			// Current column is all spaces. Are we already skipping?
+			if !skip {
+				// No, this is the end of a letter.
+				// Start skipping whitespace.
+				skip = true
+				// And add everything from last to j in all rows to the current glyph.
+				ltr := &letter{}
+				w := 0
+				// Again, operate on the entire height and width of the row.
+				for k := 0; k < f.size; k++ {
+					ln := lns[k]
+					var lne string
+					// Be sure to handle short lines in the mix of things.
+					if len(ln) > j {
+						lne = string(ln[last:j])
+					} else if last > len(ln) {
+						// The last column was already past the end of this line.
+						lne = ""
+					} else {
+						// Add everything since last time, even though it's a bit short.
+						lne = string(ln[last:])
+					}
+					ltr.lines = append(ltr.lines, lne)
+					if len(lne) > w {
+						w = len(lne)
+					}
+				}
+				// Done encoding, set the width and size.
+				ltr.width = w
+				ltr.height = f.size
+				// Add the letter to our encoding.
+				f.encoded[currChar] = ltr
+				// And move on.
+				p++
+				if p >= len(ref) {
+					// We've reached the end of the current row in rawLines.
+					break
+				}
+				// Otherwise, set the next iteration up
+				currChar = ref[p]
+				last = j
+				// And carry on with the next character in the current row.
+				continue
+			}
+			// We were already skipping and we found another blank column.
+			// Keep on skipping.
+			last = j
 		}
 	}
 
 	// Don't forget the space!
-	f.encoded[' '] = &letter{width: 5, height: height, lines: make([]string, height)}
+	f.encoded[' '] = &letter{width: 5, height: f.size, lines: make([]string, f.size)}
 	return nil
 }
