@@ -35,6 +35,8 @@ import (
 
 	"github.com/motki/cli/app"
 
+	"github.com/motki/core/app/profile"
+
 	"github.com/motki/core/log"
 	"github.com/motki/core/proto"
 	"github.com/motki/core/proto/client"
@@ -62,6 +64,10 @@ func main() {
 		os.Exit(0)
 	}
 
+	// Start the profiler, if enabled via command-line flags.
+	pr := profile.New()
+
+	// Trimmed down motki app configuration.
 	appConf := &app.Config{
 		Backend: proto.Config{
 			Kind: proto.BackendRemoteGRPC,
@@ -80,6 +86,8 @@ func main() {
 	appConf.Logging.OutputType = log.OutputStderr
 
 	conf := app.NewCLIConfig(appConf)
+
+	// Add credentials to the configuration, if they were specified.
 	if *credentials != "" {
 		parts := strings.Split(*credentials, ":")
 		if len(parts) != 2 {
@@ -93,6 +101,7 @@ func main() {
 		}
 	}
 
+	// Initialize the CLI environment.
 	env, err := app.NewCLIEnv(conf, *historyPath)
 	if err != nil {
 		if err == client.ErrBadCredentials {
@@ -101,7 +110,20 @@ func main() {
 		fatalf("motki: error initializing application environment: %s", err.Error())
 	}
 
+	// Start interactive command loop in another goroutine.
 	go env.LoopCLI()
 
-	env.BlockUntilSignal(nil)
+	// Block the main loop until SIGINT, SIGHUP, or SIGKILL is received,
+	// or until CTRL+C is pressed from the command-line.
+	err = env.BlockUntilSignal(nil)
+
+	// Stop the profiler, if enabled.
+	if pr != nil {
+		pr.Stop()
+	}
+
+	if err != nil {
+		env.Logger.Warnf("motki: failed to shutdown cleanly: %s", err.Error())
+		os.Exit(1)
+	}
 }

@@ -60,9 +60,9 @@ func (p *Prompter) PromptInt(prompt string, defVal *int, filters ...func(int) (i
 	for {
 	begin:
 		if defVal != nil {
-			valStr, err = p.cli.PromptWithSuggestion(prompt, strconv.Itoa(*defVal), -1)
+			valStr, err = p.PromptWithSuggestion(prompt, strconv.Itoa(*defVal), -1)
 		} else {
-			valStr, err = p.cli.Prompt(prompt)
+			valStr, err = p.Prompt(prompt)
 		}
 		if err != nil {
 			if err == liner.ErrPromptAborted {
@@ -108,9 +108,9 @@ func (p *Prompter) PromptString(prompt string, defVal *string, filters ...func(s
 	for {
 	begin:
 		if defVal != nil {
-			val, err = p.cli.PromptWithSuggestion(prompt, *defVal, -1)
+			val, err = p.PromptWithSuggestion(prompt, *defVal, -1)
 		} else {
-			val, err = p.cli.Prompt(prompt)
+			val, err = p.Prompt(prompt)
 		}
 		if err != nil {
 			if err == liner.ErrPromptAborted {
@@ -156,9 +156,9 @@ func (p *Prompter) PromptStringWithArgs(prompt string, defVal *string, filters .
 	for {
 	begin:
 		if defVal != nil {
-			val, err = p.cli.PromptWithSuggestion(prompt, *defVal, -1)
+			val, err = p.PromptWithSuggestion(prompt, *defVal, -1)
 		} else {
-			val, err = p.cli.Prompt(prompt)
+			val, err = p.Prompt(prompt)
 		}
 		if err != nil {
 			if err == liner.ErrPromptAborted {
@@ -207,9 +207,9 @@ func (p *Prompter) PromptDecimal(prompt string, defVal *decimal.Decimal, filters
 	for {
 	begin:
 		if defVal != nil {
-			valStr, err = p.cli.PromptWithSuggestion(prompt, defStr, -1)
+			valStr, err = p.PromptWithSuggestion(prompt, defStr, -1)
 		} else {
-			valStr, err = p.cli.Prompt(prompt)
+			valStr, err = p.Prompt(prompt)
 		}
 		if err != nil {
 			if err == liner.ErrPromptAborted {
@@ -294,7 +294,7 @@ func (p *Prompter) PromptRegion(prompt string, initialInput string) (*evedb.Regi
 		break
 
 	prompt:
-		valStr, err = p.cli.Prompt(prompt)
+		valStr, err = p.Prompt(prompt)
 		if err != nil {
 			if err == liner.ErrPromptAborted {
 				return nil, false
@@ -358,7 +358,7 @@ func (p *Prompter) PromptItemTypeDetail(prompt string, initialInput string) (*ev
 		break
 
 	prompt:
-		valStr, err = p.cli.Prompt(prompt)
+		valStr, err = p.Prompt(prompt)
 		if err != nil {
 			if err == liner.ErrPromptAborted {
 				return nil, false

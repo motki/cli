@@ -211,7 +211,7 @@ func (c ProductCommand) newProductEditor(p *model.Product) *editor.Editor {
 			[]string{},
 			func(_ []string) error {
 				prodName := c.getProductName(p)
-				val, ok := c.env.PromptDecimal(fmt.Sprintf("Enter new sell price for %s (current: %s)", prodName, p.MarketPrice), nil)
+				val, ok := c.env.PromptDecimal(fmt.Sprintf("Enter sell price for final product (current: %s)", p.MarketPrice), nil)
 				if !ok {
 					return nil
 				}

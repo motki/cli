@@ -72,8 +72,10 @@ type Server struct {
 
 // NewServer initializes a new CLI server.
 func NewServer(logger log.Logger, a Authenticator) *Server {
+	s := liner.NewLiner()
+	s.SetCtrlCAborts(true)
 	return &Server{
-		State:  liner.NewLiner(),
+		State:  s,
 		logger: logger,
 		auth:   a,
 
@@ -86,7 +88,7 @@ func NewServer(logger log.Logger, a Authenticator) *Server {
 
 func (srv *Server) SetCommands(commands ...Command) {
 	srv.commands = append(commands, quitCommand{srv}, helpCommand{srv})
-	cmdNames := []string{}
+	var cmdNames []string
 	for _, cmd := range srv.commands {
 		for _, prefix := range cmd.Prefixes() {
 			cmdNames = append(cmdNames, prefix)
@@ -94,7 +96,7 @@ func (srv *Server) SetCommands(commands ...Command) {
 		}
 	}
 	srv.SetCompleter(func(line string) []string {
-		res := []string{}
+		var res []string
 		for _, v := range cmdNames {
 			if strings.HasPrefix(v, line) {
 				res = append(res, v)

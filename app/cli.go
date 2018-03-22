@@ -102,7 +102,6 @@ func NewCLIEnv(conf CLIConfig, historyPath string) (*CLIEnv, error) {
 		command.NewInventoryCommand(appEnv.Client, prompter, appEnv.Logger),
 		command.NewInventoryV2Command(appEnv.Client, prompter, appEnv.Logger),
 		command.NewBannerCommand(prompter))
-	srv.SetCtrlCAborts(true)
 	env := &CLIEnv{
 		ClientEnv: appEnv,
 		CLI:       srv,
@@ -137,7 +136,7 @@ func (env *CLIEnv) LoopCLI() {
 // This function attempts to perform a graceful shutdown, shutting
 // down all related services and doing whatever clean up processes are
 // necessary.
-func (env *CLIEnv) BlockUntilSignal(s chan os.Signal) {
+func (env *CLIEnv) BlockUntilSignal(s chan os.Signal) error {
 	if s == nil {
 		s = env.signals
 	}
@@ -156,5 +155,5 @@ func (env *CLIEnv) BlockUntilSignal(s chan os.Signal) {
 			}
 			env.CLI.Close()
 		}}
-	env.BlockUntilSignalWith(s, abortFuncs...)
+	return env.BlockUntilSignalWith(s, abortFuncs...)
 }
