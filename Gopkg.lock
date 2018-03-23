@@ -10,9 +10,8 @@
 [[projects]]
   branch = "master"
   name = "github.com/antihax/goesi"
-  packages = [".","esi","eveapi"]
-  revision = "c3527ef7a9b733570dcc6c845d58936bc90ab933"
-  source = "https://github.com/veonik/goesi"
+  packages = [".","esi"]
+  revision = "85d58865d8dfdf8d2dd00913b6e4e5fe742ea1a4"
 
 [[projects]]
   name = "github.com/fatih/color"
@@ -43,12 +42,6 @@
   name = "github.com/gregjones/httpcache"
   packages = ["."]
   revision = "9cad4c3443a7200dd6400aef47183728de563a38"
-
-[[projects]]
-  name = "github.com/guregu/null"
-  packages = ["."]
-  revision = "e81d6d8d57747b34d7c5fe0d20ebf57692f04ea9"
-  version = "v3.3.0"
 
 [[projects]]
   name = "github.com/jackc/pgx"
@@ -90,7 +83,7 @@
   branch = "master"
   name = "github.com/motki/core"
   packages = ["app","app/profile","cache","db","eveapi","evedb","evemarketer","log","model","proto","proto/client","proto/server","worker"]
-  revision = "8a052f7ea3b72c65dad79f7d5940d636663ae621"
+  revision = "3aabdb0f4bb8e0c7216bdadd6e43e422ea6bc131"
 
 [[projects]]
   branch = "master"
@@ -159,12 +152,6 @@
   version = "v0.3.0"
 
 [[projects]]
-  branch = "master"
-  name = "golang.org/x/time"
-  packages = ["rate"]
-  revision = "26559e0f760e39c24d730d3224364aef164ee23f"
-
-[[projects]]
   name = "google.golang.org/appengine"
   packages = ["internal","internal/base","internal/datastore","internal/log","internal/remote_api","internal/urlfetch","urlfetch"]
   revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
@@ -185,6 +172,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "067f723fe584cf09d7a70f9d843648d2e741951e0c18590839e0e0219ca5864e"
+  inputs-digest = "aeb66f3e7a357148afd0abdf7f85128cd5115844143062cbc7b1656796cebdf6"
   solver-name = "gps-cdcl"
   solver-version = 1
