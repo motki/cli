@@ -31,6 +31,9 @@ Usage of motki:
     	INSECURE: Skip verification of server SSL cert.
   -log-level string
     	Log level. Possible values: debug, info, warn, error. (default "warn")
+  -profile string
+    	Enable profiling. Writes profiler data to current directory.
+    	Possible values: cpu, mem, mutex, block, trace.
   -server string
     	Backend server host and port. (default "motki.org:18443")
   -version
@@ -76,7 +79,12 @@ Prerequisites:
 2. Use the included Makefile to build the application.
    ```bash
    cd $GOPATH/src/github.com/motki/cli
-   make build
+   make clean build
+   ```
+   
+3. Run the newly built executable.
+   ```bash
+   ./build/motki
    ```
 
 #### Cross-compiling the application
@@ -103,9 +111,30 @@ Download and install `motki` and its dependencies using `go get`.
 go get -u github.com/motki/cli/...
 ```
 
-After `go get` exits successfully, you should have a new command in your `$GOBIN` called `motki`.
+After `go get` exits successfully, you should have a new command in your `$GOBIN` called `motki`. Along with the binary, the application source code will be located within your `$GOPATH`.
+
+Build and run `motki` by switching to the source directory under your `$GOPATH` and using `go build`.
 
 ```bash
 cd $GOPATH/src/github.com/motki/cli
-go build ./cmd/motki/*.go
+go build -o ./motki ./cmd/motki/*.go
+./motki -h
 ```
+
+## Profiling the program
+
+Profile the application by passing the `-profile` flag. For example:
+
+```bash
+./build/motki -profile cpu
+```
+
+The profiler will write to the current directory in a file named after the profile type. The example above results in `cpu.pprof`.
+
+Once you have exited the process, use `go tool pprof` or `go tool trace` to review the output.
+
+```bash
+go tool pprof ./build/motki ./cpu.pprof
+```
+
+For more information about profiling Go applications, check out the [blog post](https://blog.golang.org/profiling-go-programs) or [documentation](https://golang.org/pkg/runtime/pprof/).
